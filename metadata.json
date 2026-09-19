@@ -1,0 +1,6 @@
+{
+  "name": "NoorUp",
+  "description": "A modern, lightweight, and clutter-free Islamic lifestyle app designed for Bengali-speaking users.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

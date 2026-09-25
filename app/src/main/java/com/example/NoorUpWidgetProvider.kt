@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.widget.RemoteViews
 import com.example.ui.noorup.CalculationMethod
+import com.example.ui.noorup.HijriDateCalculator
 import com.example.ui.noorup.JuristicMethod
 import com.example.ui.noorup.SolarPrayerEngine
 import java.util.Calendar
@@ -263,10 +264,20 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 }
             }
 
-            // Set Header Views
+            // Set Header Views: Brand, Dynamic Hijri & Gregorian Dates (Top-Center), Location
             views.setTextViewText(R.id.widget_brand_name, if (isEnglish) "NoorUp" else "নূরআপ")
-            views.setTextViewText(R.id.widget_title, "$dateStr • $statusText")
-            views.setTextColor(R.id.widget_title, headerTitleColor)
+
+            // Calculate dynamic Hijri date & Gregorian date
+            val dayOffset = prefs.getInt("hijri_day_offset", 0)
+            val hijriResult = HijriDateCalculator.calculateHijriDate(cal, dayOffset)
+            val gregorianResult = HijriDateCalculator.calculateGregorianDate(cal)
+
+            val hijriDisplay = if (isEnglish) hijriResult.fullDateEn else hijriResult.fullDateBn
+            val gregorianDisplay = if (isEnglish) gregorianResult.fullDateEn else gregorianResult.fullDateBn
+
+            views.setTextViewText(R.id.widget_hijri_date, hijriDisplay)
+            views.setTextViewText(R.id.widget_gregorian_date, gregorianDisplay)
+
             views.setTextViewText(R.id.widget_city, cityName)
 
             // Determine active prayer details for the Hero Card

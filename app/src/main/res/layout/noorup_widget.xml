@@ -51,21 +51,43 @@
                 android:maxLines="1" />
         </LinearLayout>
 
-        <!-- Dynamic Date / Status -->
-        <TextView
-            android:id="@+id/widget_title"
+        <!-- Dynamic Date Header (Top-Center: Hijri & Gregorian Dates) -->
+        <LinearLayout
+            android:id="@+id/widget_date_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
             android:layout_marginEnd="6dp"
-            android:gravity="center"
-            android:text="১০ সেপ্টে • যোহর বাকি"
-            android:textColor="#34D399"
-            android:textSize="10.5sp"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Hijri Date (e.g. "৩ রবিউল আউয়াল ১৪৪৮") -->
+            <TextView
+                android:id="@+id/widget_hijri_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="৩ রবিউল আউয়াল ১৪৪৮"
+                android:textColor="#34D399"
+                android:textSize="10.5sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Gregorian Date (e.g. "২৫ সেপ্টেম্বর ২০২৬") -->
+            <TextView
+                android:id="@+id/widget_gregorian_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:gravity="center"
+                android:text="২৫ সেপ্টেম্বর ২০২৬"
+                android:textColor="#D1D5DB"
+                android:textSize="9.5sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
 
         <!-- Location Badge -->
         <LinearLayout

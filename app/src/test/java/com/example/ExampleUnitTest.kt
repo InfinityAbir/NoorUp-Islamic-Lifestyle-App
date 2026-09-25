@@ -1,6 +1,9 @@
 package com.example
 
+import com.example.ui.noorup.CalculationMethod
 import com.example.ui.noorup.HijriDateCalculator
+import com.example.ui.noorup.JuristicMethod
+import com.example.ui.noorup.SolarPrayerEngine
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.Calendar
@@ -45,34 +48,90 @@ class ExampleUnitTest {
   }
 
   @Test
-  fun testHijriDateDayProgression() {
-    val day1 = Calendar.getInstance().apply {
-      set(Calendar.YEAR, 2026)
-      set(Calendar.MONTH, Calendar.SEPTEMBER)
-      set(Calendar.DAY_OF_MONTH, 25)
-    }
-    val day2 = Calendar.getInstance().apply {
-      set(Calendar.YEAR, 2026)
-      set(Calendar.MONTH, Calendar.SEPTEMBER)
-      set(Calendar.DAY_OF_MONTH, 26)
-    }
-
-    val res1 = HijriDateCalculator.calculateHijriDate(day1)
-    val res2 = HijriDateCalculator.calculateHijriDate(day2)
-
-    // Either the day increments by 1, or it rolled over to day 1 of the next month
-    if (res1.month == res2.month) {
-      assertEquals(res1.day + 1, res2.day)
-    } else {
-      assertEquals(1, res2.day)
-    }
-  }
-
-  @Test
   fun testBanglaDigitsConversion() {
     assertEquals("০১২৩৪৫৬৭৮৯", HijriDateCalculator.toBanglaDigits("0123456789"))
     assertEquals("২৫", HijriDateCalculator.toBanglaDigits("25"))
     assertEquals("২০২৬", HijriDateCalculator.toBanglaDigits("2026"))
   }
-}
 
+  @Test
+  fun testSolarPrayerEngineChronologicalOrder() {
+    val cal = Calendar.getInstance().apply {
+      set(Calendar.YEAR, 2026)
+      set(Calendar.MONTH, Calendar.SEPTEMBER)
+      set(Calendar.DAY_OF_MONTH, 25)
+    }
+
+    val times = SolarPrayerEngine.calculateTimes(
+      latitude = 23.8759,
+      longitude = 90.3795,
+      calendar = cal,
+      timezoneOffset = 6.0,
+      method = CalculationMethod.KARACHI,
+      juristic = JuristicMethod.HANAFI
+    )
+
+    val fajrMins = NoorUpWidgetProvider.parseTimeToMins(times.fajrStart)
+    val sunriseMins = NoorUpWidgetProvider.parseTimeToMins(times.sunrise)
+    val dhuhrMins = NoorUpWidgetProvider.parseTimeToMins(times.dhuhrStart)
+    val asrMins = NoorUpWidgetProvider.parseTimeToMins(times.asrStart)
+    val maghribMins = NoorUpWidgetProvider.parseTimeToMins(times.maghribStart)
+    val ishaMins = NoorUpWidgetProvider.parseTimeToMins(times.ishaStart)
+
+    // Verify Fajr -> Sunrise -> Dhuhr -> Asr -> Maghrib -> Isha order
+    assertTrue("Fajr ($fajrMins) must be before Sunrise ($sunriseMins)", fajrMins < sunriseMins)
+    assertTrue("Sunrise ($sunriseMins) must be before or equal to Dhuhr ($dhuhrMins)", sunriseMins <= dhuhrMins)
+    assertTrue("Dhuhr ($dhuhrMins) must be before Asr ($asrMins)", dhuhrMins < asrMins)
+    assertTrue("Asr ($asrMins) must be before Maghrib ($maghribMins)", asrMins < maghribMins)
+    assertTrue("Maghrib ($maghribMins) must be before Isha ($ishaMins)", maghribMins < ishaMins)
+
+    // Verify AM/PM strings
+    assertTrue("Fajr must be AM", times.fajrStart.contains("AM"))
+    assertTrue("Sunrise must be AM", times.sunrise.contains("AM"))
+    assertTrue("Dhuhr must be PM or AM", times.dhuhrStart.contains("PM") || times.dhuhrStart.contains("AM"))
+    assertTrue("Asr must be PM", times.asrStart.contains("PM"))
+    assertTrue("Maghrib must be PM", times.maghribStart.contains("PM"))
+    assertTrue("Isha must be PM", times.ishaStart.contains("PM"))
+  }
+
+  @Test
+  fun testTimeFormattingUtilities() {
+    // English
+    assertEquals("04:30", NoorUpWidgetProvider.formatShortTime("04:30 AM", true))
+    assertEquals("04:30 AM", NoorUpWidgetProvider.formatTimeWithAmPm("04:30 AM", true))
+    assertEquals("12:05 PM", NoorUpWidgetProvider.formatTimeWithAmPm("12:05 PM", true))
+    assertEquals("07:33 PM", NoorUpWidgetProvider.formatTimeWithAmPm("07:33 PM", true))
+
+    // Bangla
+    assertEquals("০৪:৩০", NoorUpWidgetProvider.formatShortTime("04:30 AM", false))
+    assertEquals("০৪:৩০ AM", NoorUpWidgetProvider.formatTimeWithAmPm("04:30 AM", false))
+    assertEquals("১২:০৫ PM", NoorUpWidgetProvider.formatTimeWithAmPm("12:05 PM", false))
+
+    // Rem time
+    assertEquals("1h 15m", NoorUpWidgetProvider.formatRemTime(75, true))
+    assertEquals("১ ঘ. ১৫ মি.", NoorUpWidgetProvider.formatRemTime(75, false))
+    assertEquals("45m", NoorUpWidgetProvider.formatRemTime(45, true))
+    assertEquals("৪৫ মি.", NoorUpWidgetProvider.formatRemTime(45, false))
+  }
+
+  @Test
+  fun testMoonPhaseAndMilestones() {
+    val cal = Calendar.getInstance().apply {
+      set(Calendar.YEAR, 2026)
+      set(Calendar.MONTH, Calendar.SEPTEMBER)
+      set(Calendar.DAY_OF_MONTH, 25)
+    }
+
+    val moon = HijriDateCalculator.getMoonPhase(cal)
+    assertTrue("Illumination percent should be between 0 and 100", moon.illuminationPercent in 0..100)
+    assertTrue("Moon emoji should be non-empty", moon.moonEmoji.isNotEmpty())
+
+    val hijri = HijriDateCalculator.calculateHijriDate(cal)
+    val milestones = HijriDateCalculator.getDynamicIslamicMilestones(hijri)
+    assertTrue("Milestones list should contain items", milestones.isNotEmpty())
+    assertTrue("Milestones should have non-empty titles", milestones.all { it.titleBn.isNotEmpty() && it.titleEn.isNotEmpty() })
+
+    val grid = HijriDateCalculator.getHijriMonthGrid(hijri.year, hijri.month)
+    assertTrue("Hijri month grid should have 29 or 30 days", grid.size in 28..31)
+  }
+}

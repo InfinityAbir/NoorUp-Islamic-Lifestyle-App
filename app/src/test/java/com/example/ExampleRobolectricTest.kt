@@ -1,5 +1,6 @@
 package com.example
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
@@ -74,5 +75,29 @@ class ExampleRobolectricTest {
     val updatedQada = vm.qadaCounts.value
     assertEquals(3, updatedQada["Fajr"])
     assertEquals(3, updatedQada.values.sum())
+  }
+
+  @Test
+  fun `test widget update execution across different simulated conditions`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val appWidgetManager = AppWidgetManager.getInstance(context)
+
+    // Test English mode
+    val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+    prefs.edit().putBoolean("is_english", true).apply()
+    NoorUpWidgetProvider.updateWidget(context, appWidgetManager, 101)
+
+    // Test Bangla mode
+    prefs.edit().putBoolean("is_english", false).apply()
+    NoorUpWidgetProvider.updateWidget(context, appWidgetManager, 101)
+
+    // Test with custom coordinates
+    prefs.edit()
+      .putFloat("selected_city_lat", 21.4225f)
+      .putFloat("selected_city_lng", 39.8262f)
+      .putString("selected_city_name_en", "Makkah")
+      .putString("selected_city_name_bn", "মক্কা")
+      .apply()
+    NoorUpWidgetProvider.updateWidget(context, appWidgetManager, 101)
   }
 }

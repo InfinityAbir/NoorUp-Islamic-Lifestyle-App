@@ -1307,6 +1307,8 @@ fun DateSolarCalibrationCard(viewModel: NoorUpViewModel) {
     val selectedDate by viewModel.selectedCalendarDate.collectAsState()
     val calculationMethod by viewModel.calculationMethod.collectAsState()
     val juristicMethod by viewModel.juristicMethod.collectAsState()
+    val hijriDate by viewModel.currentHijriDate.collectAsState()
+    val moonPhase by viewModel.currentMoonPhase.collectAsState()
 
     var showMethodDialog by remember { mutableStateOf(false) }
 
@@ -1327,10 +1329,16 @@ fun DateSolarCalibrationCard(viewModel: NoorUpViewModel) {
         .replace('0','০').replace('1','১').replace('2','২').replace('3','৩').replace('4','৪')
         .replace('5','৫').replace('6','৬').replace('7','৭').replace('8','৮').replace('9','৯')
 
-    val formattedDateStr = if (isEnglish) {
+    val formattedGregorianDateStr = if (isEnglish) {
         SimpleDateFormat("d MMMM yyyy, EEEE", Locale.ENGLISH).format(selectedDate.time)
     } else {
         "$dayOfMonthBn $monthBn $yearBn • $dayOfWeekBn"
+    }
+
+    val formattedHijriDateStr = if (isEnglish) {
+        "${moonPhase.moonEmoji} ${hijriDate.fullDateEn}"
+    } else {
+        "${moonPhase.moonEmoji} ${hijriDate.fullDateBn}"
     }
 
     Box(
@@ -1339,7 +1347,7 @@ fun DateSolarCalibrationCard(viewModel: NoorUpViewModel) {
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1359,7 +1367,7 @@ fun DateSolarCalibrationCard(viewModel: NoorUpViewModel) {
                 )
             }
 
-            // Center Date Display & Picker
+            // Center Date Display & Picker (Hijri + Gregorian)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -1376,29 +1384,39 @@ fun DateSolarCalibrationCard(viewModel: NoorUpViewModel) {
                             cal.get(Calendar.DAY_OF_MONTH)
                         ).show()
                     }
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 2.dp)
             ) {
+                // Prominent Hijri Date
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        formattedDateStr,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
+                        formattedHijriDateStr,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         Icons.Default.CalendarMonth,
                         contentDescription = "Pick Date",
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                 }
+
+                // Gregorian Equivalent Subtitle
+                Text(
+                    formattedGregorianDateStr,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
                 Text(
                     if (isToday) {
-                        if (isEnglish) "Today's Live Astronomical Position" else "আজকের লাইভ জ্যোতির্বৈজ্ঞানিক সময়"
+                        if (isEnglish) "Today's Live Solar Position" else "আজকের লাইভ সৌর ও হিজরি সময়"
                     } else {
                         if (isEnglish) "Calibrated for selected date (Tap to reset)" else "নির্বাচিত তারিখের সময় (আজকে ফিরতে চাপুন)"
                     },
@@ -1602,8 +1620,9 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
             TopControlsHeader(viewModel)
         }
 
-        // 2. Greeting Header with Clock
+        // 2. Greeting Header with Clock and Live Hijri Date Badge
         item {
+            val liveHijriDate by viewModel.currentHijriDate.collectAsState()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1623,6 +1642,12 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (isEnglish) "🌙 ${liveHijriDate.fullDateEn}" else "🌙 ${liveHijriDate.fullDateBn}",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
 
@@ -3831,31 +3856,9 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
                 QiblaCompassView(viewModel = viewModel)
             }
         } else if (toolTab == 5) {
-            // Hijri Calendar & Events
-            items(NoorUpRepository.hijriEvents) { event ->
-                GlassCard {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(if (isEnglish) event.titleEnglish else event.titleBangla, color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text("Hijri: ${event.hijriDate}", color = MaterialTheme.colorScheme.secondary, fontSize = 13.sp)
-                            Text("Gregorian: ${event.gregorianDate}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
-                            Text(if (isEnglish) event.descriptionEnglish else event.descriptionBangla, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("${if (isEnglish) event.daysLeft.toString() else event.daysLeft.toBanglaDigits()} ${if (isEnglish) "days left" else "দিন বাকি"}", color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
+            // Comprehensive Interactive Hijri Calendar & Milestones Hub
+            item {
+                HijriCalendarHubView(viewModel = viewModel)
             }
         } else if (toolTab == 6) {
             // Comprehensive Zakat & Sadaqah Calculator

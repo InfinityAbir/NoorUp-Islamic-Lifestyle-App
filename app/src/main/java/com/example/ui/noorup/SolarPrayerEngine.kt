@@ -107,7 +107,7 @@ object SolarPrayerEngine {
         latitude: Double,
         longitude: Double,
         calendar: Calendar,
-        timezoneOffset: Double = 6.0,
+        timezoneOffset: Double = (calendar.timeZone.getOffset(calendar.timeInMillis) / 3600000.0),
         method: CalculationMethod = CalculationMethod.KARACHI,
         juristic: JuristicMethod = JuristicMethod.HANAFI
     ): CalculatedPrayerTimes {

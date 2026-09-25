@@ -116,20 +116,113 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     private val _selectedCalendarDate = MutableStateFlow<Calendar>(Calendar.getInstance())
     val selectedCalendarDate: StateFlow<Calendar> = _selectedCalendarDate.asStateFlow()
 
-    private val _calculationMethod = MutableStateFlow(CalculationMethod.KARACHI)
+    // --- Hijri & Gregorian Astronomical Calendar Engine ---
+    private val _hijriDayOffset = MutableStateFlow(prefs.getInt("hijri_day_offset", 0))
+    val hijriDayOffset: StateFlow<Int> = _hijriDayOffset.asStateFlow()
+
+    fun setHijriDayOffset(offset: Int) {
+        _hijriDayOffset.value = offset
+        prefs.edit().putInt("hijri_day_offset", offset).apply()
+        recalculateSolarTimes()
+    }
+
+    val currentHijriDate: StateFlow<HijriDateResult> = combine(
+        _selectedCalendarDate,
+        _hijriDayOffset
+    ) { date, offset ->
+        HijriDateCalculator.calculateHijriDate(date, offset)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0))
+    )
+
+    val currentGregorianDate: StateFlow<GregorianDateResult> = _selectedCalendarDate.map { date ->
+        HijriDateCalculator.calculateGregorianDate(date)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.calculateGregorianDate(Calendar.getInstance())
+    )
+
+    val currentMoonPhase: StateFlow<MoonPhaseInfo> = combine(
+        _selectedCalendarDate,
+        _hijriDayOffset
+    ) { date, offset ->
+        HijriDateCalculator.getMoonPhase(date, offset)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.getMoonPhase(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0))
+    )
+
+    // Calendar browsing state for Hijri Month Grid
+    private val _browsingHijriMonth = MutableStateFlow(
+        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0)).month
+    )
+    val browsingHijriMonth: StateFlow<Int> = _browsingHijriMonth.asStateFlow()
+
+    private val _browsingHijriYear = MutableStateFlow(
+        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0)).year
+    )
+    val browsingHijriYear: StateFlow<Int> = _browsingHijriYear.asStateFlow()
+
+    val hijriMonthGrid: StateFlow<List<HijriMonthDay>> = combine(
+        _browsingHijriYear,
+        _browsingHijriMonth,
+        _hijriDayOffset
+    ) { year, month, offset ->
+        HijriDateCalculator.getHijriMonthGrid(year, month, offset)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val dynamicIslamicMilestones: StateFlow<List<DynamicIslamicMilestone>> = currentHijriDate.map { hijri ->
+        HijriDateCalculator.getDynamicIslamicMilestones(hijri)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun nextBrowsingHijriMonth() {
+        if (_browsingHijriMonth.value == 12) {
+            _browsingHijriMonth.value = 1
+            _browsingHijriYear.value += 1
+        } else {
+            _browsingHijriMonth.value += 1
+        }
+    }
+
+    fun prevBrowsingHijriMonth() {
+        if (_browsingHijriMonth.value == 1) {
+            _browsingHijriMonth.value = 12
+            _browsingHijriYear.value -= 1
+        } else {
+            _browsingHijriMonth.value -= 1
+        }
+    }
+
+    fun resetBrowsingHijriToCurrent() {
+        val cur = currentHijriDate.value
+        _browsingHijriMonth.value = cur.month
+        _browsingHijriYear.value = cur.year
+    }
+
+    private val initialMethod = CalculationMethod.entries.find { it.name == prefs.getString("calculation_method", CalculationMethod.KARACHI.name) } ?: CalculationMethod.KARACHI
+    private val _calculationMethod = MutableStateFlow(initialMethod)
     val calculationMethod: StateFlow<CalculationMethod> = _calculationMethod.asStateFlow()
 
-    private val _juristicMethod = MutableStateFlow(JuristicMethod.HANAFI)
+    private val initialJuristic = JuristicMethod.entries.find { it.name == prefs.getString("juristic_method", JuristicMethod.HANAFI.name) } ?: JuristicMethod.HANAFI
+    private val _juristicMethod = MutableStateFlow(initialJuristic)
     val juristicMethod: StateFlow<JuristicMethod> = _juristicMethod.asStateFlow()
+
+    private val initialLat = prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
+    private val initialLng = prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
+    private val initialTzOffset = Calendar.getInstance().let { it.timeZone.getOffset(it.timeInMillis) / 3600000.0 }
 
     private val _calculatedPrayerTimes = MutableStateFlow(
         SolarPrayerEngine.calculateTimes(
-            latitude = 23.8759,
-            longitude = 90.3795,
+            latitude = initialLat,
+            longitude = initialLng,
             calendar = Calendar.getInstance(),
-            timezoneOffset = 6.0,
-            method = CalculationMethod.KARACHI,
-            juristic = JuristicMethod.HANAFI
+            timezoneOffset = initialTzOffset,
+            method = initialMethod,
+            juristic = initialJuristic
         )
     )
     val calculatedPrayerTimes: StateFlow<CalculatedPrayerTimes> = _calculatedPrayerTimes.asStateFlow()
@@ -137,26 +230,26 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     // --- Location / GPS State ---
     private val _selectedCityLocation = MutableStateFlow(
         CityLocation(
-            nameBn = "উত্তরা, ঢাকা",
-            nameEn = "Uttara, Dhaka",
-            latitude = 23.8759,
-            longitude = 90.3795,
-            fajrStart = "04:48 AM",
-            fajrEnd = "05:59 AM",
-            makruhSunriseStart = "05:59 AM",
-            makruhSunriseEnd = "06:15 AM",
-            dhuhrStart = "12:05 PM",
-            dhuhrEnd = "04:22 PM",
-            makruhZawalStart = "11:50 AM",
-            makruhZawalEnd = "12:05 PM",
-            asrStart = "04:22 PM",
-            asrEnd = "06:18 PM",
-            makruhSunsetStart = "06:00 PM",
-            makruhSunsetEnd = "06:18 PM",
-            maghribStart = "06:18 PM",
-            maghribEnd = "07:33 PM",
-            ishaStart = "07:33 PM",
-            ishaEnd = "04:48 AM"
+            nameBn = prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা",
+            nameEn = prefs.getString("selected_city_name_en", "Uttara, Dhaka") ?: "Uttara, Dhaka",
+            latitude = initialLat,
+            longitude = initialLng,
+            fajrStart = _calculatedPrayerTimes.value.fajrStart,
+            fajrEnd = _calculatedPrayerTimes.value.fajrEnd,
+            makruhSunriseStart = _calculatedPrayerTimes.value.makruhSunriseStart,
+            makruhSunriseEnd = _calculatedPrayerTimes.value.makruhSunriseEnd,
+            dhuhrStart = _calculatedPrayerTimes.value.dhuhrStart,
+            dhuhrEnd = _calculatedPrayerTimes.value.dhuhrEnd,
+            makruhZawalStart = _calculatedPrayerTimes.value.makruhZawalStart,
+            makruhZawalEnd = _calculatedPrayerTimes.value.makruhZawalEnd,
+            asrStart = _calculatedPrayerTimes.value.asrStart,
+            asrEnd = _calculatedPrayerTimes.value.asrEnd,
+            makruhSunsetStart = _calculatedPrayerTimes.value.makruhSunsetStart,
+            makruhSunsetEnd = _calculatedPrayerTimes.value.makruhSunsetEnd,
+            maghribStart = _calculatedPrayerTimes.value.maghribStart,
+            maghribEnd = _calculatedPrayerTimes.value.maghribEnd,
+            ishaStart = _calculatedPrayerTimes.value.ishaStart,
+            ishaEnd = _calculatedPrayerTimes.value.ishaEnd
         )
     )
     val selectedCityLocation: StateFlow<CityLocation> = _selectedCityLocation.asStateFlow()
@@ -168,12 +261,13 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         val date = _selectedCalendarDate.value
         val method = _calculationMethod.value
         val juristic = _juristicMethod.value
+        val tzOffset = date.timeZone.getOffset(date.timeInMillis) / 3600000.0
 
         val calc = SolarPrayerEngine.calculateTimes(
             latitude = loc.latitude,
             longitude = loc.longitude,
             calendar = date,
-            timezoneOffset = 6.0,
+            timezoneOffset = tzOffset,
             method = method,
             juristic = juristic
         )
@@ -252,11 +346,13 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setCalculationMethod(method: CalculationMethod) {
         _calculationMethod.value = method
+        prefs.edit().putString("calculation_method", method.name).apply()
         recalculateSolarTimes()
     }
 
     fun setJuristicMethod(juristic: JuristicMethod) {
         _juristicMethod.value = juristic
+        prefs.edit().putString("juristic_method", juristic.name).apply()
         recalculateSolarTimes()
     }
 

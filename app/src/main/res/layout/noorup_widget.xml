@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:orientation="horizontal">
 
         <!-- Left Active Hero Card -->
@@ -381,5 +381,57 @@
                     android:textSize="9.5sp" />
             </LinearLayout>
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Prohibited Times Bar (3 Makruh Times: Sunrise, Zawal, Sunset) -->
+    <LinearLayout
+        android:id="@+id/widget_prohibited_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/widget_timeline_card_bg"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="4dp">
+
+        <TextView
+            android:id="@+id/widget_prohibited_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚠️ ৩টি নিষিদ্ধ সময়:"
+            android:textColor="#FBBF24"
+            android:textSize="9.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_prohibited_sunrise"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="সূর্যোদয়: ০৫:৫৮–০৬:১৪"
+            android:textColor="#E5E7EB"
+            android:textSize="8.5sp" />
+
+        <TextView
+            android:id="@+id/widget_prohibited_zawal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="দ্বিপ্রহর: ১১:৫০–১২:০৪"
+            android:textColor="#E5E7EB"
+            android:textSize="8.5sp" />
+
+        <TextView
+            android:id="@+id/widget_prohibited_sunset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="সূর্যাস্ত: ০৬:০০–০৬:১৭"
+            android:textColor="#E5E7EB"
+            android:textSize="8.5sp" />
     </LinearLayout>
 </LinearLayout>

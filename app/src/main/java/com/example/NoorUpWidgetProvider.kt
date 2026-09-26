@@ -420,6 +420,35 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 views.setTextColor(R.id.widget_isha_start, if (isIshaActive) colActive else colInactiveStart)
                 views.setTextColor(R.id.widget_isha_end, if (isIshaActive) colActiveSub else colInactiveEnd)
 
+                // Bind 3 Prohibited / Makruh Times Bar
+                views.setTextViewText(
+                    R.id.widget_prohibited_label,
+                    if (isEnglish) "⚠️ Prohibited:" else "⚠️ নিষিদ্ধ সময়:"
+                )
+
+                val sunriseRange = "${formatShortTime(todayTimes.makruhSunriseStart, isEnglish)}–${formatShortTime(todayTimes.makruhSunriseEnd, isEnglish)}"
+                val zawalRange = "${formatShortTime(todayTimes.makruhZawalStart, isEnglish)}–${formatShortTime(todayTimes.makruhZawalEnd, isEnglish)}"
+                val sunsetRange = "${formatShortTime(todayTimes.makruhSunsetStart, isEnglish)}–${formatShortTime(todayTimes.makruhSunsetEnd, isEnglish)}"
+
+                val isSunriseActive = curMins in sunriseS..sunriseE
+                val isZawalActive = curMins in zawalS until zawalE
+                val isSunsetActive = curMins in sunsetS..sunsetE
+
+                val sunriseText = if (isEnglish) "Sunrise: $sunriseRange" else "সূর্যোদয়: $sunriseRange"
+                val zawalText = if (isEnglish) "Zawal: $zawalRange" else "দ্বিপ্রহর: $zawalRange"
+                val sunsetText = if (isEnglish) "Sunset: $sunsetRange" else "সূর্যাস্ত: $sunsetRange"
+
+                views.setTextViewText(R.id.widget_prohibited_sunrise, if (isSunriseActive) "🔥 $sunriseText" else sunriseText)
+                views.setTextViewText(R.id.widget_prohibited_zawal, if (isZawalActive) "🔥 $zawalText" else zawalText)
+                views.setTextViewText(R.id.widget_prohibited_sunset, if (isSunsetActive) "🔥 $sunsetText" else sunsetText)
+
+                val colProhibitedActive = Color.parseColor("#EF4444")
+                val colProhibitedNormal = Color.parseColor("#E5E7EB")
+
+                views.setTextColor(R.id.widget_prohibited_sunrise, if (isSunriseActive) colProhibitedActive else colProhibitedNormal)
+                views.setTextColor(R.id.widget_prohibited_zawal, if (isZawalActive) colProhibitedActive else colProhibitedNormal)
+                views.setTextColor(R.id.widget_prohibited_sunset, if (isSunsetActive) colProhibitedActive else colProhibitedNormal)
+
                 // Set Open App Intent on widget click
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -802,9 +802,9 @@ fun FamilyZikrCard(viewModel: NoorUpViewModel) {
                                 putExtra(
                                     Intent.EXTRA_TEXT,
                                     if (isEnglish)
-                                        "Assalamu Alaikum! Join my family zikr circle on Noor. My pairing code is: $myPairingCode"
+                                        "Assalamu Alaikum! Join my family zikr circle on NoorUp. My pairing code is: $myPairingCode"
                                     else
-                                        "আসসালামু আলাইকুম! নূর অ্যাপে আমার পরিবার যিকির সার্কেলে যুক্ত হোন। আমার পেয়ারিং কোড: $myPairingCode"
+                                        "আসসালামু আলাইকুম! নূরআপ অ্যাপে আমার পরিবার যিকির সার্কেলে যুক্ত হোন। আমার পেয়ারিং কোড: $myPairingCode"
                                 )
                                 type = "text/plain"
                             }
@@ -1743,7 +1743,7 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        if (isEnglish) "Noor Companion" else "নূর (Noor)",
+                        if (isEnglish) "NoorUp Companion" else "নূরআপ (NoorUp)",
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -3168,7 +3168,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                             
                                             ${if (isEnglish) "Translation: " else "অর্থ: "}$translationToCopy$narratorText
                                             $gradeLabel
-                                            - নূর (Noor)
+                                            - নূরআপ (NoorUp)
                                         """.trimIndent()
                                         val clip = ClipData.newPlainText("Hadith", formatted)
                                         clipboard.setPrimaryClip(clip)
@@ -3197,7 +3197,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                                     ${if (isEnglish) "Translation: " else "অর্থ: "}$translationToShare$narratorText$lessonText
                                                     $gradeLabel
                                                     
-                                                    — নূর (Noor) ইসলামিক লাইব্রেরি
+                                                    — নূরআপ (NoorUp) ইসলামিক লাইব্রেরি
                                                 """.trimIndent()
                                             )
                                         }
@@ -3381,7 +3381,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                             উচ্চারণ: ${dua.phoneticBangla}
                                             অর্থ: ${dua.meaningBangla}
                                             রেফারেন্স: ${dua.reference}
-                                            - নূর (Noor)
+                                            - নূরআপ (NoorUp)
                                         """.trimIndent()
                                         val clip = ClipData.newPlainText("Dua", formatted)
                                         clipboard.setPrimaryClip(clip)
@@ -3407,7 +3407,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                                     অর্থ: ${dua.meaningBangla}
                                                     রেফারেন্স: ${dua.reference}
                                                     
-                                                    — নূর (Noor) ইসলামিক লাইব্রেরি
+                                                    — নূরআপ (NoorUp) ইসলামিক লাইব্রেরি
                                                 """.trimIndent()
                                             )
                                         }

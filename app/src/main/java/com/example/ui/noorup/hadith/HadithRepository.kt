@@ -20,10 +20,11 @@ class HadithRepository(private val context: Context) {
             authorEn = "Imam Muhammad al-Bukhari",
             authenticGradeBn = "সর্বাধিক বিশুদ্ধ (Sahih)",
             authenticGradeEn = "Most Authentic (Sahih)",
-            totalHadithsBn = "৭,৫৬৩ হাদিস",
+            totalHadithsBn = "৭,৫৮৯ হাদিস",
             descriptionBn = "কুরআনের পর সর্বাধিক নির্ভরযোগ্য ও প্রামাণ্য ইসলামিক হাদিস সংকলন।",
             descriptionEn = "The most authentic and widely recognized compilation of Hadith after the Holy Quran.",
-            totalChaptersBn = "৯৭ অধ্যায়"
+            totalChaptersBn = "৯৭ অধ্যায়",
+            assetFileName = "hadith/bukhari.json"
         ),
         Book(
             id = "muslim",
@@ -37,7 +38,8 @@ class HadithRepository(private val context: Context) {
             totalHadithsBn = "৭,৫০০ হাদিস",
             descriptionBn = "অত্যন্ত সুশৃঙ্খল বিন্যাস ও নির্ভরযোগ্য বর্ণনাসমৃদ্ধ দ্বিতীয় প্রধান হাদিস সংকলন।",
             descriptionEn = "The second most authentic collection, noted for strict structural integrity.",
-            totalChaptersBn = "৫৬ অধ্যায়"
+            totalChaptersBn = "৫৬ অধ্যায়",
+            assetFileName = "hadith/muslim.json"
         ),
         Book(
             id = "tirmidhi",
@@ -51,7 +53,8 @@ class HadithRepository(private val context: Context) {
             totalHadithsBn = "৩,৯৫৬ হাদিস",
             descriptionBn = "হাদিসের মান ও ফিকহি মতামতের বিস্তৃত তুলনামূলক আলোচনা।",
             descriptionEn = "Renowned for evaluating Hadith authenticity and comparative jurisprudence.",
-            totalChaptersBn = "৪৯ অধ্যায়"
+            totalChaptersBn = "৪৯ অধ্যায়",
+            assetFileName = "hadith/tirmidhi.json"
         ),
         Book(
             id = "abudawud",
@@ -65,7 +68,8 @@ class HadithRepository(private val context: Context) {
             totalHadithsBn = "৫,২৭৪ হাদিস",
             descriptionBn = "ইসলামিক বিধিবিধান ও মাসআলা-মাসায়েলের প্রামাণ্য ফিকহি সুনান।",
             descriptionEn = "Premier source of prophetic legal rulings and everyday sunnahs.",
-            totalChaptersBn = "৪৩ অধ্যায়"
+            totalChaptersBn = "৪৩ অধ্যায়",
+            assetFileName = "hadith/abudawud.json"
         ),
         Book(
             id = "nasai",
@@ -79,7 +83,8 @@ class HadithRepository(private val context: Context) {
             totalHadithsBn = "৫,৭৫৮ হাদিস",
             descriptionBn = "সনদ ও বর্ণনাকারীর সূক্ষ্ম যাচাইয়ে অত্যন্ত উচ্চমানের সংকলন।",
             descriptionEn = "Celebrated for stringent criticism of chains of narration.",
-            totalChaptersBn = "৫২ অধ্যায়"
+            totalChaptersBn = "৫২ অধ্যায়",
+            assetFileName = "hadith/nasai.json"
         ),
         Book(
             id = "ibnmajah",
@@ -93,7 +98,8 @@ class HadithRepository(private val context: Context) {
             totalHadithsBn = "৪,৩৪১ হাদিস",
             descriptionBn = "সহজবোধ্য বিন্যাস ও প্রাত্যহিক আমল-আখলাকের সুন্দর উপস্থাপন।",
             descriptionEn = "Distinctive for systematic organization of daily life practices.",
-            totalChaptersBn = "৩৭ অধ্যায়"
+            totalChaptersBn = "৩৭ অধ্যায়",
+            assetFileName = "hadith/ibnmajah.json"
         ),
         Book(
             id = "muwatta",
@@ -137,6 +143,20 @@ class HadithRepository(private val context: Context) {
 
     fun getAllCachedHadiths(): List<Hadith> = cachedHadiths.values.flatten().distinctBy { it.id }
 
+    private fun parseHadithNumber(num: Any?, defaultId: Int): Int {
+        if (num == null) return defaultId
+        if (num is Number) return num.toInt()
+        val str = num.toString()
+        val converted = str.map { ch ->
+            when (ch) {
+                '০' -> '0'; '১' -> '1'; '২' -> '2'; '৩' -> '3'; '৪' -> '4'
+                '৫' -> '5'; '৬' -> '6'; '৭' -> '7'; '৮' -> '8'; '৯' -> '9'
+                else -> ch
+            }
+        }.joinToString("").filter { it.isDigit() }
+        return converted.toIntOrNull() ?: defaultId
+    }
+
     suspend fun getHadithsForBook(bookId: String): List<Hadith> = withContext(Dispatchers.IO) {
         cachedHadiths[bookId]?.let { return@withContext it }
 
@@ -145,40 +165,74 @@ class HadithRepository(private val context: Context) {
 
         if (book != null && book.assetFileName.isNotBlank()) {
             try {
-                val jsonString = context.assets.open(book.assetFileName).bufferedReader().use { it.readText() }
-                val listType = object : TypeToken<List<HadithRawJson>>() {}.type
-                val rawList: List<HadithRawJson> = gson.fromJson(jsonString, listType)
+                val jsonString = context.assets.open(book.assetFileName).bufferedReader().use { it.readText() }.trim()
+                if (jsonString.isNotEmpty()) {
+                    var rawList: List<HadithRawJson>? = null
+                    
+                    // Try parsing as structured object: { "metadata": ..., "chapters": ..., "hadiths": [...] }
+                    if (jsonString.startsWith("{")) {
+                        try {
+                            val bookObj = gson.fromJson(jsonString, HadithBookFileJson::class.java)
+                            rawList = bookObj.hadiths
+                        } catch (_: Exception) { }
+                    }
 
-                val items = rawList.map { raw ->
-                    Hadith(
-                        id = if (bookId == "muwatta") 1000 + raw.id else 2000 + raw.id,
-                        bookId = bookId,
-                        collection = book.nameBn,
-                        isMuttafaqunAlayh = false,
-                        chapterId = raw.chapterId ?: 1,
-                        chapterBn = raw.chapterTitleBn ?: "নামাজ ও দৈনন্দিন আমল",
-                        chapterEn = raw.chapterTitleEn ?: "Prayer & Daily Conduct",
-                        topicBn = "নামাজ ও আমল",
-                        topicEn = "Prayer & Piety",
-                        hadithNumber = raw.hadithNumber ?: raw.id,
-                        narrator = raw.narratorBn ?: "",
-                        arabicText = raw.arabic ?: "",
-                        translationBangla = raw.bangla ?: "",
-                        translationEnglish = raw.english ?: "",
-                        grade = raw.gradeBn ?: "সহীহ (Sahih)",
-                        reference = "${book.nameBn} #${raw.hadithNumber ?: raw.id}",
-                        bookNameBn = book.nameBn,
-                        bookNameEn = book.nameEn,
-                        isBookmarked = false
-                    )
+                    // If not parsed as object, try parsing as direct list: [ { ... }, { ... } ]
+                    if (rawList == null && jsonString.startsWith("[")) {
+                        try {
+                            val listType = object : TypeToken<List<HadithRawJson>>() {}.type
+                            rawList = gson.fromJson(jsonString, listType)
+                        } catch (_: Exception) { }
+                    }
+
+                    if (!rawList.isNullOrEmpty()) {
+                        val items = rawList.mapIndexed { index, raw ->
+                            val parsedId = raw.id ?: (index + 1)
+                            val numberVal = parseHadithNumber(raw.hadithNumber, parsedId)
+                            val finalId = when (bookId) {
+                                "bukhari" -> 10000 + parsedId
+                                "muslim" -> 20000 + parsedId
+                                "tirmidhi" -> 30000 + parsedId
+                                "abudawud" -> 40000 + parsedId
+                                "nasai" -> 50000 + parsedId
+                                "ibnmajah" -> 60000 + parsedId
+                                "muwatta" -> 70000 + parsedId
+                                "riyadussalihin" -> 80000 + parsedId
+                                else -> 90000 + parsedId
+                            }
+                            Hadith(
+                                id = finalId,
+                                bookId = bookId,
+                                collection = raw.collection ?: book.nameBn,
+                                isMuttafaqunAlayh = raw.isMuttafaqunAlayh ?: false,
+                                chapterId = raw.chapterId ?: 1,
+                                chapterBn = raw.chapterBn ?: "নামাজ ও দৈনন্দিন আমল",
+                                chapterEn = raw.chapterEn ?: "Prayer & Daily Conduct",
+                                topicBn = raw.topicBn ?: "নামাজ ও আমল",
+                                topicEn = raw.topicEn ?: "Prayer & Piety",
+                                hadithNumber = numberVal,
+                                narrator = raw.narrator ?: raw.narratorBn ?: "",
+                                arabicText = raw.arabicText ?: "",
+                                translationBangla = raw.translationBangla ?: "",
+                                translationEnglish = raw.translationEnglish ?: "",
+                                grade = raw.gradeBn ?: "সহীহ (Sahih)",
+                                reference = raw.reference ?: "${book.nameBn} #$numberVal",
+                                bookNameBn = raw.bookNameBn ?: book.nameBn,
+                                bookNameEn = raw.bookNameEn ?: book.nameEn,
+                                explanationBn = raw.explanationBn ?: "",
+                                explanationEn = raw.explanationEn ?: "",
+                                isBookmarked = false
+                            )
+                        }
+                        loadedList.addAll(items)
+                    }
                 }
-                loadedList.addAll(items)
             } catch (e: Exception) {
                 android.util.Log.e("HadithRepo", "Error reading asset ${book.assetFileName}", e)
             }
         }
 
-        // If no items loaded from asset (e.g. bukhari, muslim, etc.), provide core authentic foundation hadiths
+        // If no items loaded from asset (e.g. empty file or not found), provide core authentic foundation hadiths
         if (loadedList.isEmpty()) {
             loadedList.addAll(getCoreCuratedHadithsForBook(bookId, book?.nameBn ?: "হাদিস", book?.nameEn ?: "Hadith"))
         }

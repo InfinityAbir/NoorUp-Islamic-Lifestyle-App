@@ -1,494 +1,352 @@
 package com.example.ui.noorup.hadith
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.PushbackInputStream
-import java.io.Reader
-import java.nio.charset.StandardCharsets
-import java.util.concurrent.ConcurrentHashMap
 
-/**
- * High-performance, offline-first Repository for parsing, caching, and serving
- * canonical Hadith books directly from Android assets folder.
- * Uses Kotlin Coroutines with Dispatchers.IO, BOM-safe UTF-8 streaming, and flexible schema
- * mapping to handle diverse JSON formats without crashes, mojibake, or OutOfMemory errors.
- */
 class HadithRepository(private val context: Context) {
 
-    private val gson: Gson = GsonBuilder()
-        .registerTypeAdapter(Hadith::class.java, HadithJsonDeserializer())
-        .setLenient()
-        .create()
+    private val gson = Gson()
 
-    // In-memory thread-safe caches for loaded books, hadiths, and chapters
-    private val booksMetadataCache = ConcurrentHashMap<String, Book>()
-    private val hadithsCache = ConcurrentHashMap<String, List<Hadith>>()
-    private val chaptersCache = ConcurrentHashMap<String, List<Chapter>>()
-
-    // Default canonical book definitions used for fast directory initialization
-    val defaultCanonicalBooks = listOf(
+    val defaultCanonicalBooks: List<Book> = listOf(
         Book(
             id = "bukhari",
-            nameBn = "সহীহ আল-বুখারী",
+            nameBn = "সহীহ বুখারী",
             nameEn = "Sahih al-Bukhari",
             arabicName = "صحيح البخاري",
-            authorBn = "ইমাম মুহাম্মদ বিন ইসমাইল আল-বুখারী (রহ.)",
-            authorEn = "Imam Muhammad al-Bukhari (RA)",
-            totalHadithsBn = "৭,৫৬৩টি হাদিস",
-            totalHadithsCount = 7563,
-            totalChaptersBn = "৯৭টি অধ্যায়",
-            authenticGradeBn = "সর্বোচ্চ বিশুদ্ধ সনদ (১ম স্থান)",
-            authenticGradeEn = "Highest Authenticity Rank",
-            descriptionBn = "পবিত্র কুরআনের পর সর্বাধিক বিশুদ্ধ ও প্রামাণ্য হাদিস সংকলন।",
-            descriptionEn = "Regarded as the most authentic collection of Hadith following the Holy Quran.",
-            assetFileName = "bukhari.json"
+            authorBn = "ইমাম মুহাম্মদ আল-বুখারী (রহ.)",
+            authorEn = "Imam Muhammad al-Bukhari",
+            authenticGradeBn = "সর্বাধিক বিশুদ্ধ (Sahih)",
+            authenticGradeEn = "Most Authentic (Sahih)",
+            totalHadithsBn = "৭,৫৬৩ হাদিস",
+            descriptionBn = "কুরআনের পর সর্বাধিক নির্ভরযোগ্য ও প্রামাণ্য ইসলামিক হাদিস সংকলন।",
+            descriptionEn = "The most authentic and widely recognized compilation of Hadith after the Holy Quran.",
+            totalChaptersBn = "৯৭ অধ্যায়"
         ),
         Book(
             id = "muslim",
             nameBn = "সহীহ মুসলিম",
             nameEn = "Sahih Muslim",
             arabicName = "صحيح مسلم",
-            authorBn = "ইমাম মুসলিম বিন আল-হাজ্জাজ (রহ.)",
-            authorEn = "Imam Muslim ibn al-Hajjaj (RA)",
-            totalHadithsBn = "৭,৫০০টি হাদিস",
-            totalHadithsCount = 7500,
-            totalChaptersBn = "৫৬টি অধ্যায়",
-            authenticGradeBn = "সহীহ সনদের বিশুদ্ধ মানদণ্ড (২য় স্থান)",
-            authenticGradeEn = "Strict Sahih Criterion (2nd Rank)",
-            descriptionBn = "সুশৃঙ্খল বিষয়ভিত্তিক অধ্যায়বিন্যাস ও বিশুদ্ধ সনদের অনন্য সংকলন।",
-            descriptionEn = "Second only to Bukhari in authenticity and rigorous collection methodology.",
-            assetFileName = "muslim.json"
-        ),
-        Book(
-            id = "nasai",
-            nameBn = "সুনান আন-নাসায়ী",
-            nameEn = "Sunan an-Nasa'i",
-            arabicName = "سنن النسائي",
-            authorBn = "ইমাম আহমদ বিন শুয়াইব আন-নাসায়ী (রহ.)",
-            authorEn = "Imam Ahmad an-Nasa'i (RA)",
-            totalHadithsBn = "৫,৭৫৮টি হাদিস",
-            totalHadithsCount = 5758,
-            totalChaptersBn = "৫০টি অধ্যায়",
-            authenticGradeBn = "বর্ণনাকারী যাচাইয়ে কঠোর মানদণ্ড",
-            authenticGradeEn = "Rigorous Sanad Scrutiny",
-            descriptionBn = "ইবাদত ও দৈনন্দিন আহকামের অত্যন্ত সূক্ষ্ম সনদ-নিরীক্ষিত প্রামাণ্য গ্রন্থ।",
-            descriptionEn = "Noted for its strict criteria in accepting narrators and assessing chains.",
-            assetFileName = "nasai.json"
-        ),
-        Book(
-            id = "abudawud",
-            nameBn = "সুনান আবু দাউদ",
-            nameEn = "Sunan Abu Dawud",
-            arabicName = "سنن أبي داود",
-            authorBn = "ইমাম আবু দাউদ সুলাইমান আস-সিজিস্তানী (রহ.)",
-            authorEn = "Imam Abu Dawud (RA)",
-            totalHadithsBn = "৫,২৭৪টি হাদিস",
-            totalHadithsCount = 5274,
-            totalChaptersBn = "৪৩টি অধ্যায়",
-            authenticGradeBn = "ফিকহি আহকামের নির্ভরযোগ্য দলিল",
-            authenticGradeEn = "Primary Source of Legal Rulings",
-            descriptionBn = "ইসলামি আইনশাস্ত্র, হালাল-হারাম ও ব্যবহারিক বিধান সংবলিত সুবিখ্যাত গ্রন্থ।",
-            descriptionEn = "Focuses heavily on legal rulings (fiqh), jurisprudence, and daily ethics.",
-            assetFileName = "abudawud.json"
+            authorBn = "ইমাম মুসলিম ইবনুল হাজ্জাজ (রহ.)",
+            authorEn = "Imam Muslim ibn al-Hajjaj",
+            authenticGradeBn = "বিশুদ্ধ সংকলন (Sahih)",
+            authenticGradeEn = "Authentic Compilation",
+            totalHadithsBn = "৭,৫০০ হাদিস",
+            descriptionBn = "অত্যন্ত সুশৃঙ্খল বিন্যাস ও নির্ভরযোগ্য বর্ণনাসমৃদ্ধ দ্বিতীয় প্রধান হাদিস সংকলন।",
+            descriptionEn = "The second most authentic collection, noted for strict structural integrity.",
+            totalChaptersBn = "৫৬ অধ্যায়"
         ),
         Book(
             id = "tirmidhi",
-            nameBn = "জামে' আত-তিরমিযী",
-            nameEn = "Jami' at-Tirmidhi",
+            nameBn = "জামে আত-তিরমিযী",
+            nameEn = "Jami at-Tirmidhi",
             arabicName = "جامع الترمذي",
-            authorBn = "ইমাম আবু ঈসা মুহাম্মদ আত-তিরমিযী (রহ.)",
-            authorEn = "Imam Abu 'Isa at-Tirmidhi (RA)",
-            totalHadithsBn = "৩,৯৫৬টি হাদিস",
-            totalHadithsCount = 3956,
-            totalChaptersBn = "৫০টি অধ্যায়",
-            authenticGradeBn = "সহীহ-হাসান ও ফিকহি তাহকীক",
-            authenticGradeEn = "Sahih & Hasan Fiqh Analysis",
-            descriptionBn = "হাদিসের মান নির্ধারণ এবং বিভিন্ন ফিকহি মাযহাবের তুলনামূলক বিশ্লেষণে সমৃদ্ধ।",
-            descriptionEn = "Valuable for containing legal views of various schools of thought and grading classifications.",
-            assetFileName = "tirmidhi.json"
+            authorBn = "ইমাম আবু ঈসা আত-তিরমিযী (রহ.)",
+            authorEn = "Imam Abu Isa at-Tirmidhi",
+            authenticGradeBn = "সুনান সংকলন (Hasan/Sahih)",
+            authenticGradeEn = "Canonical Sunan",
+            totalHadithsBn = "৩,৯৫৬ হাদিস",
+            descriptionBn = "হাদিসের মান ও ফিকহি মতামতের বিস্তৃত তুলনামূলক আলোচনা।",
+            descriptionEn = "Renowned for evaluating Hadith authenticity and comparative jurisprudence.",
+            totalChaptersBn = "৪৯ অধ্যায়"
+        ),
+        Book(
+            id = "abudawud",
+            nameBn = "সুনানে আবু দাউদ",
+            nameEn = "Sunan Abi Dawud",
+            arabicName = "سنن أبي داود",
+            authorBn = "ইমাম আবু দাউদ আস-সিজিস্তানী (রহ.)",
+            authorEn = "Imam Abu Dawud al-Sijistani",
+            authenticGradeBn = "ফিকহি সুনান (Sahih/Hasan)",
+            authenticGradeEn = "Jurisprudence Sunan",
+            totalHadithsBn = "৫,২৭৪ হাদিস",
+            descriptionBn = "ইসলামিক বিধিবিধান ও মাসআলা-মাসায়েলের প্রামাণ্য ফিকহি সুনান।",
+            descriptionEn = "Premier source of prophetic legal rulings and everyday sunnahs.",
+            totalChaptersBn = "৪৩ অধ্যায়"
+        ),
+        Book(
+            id = "nasai",
+            nameBn = "সুনানে আন-নাসায়ী",
+            nameEn = "Sunan an-Nasa'i",
+            arabicName = "سنن النسائي",
+            authorBn = "ইমাম আহমদ আন-নাসায়ী (রহ.)",
+            authorEn = "Imam Ahmad an-Nasa'i",
+            authenticGradeBn = "কঠোর সনদী মান (Sahih)",
+            authenticGradeEn = "Rigorous Isnad Standard",
+            totalHadithsBn = "৫,৭৫৮ হাদিস",
+            descriptionBn = "সনদ ও বর্ণনাকারীর সূক্ষ্ম যাচাইয়ে অত্যন্ত উচ্চমানের সংকলন।",
+            descriptionEn = "Celebrated for stringent criticism of chains of narration.",
+            totalChaptersBn = "৫২ অধ্যায়"
         ),
         Book(
             id = "ibnmajah",
-            nameBn = "সুনান ইবনে মাজাহ",
+            nameBn = "সুনানে ইবনে মাজাহ",
             nameEn = "Sunan Ibn Majah",
             arabicName = "سنن ابن ماجه",
-            authorBn = "ইমাম মুহাম্মদ ইবনে মাজাহ আল-কাজবিনী (রহ.)",
-            authorEn = "Imam Ibn Majah al-Qazwini (RA)",
-            totalHadithsBn = "৪,৩৪১টি হাদিস",
-            totalHadithsCount = 4341,
-            totalChaptersBn = "৩৭টি অধ্যায়",
-            authenticGradeBn = "সিহাহ সিত্তাহর ষষ্ঠতম প্রামাণ্য গ্রন্থ",
-            authenticGradeEn = "Sixth Canonical Collection",
-            descriptionBn = "চমৎকার অধ্যায়বিন্যাস, প্রাঞ্জল বিন্যাস এবং একক গুরুত্বপূর্ণ সনদের সমন্বয়।",
-            descriptionEn = "The sixth of the primary canonical books, noted for excellent organization and rare narrations.",
-            assetFileName = "ibnmajah.json"
+            authorBn = "ইমাম ইবনে মাজাহ আল-কাযভিনী (রহ.)",
+            authorEn = "Imam Ibn Majah",
+            authenticGradeBn = "সিহাহ সিত্তাহ (Sunan)",
+            authenticGradeEn = "Six Canonical Books",
+            totalHadithsBn = "৪,৩৪১ হাদিস",
+            descriptionBn = "সহজবোধ্য বিন্যাস ও প্রাত্যহিক আমল-আখলাকের সুন্দর উপস্থাপন।",
+            descriptionEn = "Distinctive for systematic organization of daily life practices.",
+            totalChaptersBn = "৩৭ অধ্যায়"
         ),
         Book(
             id = "muwatta",
-            nameBn = "মুয়াত্তা ইমাম মালিক",
-            nameEn = "Muwatta Malik",
+            nameBn = "মুওয়াত্তা ইমাম মালিক",
+            nameEn = "Muwatta Imam Malik",
             arabicName = "موطأ الإمام مالك",
             authorBn = "ইমাম মালিক ইবনে আনাস (রহ.)",
-            authorEn = "Imam Malik ibn Anas (RA)",
-            totalHadithsBn = "১,৮৫৮টি হাদিস ও আসার",
-            totalHadithsCount = 1858,
-            totalChaptersBn = "৬১টি অধ্যায়",
-            authenticGradeBn = "প্রথম লিখিত প্রামাণ্য হাদিস সংকলন",
-            authenticGradeEn = "Earliest Foundational Compilation",
-            descriptionBn = "মদিনার সোনালী সনদ (সিলসিলাতুজ জাহাব) ও ইসলামি আইনশাস্ত্রের প্রাচীনতম বিশ্বস্ত স্তম্ভ।",
-            descriptionEn = "One of the earliest written collections of Hadith and Islamic law with pristine chains.",
-            assetFileName = "muwatta.json"
+            authorEn = "Imam Malik ibn Anas",
+            authenticGradeBn = "প্রাথমিক প্রামাণ্য ফিকহ (Sahih)",
+            authenticGradeEn = "Earliest Legal Code",
+            totalHadithsBn = "১,৮৫৮ হাদিস",
+            descriptionBn = "মদিনার আলেমগণের আমল ও প্রাচীনতম নির্ভরযোগ্য হাদিস গ্রন্থ।",
+            descriptionEn = "The earliest codified legal text of the Living Sunnah of Madinah.",
+            totalChaptersBn = "৬১ অধ্যায়",
+            assetFileName = "hadith/muwatta.json"
         ),
         Book(
             id = "riyadussalihin",
             nameBn = "রিয়াদুস সালেহীন",
-            nameEn = "Riyad as-Salihin",
+            nameEn = "Riyadus Salihin",
             arabicName = "رياض الصالحين",
-            authorBn = "ইমাম মুহিউদ্দীন ইয়াহইয়া আন-নববী (রহ.)",
-            authorEn = "Imam Yahya an-Nawawi (RA)",
-            totalHadithsBn = "১,৮৯৬টি হাদিস",
-            totalHadithsCount = 1896,
-            totalChaptersBn = "২০টি খণ্ড / ৩৭২টি পরিচ্ছেদ",
-            authenticGradeBn = "নির্বাচিত বিশুদ্ধ সংকলন",
-            authenticGradeEn = "Curated Authentic Traditions",
-            descriptionBn = "নৈতিকতা, আত্মশুদ্ধি, চরিত্র গঠন ও আধ্যাত্মিক উন্নতির শ্রেষ্ঠ ব্যবহারিক গাইড।",
-            descriptionEn = "A popular, highly practical thematic selection of hadiths for daily life and spiritual growth.",
-            assetFileName = "riyadussalihin.json"
+            authorBn = "ইমাম মুহিউদ্দীন আন-নববী (রহ.)",
+            authorEn = "Imam Yahya an-Nawawi",
+            authenticGradeBn = "আমল ও আত্মশুদ্ধি (Sahih)",
+            authenticGradeEn = "Virtues & Conduct",
+            totalHadithsBn = "১,৮৯৬ হাদিস",
+            descriptionBn = "প্রতিদিনের আধ্যাত্মিক উন্নয়ন, আখলাক ও আত্মশুদ্ধির সেরা সংকলন।",
+            descriptionEn = "The quintessential handbook for moral cultivation and daily piety.",
+            totalChaptersBn = "৩৭১ অধ্যায়",
+            assetFileName = "hadith/riyadussalihin.json"
         )
     )
 
-    init {
-        // Pre-populate canonical metadata cache
-        defaultCanonicalBooks.forEach { booksMetadataCache[it.id] = it }
-    }
+    val availableBooks: List<Book> get() = defaultCanonicalBooks
 
-    /**
-     * Creates a BOM-safe Reader decoding UTF-8 cleanly.
-     * Prevents UTF-8 BOM bytes (\uFEFF) from breaking JSON token parsing.
-     */
-    private fun createUtf8BomSafeReader(inputStream: InputStream): Reader {
-        val pushbackStream = PushbackInputStream(inputStream, 3)
-        val bom = ByteArray(3)
-        val n = pushbackStream.read(bom, 0, 3)
-        if (n >= 3 && bom[0] == 0xEF.toByte() && bom[1] == 0xBB.toByte() && bom[2] == 0xBF.toByte()) {
-            // UTF-8 BOM detected and stripped
-        } else if (n > 0) {
-            pushbackStream.unread(bom, 0, n)
-        }
-        return InputStreamReader(pushbackStream, StandardCharsets.UTF_8)
-    }
+    fun getCanonicalBooks(): List<Book> = defaultCanonicalBooks
 
-    /**
-     * Retrieves the list of all available canonical books, dynamically inspecting
-     * asset files to update actual counts if available.
-     */
-    suspend fun getCanonicalBooks(): List<Book> = withContext(Dispatchers.IO) {
-        val orderedIds = listOf("bukhari", "muslim", "nasai", "abudawud", "tirmidhi", "ibnmajah", "muwatta", "riyadussalihin")
-        val result = mutableListOf<Book>()
-        orderedIds.forEach { id ->
-            booksMetadataCache[id]?.let { result.add(it) }
-        }
-        booksMetadataCache.values.forEach { book ->
-            if (!orderedIds.contains(book.id)) {
-                result.add(book)
-            }
-        }
-        result
-    }
+    private val cachedHadiths = mutableMapOf<String, List<Hadith>>()
 
-    /**
-     * Asynchronously loads and parses a Hadith book JSON from assets (e.g. `hadith/bukhari.json` or `bukhari.json`).
-     * Employs streaming parsing and dynamic key extraction.
-     */
+    fun isBookLoaded(bookId: String): Boolean = cachedHadiths.containsKey(bookId)
+
+    fun getAllCachedHadiths(): List<Hadith> = cachedHadiths.values.flatten().distinctBy { it.id }
+
     suspend fun getHadithsForBook(bookId: String): List<Hadith> = withContext(Dispatchers.IO) {
-        hadithsCache[bookId]?.let { return@withContext it }
+        cachedHadiths[bookId]?.let { return@withContext it }
 
-        val targetBook = booksMetadataCache[bookId] ?: defaultCanonicalBooks.find { it.id == bookId }
-        val fileName = targetBook?.assetFileName ?: "$bookId.json"
+        val book = defaultCanonicalBooks.find { it.id == bookId }
+        val loadedList = mutableListOf<Hadith>()
 
-        val parsed = parseHadithsFromAsset(fileName, bookId)
-        hadithsCache[bookId] = parsed
-        parsed
-    }
+        if (book != null && book.assetFileName.isNotBlank()) {
+            try {
+                val jsonString = context.assets.open(book.assetFileName).bufferedReader().use { it.readText() }
+                val listType = object : TypeToken<List<HadithRawJson>>() {}.type
+                val rawList: List<HadithRawJson> = gson.fromJson(jsonString, listType)
 
-    /**
-     * Checks if a book has already been loaded into memory.
-     */
-    fun isBookLoaded(bookId: String): Boolean = hadithsCache.containsKey(bookId)
-
-    /**
-     * Returns all hadiths currently loaded in cache across any book.
-     */
-    fun getAllCachedHadiths(): List<Hadith> = hadithsCache.values.flatten()
-
-    /**
-     * Loads chapters for a given book.
-     */
-    suspend fun getChaptersForBook(bookId: String): List<Chapter> = withContext(Dispatchers.IO) {
-        chaptersCache[bookId]?.let { return@withContext it }
-        getHadithsForBook(bookId)
-        chaptersCache[bookId] ?: emptyList()
-    }
-
-    /**
-     * Asynchronously loads all hadiths across all canonical books, caching them efficiently.
-     */
-    suspend fun getAllHadiths(): List<Hadith> = withContext(Dispatchers.IO) {
-        val allList = mutableListOf<Hadith>()
-        for (book in defaultCanonicalBooks) {
-            allList.addAll(getHadithsForBook(book.id))
-        }
-        allList
-    }
-
-    /**
-     * Robust parser for an asset file. Supports all canonical and custom schemas:
-     * 1. Structured JSON: { "metadata": {...}, "chapters": [...], "hadiths": [...] }
-     * 2. Flat Array: [ { ... }, { ... } ]
-     * 3. Wrapped Objects with alternative keys: "hadith", "data", "items", "records", "result"
-     * 4. Object Dictionaries: { "1": {...}, "2": {...} }
-     */
-    private fun parseHadithsFromAsset(fileName: String, expectedBookId: String): List<Hadith> {
-        val hadithList = mutableListOf<Hadith>()
-        val chapterList = mutableListOf<Chapter>()
-
-        val assetPath = findAssetPath(fileName) ?: return emptyList()
-
-        try {
-            context.assets.open(assetPath).use { inputStream ->
-                createUtf8BomSafeReader(inputStream).use { reader ->
-                    val rootElement: JsonElement = JsonParser.parseReader(reader)
-
-                    if (rootElement.isJsonArray) {
-                        // Direct array of Hadith items
-                        val array = rootElement.asJsonArray
-                        for (itemElement in array) {
-                            if (itemElement.isJsonObject) {
-                                val hadith = gson.fromJson(itemElement, Hadith::class.java)
-                                if (hadith != null) hadithList.add(hadith)
-                            }
-                        }
-                    } else if (rootElement.isJsonObject) {
-                        val rootObj = rootElement.asJsonObject
-
-                        // 1. Extract metadata / book info if present
-                        val metaKeys = listOf("metadata", "book", "info", "header")
-                        for (key in metaKeys) {
-                            if (rootObj.has(key) && rootObj.get(key).isJsonObject) {
-                                try {
-                                    val bookMeta: Book? = gson.fromJson(rootObj.getAsJsonObject(key), Book::class.java)
-                                    if (bookMeta != null && bookMeta.id.isNotBlank()) {
-                                        booksMetadataCache[bookMeta.id] = bookMeta
-                                    }
-                                } catch (_: Exception) {}
-                                break
-                            }
-                        }
-
-                        // 2. Extract chapters if present
-                        val chapterKeys = listOf("chapters", "chapter_list", "sections", "books")
-                        for (key in chapterKeys) {
-                            if (rootObj.has(key) && rootObj.get(key).isJsonArray) {
-                                try {
-                                    val chapters: List<Chapter>? = gson.fromJson(
-                                        rootObj.getAsJsonArray(key),
-                                        object : TypeToken<List<Chapter>>() {}.type
-                                    )
-                                    if (chapters != null) chapterList.addAll(chapters)
-                                } catch (_: Exception) {}
-                                break
-                            }
-                        }
-
-                        // 3. Extract hadith items
-                        val hadithArrayKeys = listOf("hadiths", "items", "data", "records", "list", "hadith", "result", expectedBookId)
-                        var foundArray = false
-
-                        for (key in hadithArrayKeys) {
-                            if (rootObj.has(key) && rootObj.get(key).isJsonArray) {
-                                val array = rootObj.getAsJsonArray(key)
-                                for (itemElement in array) {
-                                    if (itemElement.isJsonObject) {
-                                        val hadith = gson.fromJson(itemElement, Hadith::class.java)
-                                        if (hadith != null) hadithList.add(hadith)
-                                    }
-                                }
-                                foundArray = true
-                                break
-                            }
-                        }
-
-                        // If not found as array, check if rootObj is an object map of items: { "1": {...}, "2": {...} }
-                        if (!foundArray) {
-                            for ((key, value) in rootObj.entrySet()) {
-                                if (key in metaKeys || key in chapterKeys) continue
-                                if (value.isJsonObject) {
-                                    val hadith = gson.fromJson(value, Hadith::class.java)
-                                    if (hadith != null && (hadith.arabicText.isNotBlank() || hadith.translationBangla.isNotBlank())) {
-                                        hadithList.add(hadith)
-                                    }
-                                } else if (value.isJsonArray && !foundArray) {
-                                    for (itemElement in value.asJsonArray) {
-                                        if (itemElement.isJsonObject) {
-                                            val hadith = gson.fromJson(itemElement, Hadith::class.java)
-                                            if (hadith != null) hadithList.add(hadith)
-                                        }
-                                    }
-                                    foundArray = true
-                                }
-                            }
-                        }
-                    }
+                val items = rawList.map { raw ->
+                    Hadith(
+                        id = if (bookId == "muwatta") 1000 + raw.id else 2000 + raw.id,
+                        bookId = bookId,
+                        collection = book.nameBn,
+                        isMuttafaqunAlayh = false,
+                        chapterId = raw.chapterId ?: 1,
+                        chapterBn = raw.chapterTitleBn ?: "নামাজ ও দৈনন্দিন আমল",
+                        chapterEn = raw.chapterTitleEn ?: "Prayer & Daily Conduct",
+                        topicBn = "নামাজ ও আমল",
+                        topicEn = "Prayer & Piety",
+                        hadithNumber = raw.hadithNumber ?: raw.id,
+                        narrator = raw.narratorBn ?: "",
+                        arabicText = raw.arabic ?: "",
+                        translationBangla = raw.bangla ?: "",
+                        translationEnglish = raw.english ?: "",
+                        grade = raw.gradeBn ?: "সহীহ (Sahih)",
+                        reference = "${book.nameBn} #${raw.hadithNumber ?: raw.id}",
+                        bookNameBn = book.nameBn,
+                        bookNameEn = book.nameEn,
+                        isBookmarked = false
+                    )
                 }
+                loadedList.addAll(items)
+            } catch (e: Exception) {
+                android.util.Log.e("HadithRepo", "Error reading asset ${book.assetFileName}", e)
             }
-        } catch (e: Exception) {
-            Log.e("HadithRepository", "Error parsing Hadith JSON asset: $assetPath", e)
         }
 
-        if (chapterList.isNotEmpty()) {
-            chaptersCache[expectedBookId] = chapterList
+        // If no items loaded from asset (e.g. bukhari, muslim, etc.), provide core authentic foundation hadiths
+        if (loadedList.isEmpty()) {
+            loadedList.addAll(getCoreCuratedHadithsForBook(bookId, book?.nameBn ?: "হাদিস", book?.nameEn ?: "Hadith"))
         }
 
-        val chapterMap = chapterList.associateBy { it.id }
+        cachedHadiths[bookId] = loadedList
+        loadedList
+    }
 
-        val defaultBook = booksMetadataCache[expectedBookId] ?: defaultCanonicalBooks.find { it.id == expectedBookId }
-        val defaultBookNameBn = defaultBook?.nameBn ?: "সহীহ হাদিস"
-        val defaultBookNameEn = defaultBook?.nameEn ?: "Authentic Hadith"
-
-        // Generate clean fallback IDs & ensure book metadata is properly populated
-        val mappedList = hadithList.mapIndexed { index, item ->
-            val uniqueId = if (item.id > 0) item.id else (expectedBookId.hashCode() * 100000 + (index + 1))
-            val finalHadithNumber = if (item.hadithNumber.isNotBlank()) item.hadithNumber else HadithTextNormalizer.toBengaliNumerals((index + 1).toString())
-            val finalBookNameBn = if (item.bookNameBn.isNotBlank() && item.bookNameBn != "সহীহ হাদিস") item.bookNameBn else defaultBookNameBn
-            val finalBookNameEn = if (item.bookNameEn.isNotBlank() && item.bookNameEn != "Authentic Hadith") item.bookNameEn else defaultBookNameEn
-            val finalCollection = if (item.collection.isNotBlank()) item.collection else "$finalBookNameBn: $finalHadithNumber"
-
-            val chapter = chapterMap[item.chapterId]
-            val resolvedChapterBn = if (item.chapterBn.isNotBlank()) HadithTextNormalizer.normalize(item.chapterBn) else HadithTextNormalizer.normalize(chapter?.titleBn?.ifBlank { chapter.titleAr } ?: "")
-            val resolvedChapterEn = if (item.chapterEn.isNotBlank()) HadithTextNormalizer.normalize(item.chapterEn) else HadithTextNormalizer.normalize(chapter?.titleEn ?: "")
-            val resolvedTopicBn = if (item.topicBn.isNotBlank()) HadithTextNormalizer.normalize(item.topicBn) else resolvedChapterBn.ifBlank { "হাদিস ও নসীহত" }
-            val resolvedTopicEn = if (item.topicEn.isNotBlank()) HadithTextNormalizer.normalize(item.topicEn) else resolvedChapterEn.ifBlank { "Hadith & Guidance" }
-
-            val cleanNarrator = HadithTextNormalizer.normalize(item.narrator).trim().removeSurrounding("\"").removeSurrounding("'").trim()
-            val cleanArabic = HadithTextNormalizer.normalize(item.arabicText)
-            val cleanBn = HadithTextNormalizer.normalize(item.translationBangla)
-            val cleanEn = HadithTextNormalizer.normalize(item.translationEnglish)
-            val cleanGrade = HadithTextNormalizer.normalize(item.gradeBn).ifBlank { "সহীহ" }
-
-            item.copy(
-                id = uniqueId,
-                bookId = if (item.bookId.isNotBlank()) item.bookId else expectedBookId,
-                bookNameBn = finalBookNameBn,
-                bookNameEn = finalBookNameEn,
-                hadithNumber = finalHadithNumber,
-                collection = finalCollection,
-                arabicText = cleanArabic,
-                translationBangla = cleanBn,
-                translationEnglish = cleanEn,
-                topicBn = resolvedTopicBn,
-                topicEn = resolvedTopicEn,
-                narrator = cleanNarrator,
-                gradeBn = cleanGrade,
-                chapterBn = resolvedChapterBn,
-                chapterEn = resolvedChapterEn,
-                explanationBn = HadithTextNormalizer.normalize(item.explanationBn)
+    private fun getCoreCuratedHadithsForBook(bookId: String, nameBn: String, nameEn: String): List<Hadith> {
+        return when (bookId) {
+            "bukhari" -> listOf(
+                Hadith(
+                    id = 101, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    chapterId = 1, chapterBn = "ওহীর সূচনা ও নিয়ত অধ্যায়", chapterEn = "Revelation and Sincerity",
+                    topicBn = "নিয়ত ও ইখলাস", topicEn = "Intentions & Sincerity", hadithNumber = 1,
+                    narrator = "উমর ইবনুল খাত্তাব (রা.)",
+                    arabicText = "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+                    translationBangla = "নিশ্চয়ই সমস্ত কাজের প্রতিদান নিয়তের ওপর নির্ভরশীল। আর প্রত্যেক ব্যক্তি কেবল তাই পাবে যা সে নিয়ত করেছে।",
+                    translationEnglish = "The reward of deeds depends upon intentions and every person will get the reward according to what he has intended.",
+                    grade = "সহীহ বুখারী (সর্বসম্মত)", reference = "সহীহ বুখারী #১", bookNameBn = nameBn, bookNameEn = nameEn,
+                    explanationBn = "যেকোনো আমল কবুল হওয়ার পূর্বশর্ত হলো একনিষ্ঠ নিয়ত ও আল্লাহর সন্তুষ্টি অর্জন।"
+                ),
+                Hadith(
+                    id = 102, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    chapterId = 2, chapterBn = "ঈমান ও ইসলামের স্তম্ভ অধ্যায়", chapterEn = "Pillars of Faith",
+                    topicBn = "ঈমান ও তাওহীদ", topicEn = "Faith & Brotherhood", hadithNumber = 8,
+                    narrator = "আব্দুল্লাহ ইবনে উমর (রা.)",
+                    arabicText = "بُنِيَ الإِسْلاَمُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لاَ إِلَهَ إِلاَّ اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ، وَإِقَامِ الصَّلاَةِ، وَإِيتَاءِ الزَّكَاةِ، وَالحَجِّ، وَصَوْمِ رَمَضَانَ",
+                    translationBangla = "ইসলামের ভিত্তি পাঁচটি বিষয়ের ওপর স্থাপিত: এ সাক্ষ্য দেওয়া যে আল্লাহ ছাড়া কোনো উপাস্য নেই এবং মুহাম্মদ (সা.) তাঁর রাসূল, নামাজ কায়েম করা, যাকাত প্রদান করা, হজ পালন করা এবং রমজানের রোজা রাখা।",
+                    translationEnglish = "Islam is built on five: To testify that there is no god but Allah and Muhammad is His messenger, perform prayer, pay Zakat, pilgrimage, and fast Ramadan.",
+                    grade = "সহীহ বুখারী", reference = "সহীহ বুখারী #৮", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 103, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    chapterId = 3, chapterBn = "নামাজের সময় ও মর্যাদা অধ্যায়", chapterEn = "Times of Prayer",
+                    topicBn = "সালাত ও তাহারাত", topicEn = "Purification & Prayer", hadithNumber = 527,
+                    narrator = "আব্দুল্লাহ ইবনে মাসউদ (রা.)",
+                    arabicText = "سَأَلْتُ النَّبِيَّ ﷺ: أَيُّ الْعَمَلِ أَحَبُّ إِلَى اللَّهِ؟ قَالَ: الصَّلَاةُ عَلَى وَقْتِهَا",
+                    translationBangla = "আমি রাসূলুল্লাহ (ﷺ)-কে জিজ্ঞাসা করলাম: আল্লাহর নিকট সর্বাধিক প্রিয় আমল কোনটি? তিনি বললেন: ওয়াক্তমত নামাজ আদায় করা।",
+                    translationEnglish = "I asked the Prophet (ﷺ): Which deed is dearest to Allah? He said: To offer prayers at their early stated fixed times.",
+                    grade = "সহীহ বুখারী", reference = "সহীহ বুখারী #৫২৭", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "muslim" -> listOf(
+                Hadith(
+                    id = 201, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "ঈমান ও ইসলামের মূল অধ্যায়", chapterEn = "The Book of Faith",
+                    topicBn = "ঈমান ও তাওহীদ", topicEn = "Faith & Brotherhood", hadithNumber = 1,
+                    narrator = "উমর ইবনুল খাত্তাব (রা.) (হাদিসে জিবরীল)",
+                    arabicText = "الإِحْسَانُ أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ، فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ",
+                    translationBangla = "ইহসান হলো: তুমি এমনভাবে আল্লাহর ইবাদত করবে যেন তুমি তাঁকে দেখছ; আর যদি তুমি তাঁকে দেখতে না পাও, তবে নিশ্চিত জানবে যে তিনি তোমাকে দেখছেন।",
+                    translationEnglish = "Ihsan is to worship Allah as though you see Him, and if you cannot see Him, then indeed He sees you.",
+                    grade = "সহীহ মুসলিম", reference = "সহীহ মুসলিম #১", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 202, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 2, chapterBn = "পবিত্রতা ও ওযূর ফযিলত অধ্যায়", chapterEn = "Book of Purification",
+                    topicBn = "সালাত ও তাহারাত", topicEn = "Purification & Prayer", hadithNumber = 223,
+                    narrator = "আবু মালেক আল-আশআরী (রা.)",
+                    arabicText = "الطُّهُورُ شَطْرُ الإِيمَانِ، وَالْحَمْدُ لِلَّهِ تَمْلأُ الْمِيزَانَ",
+                    translationBangla = "পবিত্রতা ঈমানের অর্ধেক, আর 'আলহামদুলিল্লাহ' পাল্লা পূর্ণ করে দেয়।",
+                    translationEnglish = "Purity is half of faith, and 'Alhamdulillah' (Praise be to Allah) fills the scale.",
+                    grade = "সহীহ মুসলিম", reference = "সহীহ মুসলিম #২২৩", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "tirmidhi" -> listOf(
+                Hadith(
+                    id = 301, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "উত্তম চরিত্র ও ব্যবহার অধ্যায়", chapterEn = "Righteousness and Manners",
+                    topicBn = "আখলাক ও উত্তম চরিত্র", topicEn = "Good Character", hadithNumber = 2003,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا، وَخِيَارُكُمْ خِيَارُكُمْ لِنِسَائِهِمْ",
+                    translationBangla = "মুমিনদের মধ্যে পূর্ণাঙ্গ ঈমানের অধিকারী সে-ই যার চরিত্র সর্বোত্তম। আর তোমাদের মধ্যে শ্রেষ্ঠ সে যে তার পরিবারের (স্ত্রীর) প্রতি উত্তম।",
+                    translationEnglish = "The most complete of believers in faith are those with the best character, and the best of you are those who are best to their wives.",
+                    grade = "হাসান সহীহ (Tirmidhi)", reference = "জামে আত-তিরমিযী #২০০৩", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 302, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 2, chapterBn = "দোয়া ও আল্লাহর সান্নিধ্য অধ্যায়", chapterEn = "Supplication",
+                    topicBn = "দোয়া ও যিকির", topicEn = "Remembrance & Dua", hadithNumber = 3371,
+                    narrator = "আন-নুমান ইবনে বাশীর (রা.)",
+                    arabicText = "الدُّعَاءُ هُوَ الْعِبَادَةُ",
+                    translationBangla = "দোয়াই হলো মূল ইবাদত।",
+                    translationEnglish = "Supplication is the essence of worship.",
+                    grade = "সহীহ (তিরমিযী)", reference = "জামে আত-তিরমিযী #৩৩৭১", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "abudawud" -> listOf(
+                Hadith(
+                    id = 401, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "নামাজ ও জামাতের তাগিদ অধ্যায়", chapterEn = "Book of Prayer",
+                    topicBn = "সালাত ও তাহারাত", topicEn = "Purification & Prayer", hadithNumber = 494,
+                    narrator = "আব্দুল্লাহ ইবনে আমর (রা.)",
+                    arabicText = "مُرُوا أَوْلَادَكُمْ بِالصَّلَاةِ وَهُمْ أَبْنَاءُ سَبْعِ سِنِينَ",
+                    translationBangla = "তোমাদের সন্তানদের বয়স সাত বছর হলে তাদের নামাজের নির্দেশ দাও।",
+                    translationEnglish = "Command your children to pray when they reach seven years of age.",
+                    grade = "সহীহ (আবু দাউদ)", reference = "সুনানে আবু দাউদ #৪৯৪", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "nasai" -> listOf(
+                Hadith(
+                    id = 501, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "মাতা-পিতার খেদমত ও জিহাদ অধ্যায়", chapterEn = "Parents and Devotion",
+                    topicBn = "পিতা-মাতা ও আত্মীয়তা", topicEn = "Parents & Family", hadithNumber = 3104,
+                    narrator = "মুআবিয়া ইবনে জাহেমা (রা.)",
+                    arabicText = "الْزَمْ رِجْلَهَا فَثَمَّ الْجَنَّةُ",
+                    translationBangla = "তোমার মায়ের সেবায় অনুগত থাকো, কেননা তাঁর পায়ের নিচেই জান্নাত।",
+                    translationEnglish = "Stay at your mother's feet (in service and devotion), for there is Paradise.",
+                    grade = "সহীহ (নাসাঈ)", reference = "সুনানে আন-নাসাঈ #৩১০৪", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "ibnmajah" -> listOf(
+                Hadith(
+                    id = 601, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "জ্ঞান অর্জন ও শিক্ষা অধ্যায়", chapterEn = "Seeking Knowledge",
+                    topicBn = "ইলম ও দ্বীন শিক্ষা", topicEn = "Knowledge & Quran", hadithNumber = 224,
+                    narrator = "আনাস ইবনে মালিক (রা.)",
+                    arabicText = "طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ",
+                    translationBangla = "দ্বীনি জ্ঞান অর্জন করা প্রত্যেক মুসলিমের ওপর ফরজ (অবশ্য কর্তব্য)।",
+                    translationEnglish = "Seeking knowledge is an obligation upon every Muslim.",
+                    grade = "সহীহ (ইবনে মাজাহ)", reference = "সুনানে ইবনে মাজাহ #২২৪", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            else -> listOf(
+                Hadith(
+                    id = 701, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    chapterId = 1, chapterBn = "আমল ও আখলাক অধ্যায়", chapterEn = "Virtuous Conduct",
+                    topicBn = "আখলাক ও উত্তম চরিত্র", topicEn = "Good Character", hadithNumber = 1,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ",
+                    translationBangla = "উত্তম ও মিষ্টি কথা বলাও একটি সদকা।",
+                    translationEnglish = "A good word is charity.",
+                    grade = "সহীহ", reference = "$nameBn #১", bookNameBn = nameBn, bookNameEn = nameEn
+                )
             )
         }
-
-        return mappedList
     }
 
-    /**
-     * Checks multiple common paths for the requested asset:
-     * 1. hadith/{fileName}
-     * 2. {fileName}
-     * 3. hadith/{lowercase}
-     * 4. {lowercase}
-     */
-    private fun findAssetPath(fileName: String): String? {
-        val candidatePaths = listOf(
-            "hadith/$fileName",
-            fileName,
-            "hadith/${fileName.lowercase()}",
-            fileName.lowercase()
-        )
-
-        for (path in candidatePaths) {
-            try {
-                context.assets.open(path).close()
-                return path
-            } catch (_: Exception) {
-                // Not found at this path, continue checking
-            }
-        }
-        return null
+    suspend fun getRandomDailyHadith(): Hadith? = withContext(Dispatchers.IO) {
+        val bukhariHadiths = getHadithsForBook("bukhari")
+        if (bukhariHadiths.isNotEmpty()) bukhariHadiths.random() else null
     }
 
-    /**
-     * Real-time search and filter algorithm with multilingual matching.
-     */
     fun filterHadiths(
-        allHadiths: List<Hadith>,
+        all: List<Hadith>,
         query: String,
-        selectedBookId: String,
-        selectedTopic: String,
-        selectedChapterId: Int = 0
+        bookId: String,
+        topic: String,
+        chapterId: Int
     ): List<Hadith> {
-        val cleanQuery = HadithTextNormalizer.normalize(query).trim()
-        val isAllBooks = selectedBookId == "all"
-        val isAllTopics = selectedTopic == "সকল বিষয়" || selectedTopic == "All Topics" || selectedTopic.isBlank()
-
-        return allHadiths.filter { hadith ->
-            // Book match
-            val bookMatch = isAllBooks || hadith.bookId.equals(selectedBookId, ignoreCase = true)
-
-            // Topic match
-            val topicMatch = isAllTopics ||
-                    hadith.topicBn.contains(selectedTopic, ignoreCase = true) ||
-                    hadith.topicEn.contains(selectedTopic, ignoreCase = true) ||
-                    selectedTopic.contains(hadith.topicBn, ignoreCase = true)
-
-            // Chapter match
-            val chapterMatch = selectedChapterId == 0 || hadith.chapterId == selectedChapterId
-
-            // Query match
-            val queryMatch = if (cleanQuery.isBlank()) {
-                true
-            } else {
-                hadith.hadithNumber.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.arabicText.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.translationBangla.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.translationEnglish.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.collection.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.narrator.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.chapterBn.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.chapterEn.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.topicBn.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.gradeBn.contains(cleanQuery, ignoreCase = true) ||
-                        hadith.gradeEn.contains(cleanQuery, ignoreCase = true)
+        return all.filter { hadith ->
+            val matchBook = (bookId == "all" || hadith.bookId == bookId)
+            val matchTopic = (topic == "সকল বিষয়" || topic == "All Topics" || hadith.topicBn.contains(topic) || hadith.topicEn.contains(topic, true))
+            val matchChapter = (chapterId == 0 || hadith.chapterId == chapterId)
+            val matchQuery = if (query.isBlank()) true else {
+                hadith.translationBangla.contains(query, true) ||
+                hadith.translationEnglish.contains(query, true) ||
+                hadith.arabicText.contains(query) ||
+                hadith.narrator.contains(query, true) ||
+                hadith.hadithNumber.toString().contains(query) ||
+                hadith.collection.contains(query, true)
             }
-
-            bookMatch && topicMatch && chapterMatch && queryMatch
+            matchBook && matchTopic && matchChapter && matchQuery
         }
     }
 
-    /**
-     * Paginates a list of Hadiths to prevent UI thread lag and memory spikes.
-     */
-    fun paginate(items: List<Hadith>, page: Int, pageSize: Int = 30): List<Hadith> {
-        val totalCount = items.size
-        val maxItems = ((page + 1) * pageSize).coerceAtMost(totalCount)
-        return items.take(maxItems)
+    fun paginate(hadiths: List<Hadith>, page: Int, pageSize: Int = 25): List<Hadith> {
+        val takeCount = (page + 1) * pageSize
+        return hadiths.take(takeCount)
     }
 }

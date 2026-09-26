@@ -189,6 +189,28 @@ fun HijriCalendarHubView(
                     letterSpacing = 0.3.sp
                 )
 
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Location-Aware Standard Badge
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (currentHijri.isBangladeshStandard) Color(0xFF10B981).copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                        .border(
+                            0.8.dp,
+                            if (currentHijri.isBangladeshStandard) Color(0xFF10B981).copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = if (isEnglish) currentHijri.standardLabelEn else currentHijri.standardLabelBn,
+                        color = if (isDark) Color(0xFF6EE7B7) else Color(0xFF047857),
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // Gregorian Equivalent

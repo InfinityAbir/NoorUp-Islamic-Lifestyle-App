@@ -218,7 +218,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Isha (Tahajjud)" else "এশা (তাহাজ্জুদ)"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.ishaStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.fajrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.ishaStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.ishaEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                     // 2. Fajr time (Fajr start to Sunrise)
@@ -228,7 +228,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Fajr" else "ফজর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.fajrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.sunrise, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.fajrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.fajrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                     // 3. Sunrise prohibited interval (Sunrise to Sunrise + 15 min)
@@ -238,7 +238,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "⚠️ PROHIBITED (SUNRISE)" else "⚠️ মাকরুহ সময় (সূর্যোদয়)"
                         activeName = if (isEnglish) "Next: Dhuhr" else "পরবর্তী: যোহর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
                     // 4. Duha / Chasht morning time
@@ -248,7 +248,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "NEXT PRAYER (DUHA)" else "পরবর্তী ওয়াক্ত (চাশত)"
                         activeName = if (isEnglish) "Dhuhr" else "যোহর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
                     // 5. Zawal zenith prohibited interval
@@ -258,7 +258,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "⚠️ PROHIBITED (ZAWAL)" else "⚠️ মাকরুহ সময় (দ্বিপ্রহর)"
                         activeName = if (isEnglish) "Next: Dhuhr" else "পরবর্তী: যোহর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
                     // 6. Dhuhr time (Dhuhr start to Asr start)
@@ -268,7 +268,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Dhuhr" else "যোহর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                     // 7. Asr time (Asr start to Maghrib start)
@@ -282,7 +282,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                             if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         }
                         activeName = if (isEnglish) "Asr" else "আসর"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.maghribStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                     // 8. Maghrib time (Maghrib start to Isha start)
@@ -292,7 +292,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Maghrib" else "মাগরিব"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.maghribStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.ishaStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.maghribStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.maghribEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                     // 9. Isha time (Isha start to midnight)
@@ -302,7 +302,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Isha" else "এশা"
-                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.ishaStart, isEnglish)} – ${formatTimeWithAmPm(tomorrowTimes.fajrStart, isEnglish)}"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.ishaStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.ishaEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
                 }
@@ -312,7 +312,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
 
                 // Calculate dynamic Hijri date & Gregorian date
                 val dayOffset = prefs.getInt("hijri_day_offset", 0)
-                val hijriResult = HijriDateCalculator.calculateHijriDate(cal, dayOffset)
+                val isBangladesh = HijriDateCalculator.isBangladeshLocation(latitude, longitude, cityName)
+                val hijriResult = HijriDateCalculator.calculateHijriDate(cal, dayOffset, isBangladesh)
                 val gregorianResult = HijriDateCalculator.calculateGregorianDate(cal)
 
                 val hijriDisplay = if (isEnglish) hijriResult.fullDateEn else hijriResult.fullDateBn
@@ -363,70 +364,60 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_isha_name, if (isEnglish) "Isha" else "এশা")
 
                 // Dual Timestamps (Start Time & End Time) for All 5 Daily Prayers
-                // 1. Fajr (Start: fajrStart, End: sunrise)
+                // 1. Fajr (Start: fajrStart, End: fajrEnd)
                 views.setTextViewText(R.id.widget_fajr_start, formatShortTime(todayTimes.fajrStart, isEnglish))
-                views.setTextViewText(R.id.widget_fajr_end, formatTimeWithAmPm(todayTimes.sunrise, isEnglish))
+                views.setTextViewText(R.id.widget_fajr_end, formatTimeWithAmPm(todayTimes.fajrEnd, isEnglish))
 
-                // 2. Dhuhr (Start: dhuhrStart, End: asrStart)
+                // 2. Dhuhr (Start: dhuhrStart, End: dhuhrEnd)
                 views.setTextViewText(R.id.widget_dhuhr_start, formatShortTime(todayTimes.dhuhrStart, isEnglish))
-                views.setTextViewText(R.id.widget_dhuhr_end, formatTimeWithAmPm(todayTimes.asrStart, isEnglish))
+                views.setTextViewText(R.id.widget_dhuhr_end, formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish))
 
-                // 3. Asr (Start: asrStart, End: maghribStart)
+                // 3. Asr (Start: asrStart, End: asrEnd)
                 views.setTextViewText(R.id.widget_asr_start, formatShortTime(todayTimes.asrStart, isEnglish))
-                views.setTextViewText(R.id.widget_asr_end, formatTimeWithAmPm(todayTimes.maghribStart, isEnglish))
+                views.setTextViewText(R.id.widget_asr_end, formatTimeWithAmPm(todayTimes.asrEnd, isEnglish))
 
-                // 4. Maghrib (Start: maghribStart, End: ishaStart)
+                // 4. Maghrib (Start: maghribStart, End: maghribEnd)
                 views.setTextViewText(R.id.widget_maghrib_start, formatShortTime(todayTimes.maghribStart, isEnglish))
-                views.setTextViewText(R.id.widget_maghrib_end, formatTimeWithAmPm(todayTimes.ishaStart, isEnglish))
+                views.setTextViewText(R.id.widget_maghrib_end, formatTimeWithAmPm(todayTimes.maghribEnd, isEnglish))
 
-                // 5. Isha (Start: ishaStart, End: next Fajr)
+                // 5. Isha (Start: ishaStart, End: ishaEnd)
                 views.setTextViewText(R.id.widget_isha_start, formatShortTime(todayTimes.ishaStart, isEnglish))
-                views.setTextViewText(R.id.widget_isha_end, formatTimeWithAmPm(tomorrowTimes.fajrStart, isEnglish))
+                views.setTextViewText(R.id.widget_isha_end, formatTimeWithAmPm(todayTimes.ishaEnd, isEnglish))
 
                 // Highlight Active Prayer Row
                 // 1. Fajr Row
                 val isFajrActive = (activePrayerIndex == 0)
-                views.setInt(R.id.widget_fajr_box, "setBackgroundResource", if (isFajrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
-                views.setImageViewResource(R.id.widget_fajr_indicator, if (isFajrActive) R.drawable.widget_indicator_active else R.drawable.widget_indicator_inactive)
+                views.setInt(R.id.widget_fajr_row, "setBackgroundResource", if (isFajrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
                 views.setTextColor(R.id.widget_fajr_name, if (isFajrActive) colActive else colInactiveName)
                 views.setTextColor(R.id.widget_fajr_start, if (isFajrActive) colActive else colInactiveStart)
-                views.setTextColor(R.id.widget_fajr_dash, if (isFajrActive) colActive else colInactiveDash)
                 views.setTextColor(R.id.widget_fajr_end, if (isFajrActive) colActiveSub else colInactiveEnd)
 
                 // 2. Dhuhr Row
                 val isDhuhrActive = (activePrayerIndex == 1)
-                views.setInt(R.id.widget_dhuhr_box, "setBackgroundResource", if (isDhuhrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
-                views.setImageViewResource(R.id.widget_dhuhr_indicator, if (isDhuhrActive) R.drawable.widget_indicator_active else R.drawable.widget_indicator_inactive)
+                views.setInt(R.id.widget_dhuhr_row, "setBackgroundResource", if (isDhuhrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
                 views.setTextColor(R.id.widget_dhuhr_name, if (isDhuhrActive) colActive else colInactiveName)
                 views.setTextColor(R.id.widget_dhuhr_start, if (isDhuhrActive) colActive else colInactiveStart)
-                views.setTextColor(R.id.widget_dhuhr_dash, if (isDhuhrActive) colActive else colInactiveDash)
                 views.setTextColor(R.id.widget_dhuhr_end, if (isDhuhrActive) colActiveSub else colInactiveEnd)
 
                 // 3. Asr Row
                 val isAsrActive = (activePrayerIndex == 2)
-                views.setInt(R.id.widget_asr_box, "setBackgroundResource", if (isAsrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
-                views.setImageViewResource(R.id.widget_asr_indicator, if (isAsrActive) R.drawable.widget_indicator_active else R.drawable.widget_indicator_inactive)
+                views.setInt(R.id.widget_asr_row, "setBackgroundResource", if (isAsrActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
                 views.setTextColor(R.id.widget_asr_name, if (isAsrActive) colActive else colInactiveName)
                 views.setTextColor(R.id.widget_asr_start, if (isAsrActive) colActive else colInactiveStart)
-                views.setTextColor(R.id.widget_asr_dash, if (isAsrActive) colActive else colInactiveDash)
                 views.setTextColor(R.id.widget_asr_end, if (isAsrActive) colActiveSub else colInactiveEnd)
 
                 // 4. Maghrib Row
                 val isMaghribActive = (activePrayerIndex == 3)
-                views.setInt(R.id.widget_maghrib_box, "setBackgroundResource", if (isMaghribActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
-                views.setImageViewResource(R.id.widget_maghrib_indicator, if (isMaghribActive) R.drawable.widget_indicator_active else R.drawable.widget_indicator_inactive)
+                views.setInt(R.id.widget_maghrib_row, "setBackgroundResource", if (isMaghribActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
                 views.setTextColor(R.id.widget_maghrib_name, if (isMaghribActive) colActive else colInactiveName)
                 views.setTextColor(R.id.widget_maghrib_start, if (isMaghribActive) colActive else colInactiveStart)
-                views.setTextColor(R.id.widget_maghrib_dash, if (isMaghribActive) colActive else colInactiveDash)
                 views.setTextColor(R.id.widget_maghrib_end, if (isMaghribActive) colActiveSub else colInactiveEnd)
 
                 // 5. Isha Row
                 val isIshaActive = (activePrayerIndex == 4)
-                views.setInt(R.id.widget_isha_box, "setBackgroundResource", if (isIshaActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
-                views.setImageViewResource(R.id.widget_isha_indicator, if (isIshaActive) R.drawable.widget_indicator_active else R.drawable.widget_indicator_inactive)
+                views.setInt(R.id.widget_isha_row, "setBackgroundResource", if (isIshaActive) R.drawable.widget_timeline_item_active else R.drawable.widget_timeline_item_normal)
                 views.setTextColor(R.id.widget_isha_name, if (isIshaActive) colActive else colInactiveName)
                 views.setTextColor(R.id.widget_isha_start, if (isIshaActive) colActive else colInactiveStart)
-                views.setTextColor(R.id.widget_isha_dash, if (isIshaActive) colActive else colInactiveDash)
                 views.setTextColor(R.id.widget_isha_end, if (isIshaActive) colActiveSub else colInactiveEnd)
 
                 // Set Open App Intent on widget click

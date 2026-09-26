@@ -1,6 +1,6 @@
 {
-  "name": "NoorUp (নূরআপ)",
-  "description": "A modern, lightweight, and clutter-free Islamic lifestyle app designed for Bengali-speaking users.",
+  "name": "NoorUp",
+  "description": "NoorUp Islamic Companion with Prayer Times, Qibla Compass, Hijri Calendar, and Noor Garden",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -296,14 +296,14 @@ fun ModernPrayerOrbitWidget(
     // Accurate determination of active prayer stage / Makruh prohibited period
     val (activeStage, remainingMins, nextStage) = remember(curMins, selectedCityLocation) {
         when {
-            curMins in fajrS until fajrE -> Triple(OrbitPrayerStage.FAJR, (fajrE - curMins).coerceAtLeast(1), OrbitPrayerStage.SUNRISE)
-            curMins in sunriseS..sunriseE -> Triple(OrbitPrayerStage.SUNRISE, (sunriseE - curMins).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
+            curMins in fajrS..fajrE -> Triple(OrbitPrayerStage.FAJR, (fajrE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.SUNRISE)
+            curMins in sunriseS..sunriseE -> Triple(OrbitPrayerStage.SUNRISE, (sunriseE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
             curMins in (sunriseE + 1) until zawalS -> Triple(OrbitPrayerStage.SUNRISE, (zawalS - curMins).coerceAtLeast(1), OrbitPrayerStage.ZAWAL)
-            curMins in zawalS until zawalE -> Triple(OrbitPrayerStage.ZAWAL, (zawalE - curMins).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
-            curMins in dhuhrS until dhuhrE -> Triple(OrbitPrayerStage.DHUHR, (dhuhrE - curMins).coerceAtLeast(1), OrbitPrayerStage.ASR)
+            curMins in zawalS..zawalE -> Triple(OrbitPrayerStage.ZAWAL, (zawalE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
+            curMins in dhuhrS..dhuhrE -> Triple(OrbitPrayerStage.DHUHR, (dhuhrE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.ASR)
             curMins in asrS until sunsetS -> Triple(OrbitPrayerStage.ASR, (sunsetS - curMins).coerceAtLeast(1), OrbitPrayerStage.SUNSET)
-            curMins in sunsetS..sunsetE -> Triple(OrbitPrayerStage.SUNSET, (sunsetE - curMins).coerceAtLeast(1), OrbitPrayerStage.MAGHRIB)
-            curMins in maghribS until maghribE -> Triple(OrbitPrayerStage.MAGHRIB, (maghribE - curMins).coerceAtLeast(1), OrbitPrayerStage.ISHA)
+            curMins in sunsetS..sunsetE -> Triple(OrbitPrayerStage.SUNSET, (sunsetE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.MAGHRIB)
+            curMins in maghribS..maghribE -> Triple(OrbitPrayerStage.MAGHRIB, (maghribE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.ISHA)
             curMins >= ishaS -> Triple(OrbitPrayerStage.ISHA, ((1440 - curMins) + fajrS).coerceAtLeast(1), OrbitPrayerStage.FAJR)
             else -> Triple(OrbitPrayerStage.ISHA, (fajrS - curMins).coerceAtLeast(1), OrbitPrayerStage.FAJR)
         }

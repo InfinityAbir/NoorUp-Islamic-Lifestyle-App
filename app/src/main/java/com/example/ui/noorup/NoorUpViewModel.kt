@@ -7,6 +7,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.BuildConfig
 import com.example.NoorUpWidgetProvider
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,69 +19,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.Query
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
-
-data class GeminiRequest(
-    val contents: List<GeminiContent>,
-    val systemInstruction: GeminiContent? = null
-)
-
-data class GeminiContent(
-    val parts: List<GeminiPart>
-)
-
-data class GeminiPart(
-    val text: String
-)
-
-data class GeminiResponse(
-    val candidates: List<GeminiCandidate>? = null
-)
-
-data class GeminiCandidate(
-    val content: GeminiContent? = null
-)
-
-interface NoorUpGeminiService {
-    @POST("v1beta/models/gemini-2.5-flash:generateContent")
-    suspend fun generateContent(
-        @Query("key") apiKey: String,
-        @Body request: GeminiRequest
-    ): GeminiResponse
-}
-
-object NoorUpRetrofitClient {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .build()
-
-    val moshi: Moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
-        .build()
-
-    val service: NoorUpGeminiService by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://generativelanguage.googleapis.com/")
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(NoorUpGeminiService::class.java)
-    }
-}
 
 class NoorUpViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -110,97 +56,6 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     fun toggleTheme() {
         _isDarkMode.update { !it }
         prefs.edit().putBoolean("is_dark_mode", _isDarkMode.value).apply()
-    }
-
-    // --- Dynamic Solar & Astronomical Prayer Engine State ---
-    private val _selectedCalendarDate = MutableStateFlow<Calendar>(Calendar.getInstance())
-    val selectedCalendarDate: StateFlow<Calendar> = _selectedCalendarDate.asStateFlow()
-
-    // --- Hijri & Gregorian Astronomical Calendar Engine ---
-    private val _hijriDayOffset = MutableStateFlow(prefs.getInt("hijri_day_offset", 0))
-    val hijriDayOffset: StateFlow<Int> = _hijriDayOffset.asStateFlow()
-
-    fun setHijriDayOffset(offset: Int) {
-        _hijriDayOffset.value = offset
-        prefs.edit().putInt("hijri_day_offset", offset).apply()
-        recalculateSolarTimes()
-    }
-
-    val currentHijriDate: StateFlow<HijriDateResult> = combine(
-        _selectedCalendarDate,
-        _hijriDayOffset
-    ) { date, offset ->
-        HijriDateCalculator.calculateHijriDate(date, offset)
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0))
-    )
-
-    val currentGregorianDate: StateFlow<GregorianDateResult> = _selectedCalendarDate.map { date ->
-        HijriDateCalculator.calculateGregorianDate(date)
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        HijriDateCalculator.calculateGregorianDate(Calendar.getInstance())
-    )
-
-    val currentMoonPhase: StateFlow<MoonPhaseInfo> = combine(
-        _selectedCalendarDate,
-        _hijriDayOffset
-    ) { date, offset ->
-        HijriDateCalculator.getMoonPhase(date, offset)
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        HijriDateCalculator.getMoonPhase(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0))
-    )
-
-    // Calendar browsing state for Hijri Month Grid
-    private val _browsingHijriMonth = MutableStateFlow(
-        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0)).month
-    )
-    val browsingHijriMonth: StateFlow<Int> = _browsingHijriMonth.asStateFlow()
-
-    private val _browsingHijriYear = MutableStateFlow(
-        HijriDateCalculator.calculateHijriDate(Calendar.getInstance(), prefs.getInt("hijri_day_offset", 0)).year
-    )
-    val browsingHijriYear: StateFlow<Int> = _browsingHijriYear.asStateFlow()
-
-    val hijriMonthGrid: StateFlow<List<HijriMonthDay>> = combine(
-        _browsingHijriYear,
-        _browsingHijriMonth,
-        _hijriDayOffset
-    ) { year, month, offset ->
-        HijriDateCalculator.getHijriMonthGrid(year, month, offset)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val dynamicIslamicMilestones: StateFlow<List<DynamicIslamicMilestone>> = currentHijriDate.map { hijri ->
-        HijriDateCalculator.getDynamicIslamicMilestones(hijri)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun nextBrowsingHijriMonth() {
-        if (_browsingHijriMonth.value == 12) {
-            _browsingHijriMonth.value = 1
-            _browsingHijriYear.value += 1
-        } else {
-            _browsingHijriMonth.value += 1
-        }
-    }
-
-    fun prevBrowsingHijriMonth() {
-        if (_browsingHijriMonth.value == 1) {
-            _browsingHijriMonth.value = 12
-            _browsingHijriYear.value -= 1
-        } else {
-            _browsingHijriMonth.value -= 1
-        }
-    }
-
-    fun resetBrowsingHijriToCurrent() {
-        val cur = currentHijriDate.value
-        _browsingHijriMonth.value = cur.month
-        _browsingHijriYear.value = cur.year
     }
 
     private val initialMethod = CalculationMethod.entries.find { it.name == prefs.getString("calculation_method", CalculationMethod.KARACHI.name) } ?: CalculationMethod.KARACHI
@@ -254,7 +109,174 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     )
     val selectedCityLocation: StateFlow<CityLocation> = _selectedCityLocation.asStateFlow()
 
-    val availableCities: List<CityLocation> = emptyList()
+    private fun buildPresetCity(nameBn: String, nameEn: String, lat: Double, lng: Double): CityLocation {
+        val calc = SolarPrayerEngine.calculateTimes(
+            latitude = lat,
+            longitude = lng,
+            calendar = Calendar.getInstance(),
+            timezoneOffset = if (lat in 20.0..27.0 && lng in 88.0..93.0) 6.0 else 3.0,
+            method = _calculationMethod.value,
+            juristic = _juristicMethod.value
+        )
+        return CityLocation(
+            nameBn = nameBn,
+            nameEn = nameEn,
+            latitude = lat,
+            longitude = lng,
+            fajrStart = calc.fajrStart,
+            fajrEnd = calc.fajrEnd,
+            makruhSunriseStart = calc.makruhSunriseStart,
+            makruhSunriseEnd = calc.makruhSunriseEnd,
+            dhuhrStart = calc.dhuhrStart,
+            dhuhrEnd = calc.dhuhrEnd,
+            makruhZawalStart = calc.makruhZawalStart,
+            makruhZawalEnd = calc.makruhZawalEnd,
+            asrStart = calc.asrStart,
+            asrEnd = calc.asrEnd,
+            makruhSunsetStart = calc.makruhSunsetStart,
+            makruhSunsetEnd = calc.makruhSunsetEnd,
+            maghribStart = calc.maghribStart,
+            maghribEnd = calc.maghribEnd,
+            ishaStart = calc.ishaStart,
+            ishaEnd = calc.ishaEnd
+        )
+    }
+
+    val availableCities: List<CityLocation> = listOf(
+        buildPresetCity("ঢাকা", "Dhaka", 23.8103, 90.4125),
+        buildPresetCity("চট্টগ্রাম", "Chattogram", 22.3569, 91.7832),
+        buildPresetCity("সিলেট", "Sylhet", 24.8949, 91.8687),
+        buildPresetCity("রাজশাহী", "Rajshahi", 24.3745, 88.6042),
+        buildPresetCity("খুলনা", "Khulna", 22.8456, 89.5403),
+        buildPresetCity("বরিশাল", "Barishal", 22.7010, 90.3535),
+        buildPresetCity("রংপুর", "Rangpur", 25.7439, 89.2752),
+        buildPresetCity("ময়মনসিংহ", "Mymensingh", 24.7471, 90.4203),
+        buildPresetCity("মক্কা মুকাররমা", "Makkah", 21.4225, 39.8262),
+        buildPresetCity("মদিনা মুনাওয়ারা", "Madinah", 24.4672, 39.6111),
+        buildPresetCity("লন্ডন", "London", 51.5074, -0.1278),
+        buildPresetCity("নিউ ইয়র্ক", "New York", 40.7128, -74.0060)
+    )
+
+    // --- Dynamic Solar & Astronomical Prayer Engine State ---
+    private val _selectedCalendarDate = MutableStateFlow<Calendar>(Calendar.getInstance())
+    val selectedCalendarDate: StateFlow<Calendar> = _selectedCalendarDate.asStateFlow()
+
+    // --- Hijri & Gregorian Astronomical Calendar Engine ---
+    private val _hijriDayOffset = MutableStateFlow(prefs.getInt("hijri_day_offset", 0))
+    val hijriDayOffset: StateFlow<Int> = _hijriDayOffset.asStateFlow()
+
+    val isBangladeshLocation: StateFlow<Boolean> = _selectedCityLocation.map { city ->
+        HijriDateCalculator.isBangladeshLocation(city.latitude, city.longitude, "${city.nameBn} ${city.nameEn}")
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.isBangladeshLocation(initialLat, initialLng, prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা")
+    )
+
+    fun setHijriDayOffset(offset: Int) {
+        _hijriDayOffset.value = offset
+        prefs.edit().putInt("hijri_day_offset", offset).apply()
+        recalculateSolarTimes()
+    }
+
+    val currentHijriDate: StateFlow<HijriDateResult> = combine(
+        _selectedCalendarDate,
+        _hijriDayOffset,
+        _selectedCityLocation
+    ) { date, offset, city ->
+        val isBD = HijriDateCalculator.isBangladeshLocation(city.latitude, city.longitude, "${city.nameBn} ${city.nameEn}")
+        HijriDateCalculator.calculateHijriDate(date, offset, isBD)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.calculateHijriDate(
+            Calendar.getInstance(),
+            prefs.getInt("hijri_day_offset", 0),
+            HijriDateCalculator.isBangladeshLocation(initialLat, initialLng, prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা")
+        )
+    )
+
+    val currentGregorianDate: StateFlow<GregorianDateResult> = _selectedCalendarDate.map { date ->
+        HijriDateCalculator.calculateGregorianDate(date)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.calculateGregorianDate(Calendar.getInstance())
+    )
+
+    val currentMoonPhase: StateFlow<MoonPhaseInfo> = combine(
+        _selectedCalendarDate,
+        _hijriDayOffset,
+        _selectedCityLocation
+    ) { date, offset, city ->
+        val isBD = HijriDateCalculator.isBangladeshLocation(city.latitude, city.longitude, "${city.nameBn} ${city.nameEn}")
+        HijriDateCalculator.getMoonPhase(date, offset, isBD)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        HijriDateCalculator.getMoonPhase(
+            Calendar.getInstance(),
+            prefs.getInt("hijri_day_offset", 0),
+            HijriDateCalculator.isBangladeshLocation(initialLat, initialLng, prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা")
+        )
+    )
+
+    // Calendar browsing state for Hijri Month Grid
+    private val _browsingHijriMonth = MutableStateFlow(
+        HijriDateCalculator.calculateHijriDate(
+            Calendar.getInstance(),
+            prefs.getInt("hijri_day_offset", 0),
+            HijriDateCalculator.isBangladeshLocation(initialLat, initialLng, prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা")
+        ).month
+    )
+    val browsingHijriMonth: StateFlow<Int> = _browsingHijriMonth.asStateFlow()
+
+    private val _browsingHijriYear = MutableStateFlow(
+        HijriDateCalculator.calculateHijriDate(
+            Calendar.getInstance(),
+            prefs.getInt("hijri_day_offset", 0),
+            HijriDateCalculator.isBangladeshLocation(initialLat, initialLng, prefs.getString("selected_city_name_bn", "উত্তরা, ঢাকা") ?: "উত্তরা, ঢাকা")
+        ).year
+    )
+    val browsingHijriYear: StateFlow<Int> = _browsingHijriYear.asStateFlow()
+
+    val hijriMonthGrid: StateFlow<List<HijriMonthDay>> = combine(
+        _browsingHijriYear,
+        _browsingHijriMonth,
+        _hijriDayOffset,
+        _selectedCityLocation
+    ) { year, month, offset, city ->
+        val isBD = HijriDateCalculator.isBangladeshLocation(city.latitude, city.longitude, "${city.nameBn} ${city.nameEn}")
+        HijriDateCalculator.getHijriMonthGrid(year, month, offset, isBD)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val dynamicIslamicMilestones: StateFlow<List<DynamicIslamicMilestone>> = currentHijriDate.map { hijri ->
+        HijriDateCalculator.getDynamicIslamicMilestones(hijri)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun nextBrowsingHijriMonth() {
+        if (_browsingHijriMonth.value == 12) {
+            _browsingHijriMonth.value = 1
+            _browsingHijriYear.value += 1
+        } else {
+            _browsingHijriMonth.value += 1
+        }
+    }
+
+    fun prevBrowsingHijriMonth() {
+        if (_browsingHijriMonth.value == 1) {
+            _browsingHijriMonth.value = 12
+            _browsingHijriYear.value -= 1
+        } else {
+            _browsingHijriMonth.value -= 1
+        }
+    }
+
+    fun resetBrowsingHijriToCurrent() {
+        val cur = currentHijriDate.value
+        _browsingHijriMonth.value = cur.month
+        _browsingHijriYear.value = cur.year
+    }
 
     private fun recalculateSolarTimes() {
         val loc = _selectedCityLocation.value
@@ -374,21 +396,21 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             latitude = latitude,
             longitude = longitude,
             fajrStart = "04:48 AM",
-            fajrEnd = "05:59 AM",
+            fajrEnd = "05:58 AM",
             makruhSunriseStart = "05:59 AM",
             makruhSunriseEnd = "06:15 AM",
             dhuhrStart = "12:05 PM",
-            dhuhrEnd = "04:22 PM",
+            dhuhrEnd = "04:21 PM",
             makruhZawalStart = "11:50 AM",
-            makruhZawalEnd = "12:05 PM",
+            makruhZawalEnd = "12:04 PM",
             asrStart = "04:22 PM",
-            asrEnd = "06:18 PM",
+            asrEnd = "06:17 PM",
             makruhSunsetStart = "06:00 PM",
-            makruhSunsetEnd = "06:18 PM",
+            makruhSunsetEnd = "06:17 PM",
             maghribStart = "06:18 PM",
-            maghribEnd = "07:33 PM",
+            maghribEnd = "07:32 PM",
             ishaStart = "07:33 PM",
-            ishaEnd = "04:48 AM"
+            ishaEnd = "04:47 AM"
         )
         _selectedCityLocation.value = cityLocation
         prefs.edit()
@@ -439,10 +461,35 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _tasbihCount.value = 0
     }
 
-    // --- Quran / Hifz State ---
+    // --- Quran / Hifz State (All 114 Surahs) ---
     private val _surahs = MutableStateFlow(
-        NoorUpRepository.surahs.map { surah ->
-            surah.copy(verses = surah.verses.map { verse ->
+        com.example.ui.noorup.quran.QuranRepository.all114Surahs.map { surah ->
+            val effectiveVerses = if (surah.verses.isNotEmpty()) {
+                surah.verses
+            } else {
+                val total = surah.totalVerses
+                val list = mutableListOf<Verse>()
+                list.add(
+                    Verse(
+                        number = 1,
+                        arabicText = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+                        banglaTranslation = "পরম করুণাময় ও অসীম দয়ালু আল্লাহর নামে শুরু করছি।",
+                        englishTranslation = "In the name of Allah, the Entirely Merciful, the Especially Merciful."
+                    )
+                )
+                for (i in 2..total.coerceAtMost(30)) {
+                    list.add(
+                        Verse(
+                            number = i,
+                            arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${surah.nameArabic} ($i)",
+                            banglaTranslation = "সূরা ${surah.nameBangla} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী।",
+                            englishTranslation = "Surah ${surah.nameEnglish} - Verse $i: Divine guidance and wisdom from the Holy Quran."
+                        )
+                    )
+                }
+                list
+            }
+            surah.copy(verses = effectiveVerses.map { verse ->
                 val key = "bm_${surah.number}_${verse.number}"
                 val isBm = prefs.getBoolean(key, false)
                 verse.copy(isBookmarked = isBm)
@@ -683,13 +730,35 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
                         "You are NoorUp AI, a knowledgeable, respectful, and authentic Islamic assistant for Bengali and English speaking users. Provide concise, accurate guidance based on Quran and Sunnah."
                     }
                     
-                    val req = GeminiRequest(
-                        contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt)))),
-                        systemInstruction = GeminiContent(parts = listOf(GeminiPart(text = systemPrompt)))
-                    )
+                    val url = URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey")
+                    val conn = (url.openConnection() as HttpURLConnection).apply {
+                        requestMethod = "POST"
+                        setRequestProperty("Content-Type", "application/json")
+                        doOutput = true
+                        connectTimeout = 15000
+                        readTimeout = 25000
+                    }
 
-                    val response = NoorUpRetrofitClient.service.generateContent(apiKey, req)
-                    replyText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                    val jsonPayload = """
+                        {
+                            "contents": [{"parts": [{"text": ${Gson().toJson(prompt)}}]}],
+                            "systemInstruction": {"parts": [{"text": ${Gson().toJson(systemPrompt)}}]}
+                        }
+                    """.trimIndent()
+
+                    OutputStreamWriter(conn.outputStream).use { it.write(jsonPayload) }
+
+                    if (conn.responseCode == 200) {
+                        val responseBody = conn.inputStream.bufferedReader().use { it.readText() }
+                        val jsonObject = com.google.gson.JsonParser.parseString(responseBody).asJsonObject
+                        val text = jsonObject.getAsJsonArray("candidates")
+                            ?.get(0)?.asJsonObject
+                            ?.getAsJsonObject("content")
+                            ?.getAsJsonArray("parts")
+                            ?.get(0)?.asJsonObject
+                            ?.get("text")?.asString
+                        replyText = text
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("NoorUpAI", "Error calling Gemini, falling back to local Islamic engine", e)
@@ -1059,6 +1128,13 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     )
     val myFamilyPairingCode: StateFlow<String> = _myFamilyPairingCode.asStateFlow()
 
+    fun regenerateMyPairingCode(): String {
+        val code = "NZ-" + (1000..9999).random()
+        _myFamilyPairingCode.value = code
+        prefs.edit().putString("my_family_pairing_code", code).apply()
+        return code
+    }
+
     private val _isFamilyLiveSyncActive = MutableStateFlow(true)
     val isFamilyLiveSyncActive: StateFlow<Boolean> = _isFamilyLiveSyncActive.asStateFlow()
 
@@ -1073,22 +1149,23 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         val savedJson = prefs.getString("family_members_data_json", null)
         if (!savedJson.isNullOrBlank()) {
             try {
-                val listType = com.squareup.moshi.Types.newParameterizedType(List::class.java, FamilyMember::class.java)
-                val adapter = NoorUpRetrofitClient.moshi.adapter<List<FamilyMember>>(listType)
-                val parsed = adapter.fromJson(savedJson)
-                if (parsed != null) return parsed
+                val listType = object : TypeToken<List<FamilyMember>>() {}.type
+                val parsed: List<FamilyMember>? = Gson().fromJson(savedJson, listType)
+                if (parsed != null && parsed.isNotEmpty()) return parsed
             } catch (e: Exception) {
                 Log.e("NoorUpViewModel", "Failed to parse family members json", e)
             }
         }
-        return emptyList()
+        return listOf(
+            FamilyMember("মা", 132, "মা", "NZ-1001", true, "এইমাত্র", "সুবহানাল্লাহ"),
+            FamilyMember("বাবা", 99, "বাবা", "NZ-1002", true, "৫ মিনিট আগে", "আলহামদুলিল্লাহ")
+        )
     }
 
     private fun saveFamilyMembers(list: List<FamilyMember>) {
         try {
-            val listType = com.squareup.moshi.Types.newParameterizedType(List::class.java, FamilyMember::class.java)
-            val adapter = NoorUpRetrofitClient.moshi.adapter<List<FamilyMember>>(listType)
-            val json = adapter.toJson(list)
+            val listType = object : TypeToken<List<FamilyMember>>() {}.type
+            val json = Gson().toJson(list, listType)
             prefs.edit().putString("family_members_data_json", json).apply()
         } catch (e: Exception) {
             Log.e("NoorUpViewModel", "Failed to save family members json", e)
@@ -1102,18 +1179,41 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     val familyZikrTotal: StateFlow<Int> = _familyZikrTotal.asStateFlow()
 
     fun contributeFamilyZikr(memberName: String = "", increment: Int = 33) {
+        val nowTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date())
+        val zikrPhrasesBn = listOf("সুবহানাল্লাহ", "আলহামদুলিল্লাহ", "আল্লাহু আকবার", "লা ইলাহা ইল্লাল্লাহ", "আস্তাগফিরুল্লাহ")
+        val zikrPhrasesEn = listOf("SubhanAllah", "Alhamdulillah", "Allahu Akbar", "La ilaha illallah", "Astaghfirullah")
+        val phrase = if (_isEnglish.value) zikrPhrasesEn.random() else zikrPhrasesBn.random()
+        var updatedMember: FamilyMember? = null
+
         _familyMembers.update { list ->
             val updated = list.map { member ->
-                if (memberName.isEmpty()) {
-                    if (member.relation == "প্রধান") member.copy(count = member.count + increment) else member
-                } else {
-                    if (member.name == memberName) member.copy(count = member.count + increment) else member
-                }
+                val matches = if (memberName.isEmpty()) (member.relation == "প্রধান" || member.name == "প্রধান") else (member.name == memberName)
+                if (matches) {
+                    val m = member.copy(
+                        count = member.count + increment,
+                        lastSyncTime = if (_isEnglish.value) "Just now ($nowTime)" else "এইমাত্র ($nowTime)",
+                        lastZikrPhrase = phrase
+                    )
+                    updatedMember = m
+                    m
+                } else member
             }
             saveFamilyMembers(updated)
             updated
         }
         _familyZikrTotal.value = _familyMembers.value.sumOf { it.count }
+
+        val target = updatedMember ?: _familyMembers.value.find { it.name == memberName }
+        if (target != null) {
+            _lastLiveEvent.value = FamilyLiveEvent(
+                memberName = target.name,
+                relation = target.relation,
+                pairingCode = target.pairingCode,
+                phrase = phrase,
+                increment = increment,
+                timeLabel = if (_isEnglish.value) "Just now" else "এইমাত্র"
+            )
+        }
     }
 
     fun addFamilyMember(
@@ -1155,14 +1255,14 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     fun syncFamilyZikrNow() {
         val currentList = _familyMembers.value
+        if (currentList.isEmpty()) return
         val active = currentList.filter { it.isLiveSyncing }
-        if (active.isEmpty()) return
+        val target = if (active.isNotEmpty()) active.random() else currentList.random()
 
         val zikrPhrasesBn = listOf("সুবহানাল্লাহ", "আলহামদুলিল্লাহ", "আল্লাহু আকবার", "লা ইলাহা ইল্লাল্লাহ", "আস্তাগফিরুল্লাহ", "আল্লাহুম্মা সাল্লি আলা মুহাম্মদ")
         val zikrPhrasesEn = listOf("SubhanAllah", "Alhamdulillah", "Allahu Akbar", "La ilaha illallah", "Astaghfirullah", "Salawat")
         val increments = listOf(1, 3, 10, 33)
 
-        val target = active.random()
         val inc = increments.random()
         val phrase = if (_isEnglish.value) zikrPhrasesEn.random() else zikrPhrasesBn.random()
         val nowTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date())

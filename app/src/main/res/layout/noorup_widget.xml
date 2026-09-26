@@ -3,593 +3,382 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingTop="10dp"
-    android:paddingRight="10dp"
-    android:paddingBottom="10dp">
+    android:background="@drawable/widget_bg"
+    android:padding="12dp">
 
-    <!-- Top Navigation & Status Bar -->
+    <!-- Top Bar: Brand, Dates, City -->
     <LinearLayout
-        android:id="@+id/widget_header_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="8dp">
+        android:gravity="center_vertical">
 
-        <!-- Brand Badge -->
-        <LinearLayout
-            android:id="@+id/widget_brand_container"
+        <TextView
+            android:id="@+id/widget_brand_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/widget_brand_badge"
-            android:paddingLeft="7dp"
-            android:paddingTop="3dp"
-            android:paddingRight="7dp"
-            android:paddingBottom="3dp">
+            android:text="NoorUp"
+            android:textColor="#34D399"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/widget_brand_icon"
-                android:layout_width="13dp"
-                android:layout_height="13dp"
-                android:src="@drawable/ic_widget_brand_logo"
-                android:contentDescription="NoorUp Logo" />
-
-            <TextView
-                android:id="@+id/widget_brand_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="NoorUp"
-                android:textColor="#34D399"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:maxLines="1" />
-        </LinearLayout>
-
-        <!-- Dynamic Date Header (Top-Center: Hijri & Gregorian Dates) -->
         <LinearLayout
-            android:id="@+id/widget_date_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <!-- Hijri Date (e.g. "৩ রবিউল আউয়াল ১৪৪৮") -->
             <TextView
                 android:id="@+id/widget_hijri_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="৩ রবিউল আউয়াল ১৪৪৮"
-                android:textColor="#34D399"
-                android:textSize="10.5sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:text="১৩ রবিউস সানি ১৪৪৮ হিজরি"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:textStyle="bold" />
 
-            <!-- Gregorian Date (e.g. "২৫ সেপ্টেম্বর ২০২৬") -->
             <TextView
                 android:id="@+id/widget_gregorian_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:gravity="center"
-                android:text="২৫ সেপ্টেম্বর ২০২৬"
-                android:textColor="#D1D5DB"
-                android:textSize="9.5sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:text="25 September 2026"
+                android:textColor="#9CA3AF"
+                android:textSize="9.5sp" />
         </LinearLayout>
 
-        <!-- Location Badge -->
-        <LinearLayout
-            android:id="@+id/widget_location_badge"
+        <TextView
+            android:id="@+id/widget_city"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/widget_location_badge_bg"
-            android:paddingLeft="6dp"
-            android:paddingTop="3dp"
-            android:paddingRight="6dp"
-            android:paddingBottom="3dp">
-
-            <ImageView
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:src="@drawable/ic_widget_pin"
-                android:contentDescription="Location Icon" />
-
-            <TextView
-                android:id="@+id/widget_city"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
-                android:text="ঢাকা"
-                android:textColor="#D1D5DB"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
-        </LinearLayout>
+            android:text="উত্তরা, ঢাকা"
+            android:textColor="#A7F3D0"
+            android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- Main Two-Column Hybrid Layout -->
+    <!-- Main Content Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
-        <!-- Column 1: Hero Active Prayer & Noor Garden Card (Left) -->
+        <!-- Left Active Hero Card -->
         <LinearLayout
+            android:id="@+id/widget_hero_card"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.95"
-            android:layout_marginEnd="5dp"
-            android:background="@drawable/widget_hero_card_bg"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingLeft="7dp"
-            android:paddingTop="7dp"
-            android:paddingRight="7dp"
-            android:paddingBottom="7dp"
-            android:gravity="center_vertical">
+            android:background="@drawable/widget_hero_card_bg"
+            android:padding="8dp">
 
-            <!-- Active Stage Header -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/widget_active_stage_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:text="চলমান ওয়াক্ত"
+                android:textColor="#34D399"
+                android:textSize="10sp"
+                android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/widget_active_indicator"
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:src="@drawable/widget_indicator_active"
-                    android:contentDescription="Live indicator" />
-
-                <TextView
-                    android:id="@+id/widget_active_stage_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="চলমান ওয়াক্ত"
-                    android:textColor="#A7F3D0"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
-            </LinearLayout>
-
-            <!-- Active Prayer Name -->
             <TextView
                 android:id="@+id/widget_active_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:text="যোহর"
+                android:text="আসর"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:maxLines="1" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-            <!-- Active Prayer Time Window (Start - End) -->
             <TextView
                 android:id="@+id/widget_active_window"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="১২:০৭ – ০৪:২২ PM"
-                android:textColor="#9CA3AF"
-                android:textSize="9sp"
-                android:maxLines="1" />
+                android:text="04:22 PM – 06:17 PM"
+                android:textColor="#E5E7EB"
+                android:textSize="10sp" />
 
-            <!-- Remaining Countdown -->
             <TextView
                 android:id="@+id/widget_active_countdown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:text="বাকি ০১ ঘ. ৩৫ মি."
-                android:textColor="#34D399"
-                android:textSize="10.5sp"
-                android:textStyle="bold"
-                android:maxLines="1" />
+                android:text="বাকি ১ ঘ. ১৫ মি."
+                android:textColor="#FDE68A"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
-            <!-- Divider -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="#2634D399" />
-
-            <!-- Integrated Noor Garden Mini Progress Bar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:layout_marginTop="4dp"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/widget_garden_label"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="🌱 নূর বাগান"
-                    android:textColor="#E2E8F0"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/widget_garden_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🌱 নূর বাগান"
+                        android:textColor="#A7F3D0"
+                        android:textSize="9.5sp" />
+
+                    <TextView
+                        android:id="@+id/widget_garden_ratio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="৩/৫"
+                        android:textColor="#FFFFFF"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/widget_garden_progress"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:max="5"
+                    android:progress="3" />
 
                 <TextView
-                    android:id="@+id/widget_garden_ratio"
+                    android:id="@+id/widget_garden_streak"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="২/৫"
-                    android:textColor="#34D399"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:text="🔥 ৭ দিন স্ট্রিক • ৬০%"
+                    android:textColor="#D1FAE5"
+                    android:textSize="8.5sp" />
             </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/widget_garden_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="5dp"
-                android:layout_marginTop="3dp"
-                android:indeterminate="false"
-                android:indeterminateOnly="false"
-                android:max="5"
-                android:progress="2"
-                android:progressDrawable="@drawable/widget_progress_bg" />
-
-            <TextView
-                android:id="@+id/widget_garden_streak"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:text="🔥 ০ দিন স্ট্রিক • ৪০%"
-                android:textColor="#FBBF24"
-                android:textSize="8.5sp"
-                android:textStyle="bold"
-                android:maxLines="1" />
         </LinearLayout>
 
-        <!-- Column 2: Vertical Stage Timeline (Right) -->
+        <!-- Right 5 Prayers Timeline List -->
         <LinearLayout
+            android:id="@+id/widget_timeline_card"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.35"
-            android:layout_marginStart="5dp"
-            android:background="@drawable/widget_timeline_card_bg"
+            android:layout_weight="1.3"
+            android:layout_marginStart="8dp"
             android:orientation="vertical"
-            android:paddingLeft="5dp"
-            android:paddingTop="5dp"
-            android:paddingRight="5dp"
-            android:paddingBottom="5dp"
-            android:gravity="center_vertical">
+            android:background="@drawable/widget_timeline_card_bg"
+            android:padding="6dp">
 
-            <!-- 1. Fajr Row -->
+            <!-- Fajr Row -->
             <LinearLayout
-                android:id="@+id/widget_fajr_box"
+                android:id="@+id/widget_fajr_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dp"
-                android:paddingTop="2.5dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="2.5dp"
-                android:background="@drawable/widget_timeline_item_normal">
-
-                <ImageView
-                    android:id="@+id/widget_fajr_indicator"
-                    android:layout_width="5.5dp"
-                    android:layout_height="5.5dp"
-                    android:src="@drawable/widget_indicator_inactive"
-                    android:contentDescription="Fajr" />
+                android:paddingVertical="1dp">
 
                 <TextView
                     android:id="@+id/widget_fajr_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:text="ফজর"
-                    android:textColor="#9CA3AF"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textColor="#E5E7EB"
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/widget_fajr_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="04:27"
+                    android:text="০৪:৪৮"
                     android:textColor="#E5E7EB"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
 
                 <TextView
-                    android:id="@+id/widget_fajr_dash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:text="–"
-                    android:textColor="#6B7280"
-                    android:textSize="8.5sp"
-                    android:maxLines="1" />
+                    android:text=" – "
+                    android:textColor="#9CA3AF"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/widget_fajr_end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="05:44 AM"
+                    android:text="০৫:৫৮ AM"
                     android:textColor="#9CA3AF"
-                    android:textSize="9sp"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
-            <!-- 2. Dhuhr Row -->
+            <!-- Dhuhr Row -->
             <LinearLayout
-                android:id="@+id/widget_dhuhr_box"
+                android:id="@+id/widget_dhuhr_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dp"
-                android:paddingTop="2.5dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="2.5dp"
-                android:background="@drawable/widget_timeline_item_active">
-
-                <ImageView
-                    android:id="@+id/widget_dhuhr_indicator"
-                    android:layout_width="5.5dp"
-                    android:layout_height="5.5dp"
-                    android:src="@drawable/widget_indicator_active"
-                    android:contentDescription="Dhuhr" />
+                android:paddingVertical="1dp">
 
                 <TextView
                     android:id="@+id/widget_dhuhr_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:text="যোহর"
-                    android:textColor="#34D399"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textColor="#E5E7EB"
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/widget_dhuhr_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12:07"
-                    android:textColor="#34D399"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:text="১২:০৫"
+                    android:textColor="#E5E7EB"
+                    android:textSize="9.5sp" />
 
                 <TextView
-                    android:id="@+id/widget_dhuhr_dash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:text="–"
-                    android:textColor="#34D399"
-                    android:textSize="8.5sp"
-                    android:maxLines="1" />
+                    android:text=" – "
+                    android:textColor="#9CA3AF"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/widget_dhuhr_end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="04:22 PM"
-                    android:textColor="#6EE7B7"
-                    android:textSize="9sp"
-                    android:maxLines="1" />
+                    android:text="০৪:২১ PM"
+                    android:textColor="#9CA3AF"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
-            <!-- 3. Asr Row -->
+            <!-- Asr Row -->
             <LinearLayout
-                android:id="@+id/widget_asr_box"
+                android:id="@+id/widget_asr_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dp"
-                android:paddingTop="2.5dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="2.5dp"
-                android:background="@drawable/widget_timeline_item_normal">
-
-                <ImageView
-                    android:id="@+id/widget_asr_indicator"
-                    android:layout_width="5.5dp"
-                    android:layout_height="5.5dp"
-                    android:src="@drawable/widget_indicator_inactive"
-                    android:contentDescription="Asr" />
+                android:paddingVertical="1dp">
 
                 <TextView
                     android:id="@+id/widget_asr_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:text="আসর"
-                    android:textColor="#9CA3AF"
+                    android:textColor="#34D399"
                     android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/widget_asr_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="04:22"
-                    android:textColor="#E5E7EB"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:text="০৪:২২"
+                    android:textColor="#34D399"
+                    android:textSize="9.5sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/widget_asr_dash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:text="–"
-                    android:textColor="#6B7280"
-                    android:textSize="8.5sp"
-                    android:maxLines="1" />
+                    android:text=" – "
+                    android:textColor="#34D399"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/widget_asr_end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="06:06 PM"
-                    android:textColor="#9CA3AF"
-                    android:textSize="9sp"
-                    android:maxLines="1" />
+                    android:text="০৬:১৭ PM"
+                    android:textColor="#6EE7B7"
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
-            <!-- 4. Maghrib Row -->
+            <!-- Maghrib Row -->
             <LinearLayout
-                android:id="@+id/widget_maghrib_box"
+                android:id="@+id/widget_maghrib_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dp"
-                android:paddingTop="2.5dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="2.5dp"
-                android:background="@drawable/widget_timeline_item_normal">
-
-                <ImageView
-                    android:id="@+id/widget_maghrib_indicator"
-                    android:layout_width="5.5dp"
-                    android:layout_height="5.5dp"
-                    android:src="@drawable/widget_indicator_inactive"
-                    android:contentDescription="Maghrib" />
+                android:paddingVertical="1dp">
 
                 <TextView
                     android:id="@+id/widget_maghrib_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:text="মাগরিব"
-                    android:textColor="#9CA3AF"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textColor="#E5E7EB"
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/widget_maghrib_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="06:06"
+                    android:text="০৬:১৮"
                     android:textColor="#E5E7EB"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
 
                 <TextView
-                    android:id="@+id/widget_maghrib_dash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:text="–"
-                    android:textColor="#6B7280"
-                    android:textSize="8.5sp"
-                    android:maxLines="1" />
+                    android:text=" – "
+                    android:textColor="#9CA3AF"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/widget_maghrib_end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="07:20 PM"
+                    android:text="০৭:৩২ PM"
                     android:textColor="#9CA3AF"
-                    android:textSize="9sp"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
             </LinearLayout>
 
-            <!-- 5. Isha Row -->
+            <!-- Isha Row -->
             <LinearLayout
-                android:id="@+id/widget_isha_box"
+                android:id="@+id/widget_isha_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingLeft="5dp"
-                android:paddingTop="2.5dp"
-                android:paddingRight="5dp"
-                android:paddingBottom="2.5dp"
-                android:background="@drawable/widget_timeline_item_normal">
-
-                <ImageView
-                    android:id="@+id/widget_isha_indicator"
-                    android:layout_width="5.5dp"
-                    android:layout_height="5.5dp"
-                    android:src="@drawable/widget_indicator_inactive"
-                    android:contentDescription="Isha" />
+                android:paddingVertical="1dp">
 
                 <TextView
                     android:id="@+id/widget_isha_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="4dp"
                     android:text="এশা"
-                    android:textColor="#9CA3AF"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textColor="#E5E7EB"
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/widget_isha_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="07:20"
+                    android:text="০৭:৩৩"
                     android:textColor="#E5E7EB"
-                    android:textSize="9sp"
-                    android:textStyle="bold"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
 
                 <TextView
-                    android:id="@+id/widget_isha_dash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:text="–"
-                    android:textColor="#6B7280"
-                    android:textSize="8.5sp"
-                    android:maxLines="1" />
+                    android:text=" – "
+                    android:textColor="#9CA3AF"
+                    android:textSize="9.5sp" />
 
                 <TextView
                     android:id="@+id/widget_isha_end"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="04:27 AM"
+                    android:text="০৪:৪৭ AM"
                     android:textColor="#9CA3AF"
-                    android:textSize="9sp"
-                    android:maxLines="1" />
+                    android:textSize="9.5sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

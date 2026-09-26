@@ -146,7 +146,7 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Map, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(if (isEnglish) "Live GPS Location" else "লাইভ জিপিএস অবস্থান", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(if (isEnglish) "Select Location / City" else "অবস্থান / শহর নির্বাচন করুন", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     },
                     text = {
@@ -154,12 +154,12 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text(
-                                if (isEnglish) "Detect your live device GPS coordinates for pinpoint accurate prayer, Sehri, and Iftar times."
-                                else "নিখুঁত নামাজ, সাহরি ও ইফতারের সময়ের জন্য আপনার ডিভাইসের লাইভ জিপিএস স্থানাঙ্ক ব্যবহার করুন।",
-                                fontSize = 13.sp,
+                                if (isEnglish) "Detect live GPS coordinates or select a city. Bangladesh locations use Islamic Foundation standard for accurate Hijri date & prayer times."
+                                else "লাইভ জিপিএস বা পছন্দের শহর নির্বাচন করুন। বাংলাদেশ লোকেশনে সঠিক হিজরি তারিখ ও ওয়াক্তের জন্য ইসলামিক ফাউন্ডেশনের মান স্বয়ংক্রিয়ভাবে সক্রিয় হবে।",
+                                fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
@@ -174,16 +174,117 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                             ) {
                                 Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isEnglish) "Use Current GPS Location" else "বর্তমান জিপিএস লোকেশন নিন", fontSize = 13.sp)
+                                Text(if (isEnglish) "Use Live GPS Location" else "বর্তমান জিপিএস লোকেশন নিন", fontSize = 13.sp)
                             }
 
                             if (locationStatusMessage != null) {
                                 Text(
                                     locationStatusMessage!!,
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Medium
                                 )
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+
+                            Text(
+                                if (isEnglish) "City Presets:" else "বিভাগ ও শহরসমূহ:",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 240.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                item {
+                                    Text(
+                                        if (isEnglish) "🇧🇩 Bangladesh Divisions (Islamic Foundation Hijri)"
+                                        else "🇧🇩 বাংলাদেশ (ইসলামিক ফাউন্ডেশন হিজরি মান)",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                                items(viewModel.availableCities.filter { it.latitude in 20.0..27.0 }) { city ->
+                                    val isSelected = selectedCityLocation.nameEn.equals(city.nameEn, ignoreCase = true) || selectedCityLocation.nameBn == city.nameBn
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                viewModel.setCityLocation(city)
+                                                showLocationDialog = false
+                                            },
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+                                        border = if (isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 10.dp, vertical = 7.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = if (isEnglish) city.nameEn else city.nameBn,
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            if (isSelected) {
+                                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                            }
+                                        }
+                                    }
+                                }
+
+                                item {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        if (isEnglish) "🌐 International & Holy Cities (Umm al-Qura Standard)"
+                                        else "🌐 আন্তর্জাতিক ও পবিত্র শহর (উম্মুল কুরা মান)",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                                items(viewModel.availableCities.filter { it.latitude !in 20.0..27.0 }) { city ->
+                                    val isSelected = selectedCityLocation.nameEn.equals(city.nameEn, ignoreCase = true) || selectedCityLocation.nameBn == city.nameBn
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                viewModel.setCityLocation(city)
+                                                showLocationDialog = false
+                                            },
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+                                        border = if (isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 10.dp, vertical = 7.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = if (isEnglish) city.nameEn else city.nameBn,
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            if (isSelected) {
+                                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
@@ -680,7 +781,7 @@ fun FamilyZikrCard(viewModel: NoorUpViewModel) {
                     IconButton(
                         onClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            val clip = ClipData.newPlainText("NoorUp Family Pairing Code", myPairingCode)
+                            val clip = ClipData.newPlainText("Noor Family Pairing Code", myPairingCode)
                             clipboard.setPrimaryClip(clip)
                             Toast.makeText(context, if (isEnglish) "Code $myPairingCode copied!" else "কোড $myPairingCode কপি করা হয়েছে!", Toast.LENGTH_SHORT).show()
                         },
@@ -701,9 +802,9 @@ fun FamilyZikrCard(viewModel: NoorUpViewModel) {
                                 putExtra(
                                     Intent.EXTRA_TEXT,
                                     if (isEnglish)
-                                        "Assalamu Alaikum! Join my family zikr circle on Noor-Up. My pairing code is: $myPairingCode"
+                                        "Assalamu Alaikum! Join my family zikr circle on Noor. My pairing code is: $myPairingCode"
                                     else
-                                        "আসসালামু আলাইকুম! নূর-আপ অ্যাপে আমার পরিবার যিকির সার্কেলে যুক্ত হোন। আমার পেয়ারিং কোড: $myPairingCode"
+                                        "আসসালামু আলাইকুম! নূর অ্যাপে আমার পরিবার যিকির সার্কেলে যুক্ত হোন। আমার পেয়ারিং কোড: $myPairingCode"
                                 )
                                 type = "text/plain"
                             }
@@ -723,7 +824,9 @@ fun FamilyZikrCard(viewModel: NoorUpViewModel) {
         }
 
         // Live Event Ticker (when a member recites zikr)
-        lastLiveEvent?.let { event ->
+        val currentEvent = lastLiveEvent
+        if (currentEvent != null) {
+            val event = currentEvent
             Spacer(modifier = Modifier.height(8.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -1246,7 +1349,9 @@ fun FamilyZikrCard(viewModel: NoorUpViewModel) {
     }
 
     // Dialog: Edit Member Count Directly
-    editingMember?.let { member ->
+    val currentEditingMember = editingMember
+    if (currentEditingMember != null) {
+        val member = currentEditingMember
         AlertDialog(
             onDismissRequest = { editingMember = null },
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1638,7 +1743,7 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        if (isEnglish) "NoorUp Companion" else "নূরআপ (NoorUp)",
+                        if (isEnglish) "Noor Companion" else "নূর (Noor)",
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -3063,7 +3168,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                             
                                             ${if (isEnglish) "Translation: " else "অর্থ: "}$translationToCopy$narratorText
                                             $gradeLabel
-                                            - নূরআপ (NoorUp)
+                                            - নূর (Noor)
                                         """.trimIndent()
                                         val clip = ClipData.newPlainText("Hadith", formatted)
                                         clipboard.setPrimaryClip(clip)
@@ -3092,7 +3197,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                                     ${if (isEnglish) "Translation: " else "অর্থ: "}$translationToShare$narratorText$lessonText
                                                     $gradeLabel
                                                     
-                                                    — নূরআপ (NoorUp) ইসলামিক লাইব্রেরি
+                                                    — নূর (Noor) ইসলামিক লাইব্রেরি
                                                 """.trimIndent()
                                             )
                                         }
@@ -3276,7 +3381,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                             উচ্চারণ: ${dua.phoneticBangla}
                                             অর্থ: ${dua.meaningBangla}
                                             রেফারেন্স: ${dua.reference}
-                                            - নূরআপ (NoorUp)
+                                            - নূর (Noor)
                                         """.trimIndent()
                                         val clip = ClipData.newPlainText("Dua", formatted)
                                         clipboard.setPrimaryClip(clip)
@@ -3302,7 +3407,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                                     অর্থ: ${dua.meaningBangla}
                                                     রেফারেন্স: ${dua.reference}
                                                     
-                                                    — নূরআপ (NoorUp) ইসলামিক লাইব্রেরি
+                                                    — নূর (Noor) ইসলামিক লাইব্রেরি
                                                 """.trimIndent()
                                             )
                                         }

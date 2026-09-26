@@ -503,7 +503,7 @@ fun QiblaCompassView(
                 }
 
                 // Draw Kaaba Marker on the rotating dial at the exact Qibla Bearing
-                val qiblaRad = Math.toRadians(qiblaInfo.bearingDegrees)
+                val qiblaRad = Math.toRadians(qiblaInfo.bearingDegrees.toDouble())
                 val kaabaDist = radius * 0.78f
                 val kaabaCenterX = center.x + kaabaDist * sin(qiblaRad).toFloat()
                 val kaabaCenterY = center.y - kaabaDist * cos(qiblaRad).toFloat()

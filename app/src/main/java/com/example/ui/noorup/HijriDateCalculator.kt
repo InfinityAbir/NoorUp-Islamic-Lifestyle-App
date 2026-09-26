@@ -18,7 +18,10 @@ data class HijriDateResult(
     val dayOfWeekBn: String = "",
     val dayOfWeekEn: String = "",
     val formattedDisplayBn: String = "",
-    val formattedDisplayEn: String = ""
+    val formattedDisplayEn: String = "",
+    val isBangladeshStandard: Boolean = false,
+    val standardLabelBn: String = "আন্তর্জাতিক / উম্মুল কুরা মান",
+    val standardLabelEn: String = "Umm al-Qura Standard"
 )
 
 data class GregorianDateResult(
@@ -165,13 +168,45 @@ object HijriDateCalculator {
     }
 
     /**
-     * Calculates the Hijri date for the given Gregorian Calendar instance.
-     * Supports manual day offset (e.g., -2, -1, 0, +1, +2 for moon-sighting adjustment).
+     * Determines whether the given coordinates or place name correspond to Bangladesh.
      */
-    fun calculateHijriDate(cal: Calendar, dayOffset: Int = 0): HijriDateResult {
+    fun isBangladeshLocation(latitude: Double, longitude: Double, locationName: String = ""): Boolean {
+        val inCoordinates = (latitude in 20.0..27.0) && (longitude in 88.0..93.0)
+        val lowerName = locationName.lowercase()
+        val nameMatch = lowerName.contains("bangladesh") || lowerName.contains("বাংলাদেশ") ||
+                lowerName.contains("dhaka") || lowerName.contains("ঢাকা") ||
+                lowerName.contains("chittagong") || lowerName.contains("চট্টগ্রাম") ||
+                lowerName.contains("chattogram") ||
+                lowerName.contains("sylhet") || lowerName.contains("সিলেট") ||
+                lowerName.contains("rajshahi") || lowerName.contains("রাজশাহী") ||
+                lowerName.contains("khulna") || lowerName.contains("খুলনা") ||
+                lowerName.contains("barisal") || lowerName.contains("বরিশাল") ||
+                lowerName.contains("barishal") ||
+                lowerName.contains("rangpur") || lowerName.contains("রংপুর") ||
+                lowerName.contains("mymensingh") || lowerName.contains("ময়মনসিংহ") ||
+                lowerName.contains("comilla") || lowerName.contains("cumilla") || lowerName.contains("কুমিল্লা") ||
+                lowerName.contains("gazipur") || lowerName.contains("গাজীপুর") ||
+                lowerName.contains("narayanganj") || lowerName.contains("নারায়ণগঞ্জ") ||
+                lowerName.contains("uttara") || lowerName.contains("উত্তরা") ||
+                lowerName.contains("mirpur") || lowerName.contains("মিরপুর") ||
+                lowerName.contains("dhanmondi") || lowerName.contains("ধানমন্ডি") ||
+                lowerName.contains("gulshan") || lowerName.contains("গুলশান") ||
+                lowerName.contains("banani") || lowerName.contains("বনানী") ||
+                lowerName.contains("bd")
+        return inCoordinates || nameMatch
+    }
+
+    /**
+     * Calculates the Hijri date for the given Gregorian Calendar instance.
+     * Supports manual day offset and location awareness for Bangladesh Islamic Foundation calendar standard.
+     */
+    fun calculateHijriDate(cal: Calendar, dayOffset: Int = 0, isBangladesh: Boolean = false): HijriDateResult {
+        val regionalOffset = if (isBangladesh) -1 else 0
+        val totalOffset = regionalOffset + dayOffset
+
         val adjustedCal = (cal.clone() as Calendar).apply {
-            if (dayOffset != 0) {
-                add(Calendar.DAY_OF_MONTH, dayOffset)
+            if (totalOffset != 0) {
+                add(Calendar.DAY_OF_MONTH, totalOffset)
             }
         }
 
@@ -246,6 +281,9 @@ object HijriDateCalculator {
         val formattedDisplayBn = "$dayStrBn $monthBn $yearStrBn • $dowBn"
         val formattedDisplayEn = "$dayStrEn $monthEn $yearStrEn • $dowEn"
 
+        val standardLabelBn = if (isBangladesh) "🇧🇩 ইসলামিক ফাউন্ডেশন বাংলাদেশ মান" else "🌐 আন্তর্জাতিক / উম্মুল কুরা মান"
+        val standardLabelEn = if (isBangladesh) "🇧🇩 Islamic Foundation Bangladesh Standard" else "🌐 Umm al-Qura Standard"
+
         return HijriDateResult(
             day = hDay,
             month = safeMonth,
@@ -261,15 +299,13 @@ object HijriDateCalculator {
             dayOfWeekBn = dowBn,
             dayOfWeekEn = dowEn,
             formattedDisplayBn = formattedDisplayBn,
-            formattedDisplayEn = formattedDisplayEn
+            formattedDisplayEn = formattedDisplayEn,
+            isBangladeshStandard = isBangladesh,
+            standardLabelBn = standardLabelBn,
+            standardLabelEn = standardLabelEn
         )
     }
 
-    /**
-     * Formats Gregorian date for display.
-     * Example Bn: "২৫ সেপ্টেম্বর ২০২৬ • শুক্রবার"
-     * Example En: "25 September 2026 • Friday"
-     */
     fun calculateGregorianDate(cal: Calendar): GregorianDateResult {
         val day = cal.get(Calendar.DAY_OF_MONTH)
         val month = cal.get(Calendar.MONTH) + 1
@@ -308,9 +344,6 @@ object HijriDateCalculator {
         )
     }
 
-    /**
-     * Tabular Islamic Civil Calendar calculation algorithm.
-     */
     fun calculateTabularHijri(year: Int, month: Int, day: Int): Triple<Int, Int, Int> {
         var m = month
         var y = year
@@ -348,26 +381,23 @@ object HijriDateCalculator {
         return Triple(hDay, hMonth, hYear)
     }
 
-    /**
-     * Calculates astronomical Moon phase for a given calendar date.
-     */
-    fun getMoonPhase(cal: Calendar, dayOffset: Int = 0): MoonPhaseInfo {
+    fun getMoonPhase(cal: Calendar, dayOffset: Int = 0, isBangladesh: Boolean = false): MoonPhaseInfo {
+        val regionalOffset = if (isBangladesh) -1 else 0
+        val totalOffset = regionalOffset + dayOffset
+
         val y = cal.get(Calendar.YEAR)
         val m = cal.get(Calendar.MONTH) + 1
-        val d = cal.get(Calendar.DAY_OF_MONTH) + dayOffset
+        val d = cal.get(Calendar.DAY_OF_MONTH) + totalOffset
 
-        // Julian Day calculation
         val c = if (m < 3) y - 1 else y
         val e = if (m < 3) m + 12 else m
         val b = c / 100
         val a = 2 - b + b / 4
         val jd = (365.25 * (c + 4716)).toInt() + (30.6001 * (e + 1)).toInt() + d + a - 1524.5
 
-        // Moon phase calculation using synodic month = 29.53058867 days
         val daysSinceNew = (jd - 2451549.5) % 29.53058867
         val moonAge = if (daysSinceNew < 0) daysSinceNew + 29.53058867 else daysSinceNew
 
-        // Illumination estimation percentage
         val phaseAngle = (moonAge / 29.53058867) * 2 * Math.PI
         val illuminationPercent = ((1 - Math.cos(phaseAngle)) / 2 * 100).toInt().coerceIn(0, 100)
 
@@ -384,26 +414,19 @@ object HijriDateCalculator {
         }
     }
 
-    /**
-     * Generates all days of a Hijri month aligned with Gregorian dates.
-     */
-    fun getHijriMonthGrid(hijriYear: Int, hijriMonth: Int, dayOffset: Int = 0): List<HijriMonthDay> {
+    fun getHijriMonthGrid(hijriYear: Int, hijriMonth: Int, dayOffset: Int = 0, isBangladesh: Boolean = false): List<HijriMonthDay> {
         val todayCal = Calendar.getInstance()
-        val todayHijri = calculateHijriDate(todayCal, dayOffset)
+        val todayHijri = calculateHijriDate(todayCal, dayOffset, isBangladesh)
 
         val daysList = mutableListOf<HijriMonthDay>()
-        // A Hijri month has 29 or 30 days
         val maxDays = if (hijriMonth % 2 == 1 || (hijriMonth == 12 && hijriYear % 30 in listOf(2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29))) 30 else 29
 
-        // Estimate Gregorian anchor for Hijri year/month
-        // Search around today's Gregorian calendar for the start of the targeted Hijri month
         val searchCal = (todayCal.clone() as Calendar).apply {
             val monthDiff = (hijriYear - todayHijri.year) * 12 + (hijriMonth - todayHijri.month)
             add(Calendar.DAY_OF_MONTH, (monthDiff * 29.53).toInt() - todayHijri.day + 1)
         }
 
-        // Refine anchor to exactly day 1 of the target Hijri month
-        var hCheck = calculateHijriDate(searchCal, dayOffset)
+        var hCheck = calculateHijriDate(searchCal, dayOffset, isBangladesh)
         var guard = 0
         while ((hCheck.year != hijriYear || hCheck.month != hijriMonth || hCheck.day != 1) && guard < 60) {
             if (hCheck.year < hijriYear || (hCheck.year == hijriYear && hCheck.month < hijriMonth)) {
@@ -413,7 +436,7 @@ object HijriDateCalculator {
             } else {
                 searchCal.add(Calendar.DAY_OF_MONTH, 1 - hCheck.day)
             }
-            hCheck = calculateHijriDate(searchCal, dayOffset)
+            hCheck = calculateHijriDate(searchCal, dayOffset, isBangladesh)
             guard++
         }
 
@@ -421,7 +444,7 @@ object HijriDateCalculator {
             val currentCal = (searchCal.clone() as Calendar).apply {
                 add(Calendar.DAY_OF_MONTH, d - 1)
             }
-            val currentHijri = calculateHijriDate(currentCal, dayOffset)
+            val currentHijri = calculateHijriDate(currentCal, dayOffset, isBangladesh)
 
             val isToday = (currentHijri.year == todayHijri.year && currentHijri.month == todayHijri.month && currentHijri.day == todayHijri.day)
             val isAyyamAlBeed = currentHijri.day in listOf(13, 14, 15)
@@ -492,9 +515,6 @@ object HijriDateCalculator {
         }
     }
 
-    /**
-     * Calculates days remaining for major canonical Islamic milestones relative to current Hijri date.
-     */
     fun getDynamicIslamicMilestones(currentHijri: HijriDateResult): List<DynamicIslamicMilestone> {
         val milestones = listOf(
             Triple(1, 1, Pair("হিজরি নববর্ষ (১ মুহাররম)", "Islamic New Year (1 Muharram)")),
@@ -513,7 +533,6 @@ object HijriDateCalculator {
         val curMonth = currentHijri.month
         val curDay = currentHijri.day
 
-        // Approximate day of year in Hijri calendar (354.36 days)
         fun hijriDayOfYear(m: Int, d: Int): Int {
             var days = d
             for (i in 1 until m) {

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">NoorUp (নূরআপ)</string>
+    <string name="app_name">NoorUp</string>
+    <string name="widget_name">NoorUp Prayer Timeline</string>
 </resources>

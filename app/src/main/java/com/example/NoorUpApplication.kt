@@ -1,26 +1,38 @@
 package com.example
 
 import android.app.Application
-import android.util.Log
-import androidx.work.Configuration
-import com.example.ui.noorup.PrayerNotificationHelper
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 
-class NoorUpApplication : Application(), Configuration.Provider {
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.INFO)
-            .build()
-
+class NoorUpApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        try {
-            PrayerNotificationHelper.createNotificationChannels(this)
-            val prefs = getSharedPreferences("noorup_prefs", MODE_PRIVATE)
-            if (prefs.getBoolean("prayer_notifications_enabled", true)) {
-                com.example.ui.noorup.PrayerNotificationScheduler.scheduleDailyGardenReminder(this)
+        createNotificationChannels()
+    }
+
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val prayerChannel = NotificationChannel(
+                "prayer_reminders_channel",
+                "Prayer Times & Adhan Reminders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Daily prayer time notifications and countdown alerts"
             }
-        } catch (e: Exception) {
-            Log.e("NoorUpApplication", "Error initializing notification channels", e)
+
+            val gardenChannel = NotificationChannel(
+                "garden_reminders_channel",
+                "Noor Garden Daily Habit Reminders",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Daily evening reminder to check and cultivate your Noor Garden"
+            }
+
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(prayerChannel)
+            manager.createNotificationChannel(gardenChannel)
         }
     }
 }

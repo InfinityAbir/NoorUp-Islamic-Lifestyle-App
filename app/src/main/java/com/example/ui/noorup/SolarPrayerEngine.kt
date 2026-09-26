@@ -76,9 +76,9 @@ object SolarPrayerEngine {
         val dhuhrEndStr = formatTimePlusMins(asrHours, -1)
 
         val asrStartStr = formatTime(asrHours)
-        val asrEndStr = formatTimePlusMins(maghribHours, -1)
         val sunsetStartStr = formatTimePlusMins(sunsetHours, -18)
         val sunsetEndStr = formatTimePlusMins(maghribHours, -1)
+        val asrEndStr = formatTimePlusMins(sunsetHours, -19)
         val maghribStartStr = formatTime(maghribHours)
         val maghribEndStr = formatTimePlusMins(ishaHours, -1)
 

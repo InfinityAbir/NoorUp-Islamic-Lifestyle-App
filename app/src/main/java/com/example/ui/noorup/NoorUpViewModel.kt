@@ -404,7 +404,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             makruhZawalStart = "11:50 AM",
             makruhZawalEnd = "12:04 PM",
             asrStart = "04:22 PM",
-            asrEnd = "06:17 PM",
+            asrEnd = "05:59 PM",
             makruhSunsetStart = "06:00 PM",
             makruhSunsetEnd = "06:17 PM",
             maghribStart = "06:18 PM",

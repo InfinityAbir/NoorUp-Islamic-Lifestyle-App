@@ -1,30 +1,106 @@
-[
-  {
-    "id": 1,
-    "chapterId": 1,
-    "chapterTitleBn": "নামাজের সময় অধ্যায়",
-    "chapterTitleEn": "Prayer Times",
-    "hadithNumber": 1,
-    "narratorBn": "ইয়াহইয়া ইবনে সাঈদ (রহ.) থেকে বর্ণিত",
-    "narratorEn": "Narrated Yahya ibn Sa'id",
-    "arabic": "إِنَّ لِلصَّلَاةِ أَوَّلًا وَآخِرًا، وَإِنَّ أَوَّلَ وَقْتِ الظُّهْرِ حِينَ تَزُولُ الشَّمْسُ",
-    "bangla": "নিশ্চয়ই প্রত্যেক নামাজের একটি শুরু ও শেষ সময় রয়েছে। যোহরের শুরুর সময় হলো যখন সূর্য পশ্চিমাকাশে ঢলে পড়ে।",
-    "english": "Indeed, prayer has a beginning and an end time. The beginning of Dhuhr time is when the sun passes the meridian.",
-    "gradeBn": "সহীহ (Sahih)",
-    "gradeEn": "Sahih"
+{
+  "metadata": {
+    "id": "muwatta",
+    "name_bn": "মুয়াত্তা ইমাম মালিক",
+    "name_en": "Muwatta Malik",
+    "arabic_name": "موطأ الإمام مالك",
+    "author_bn": "ইমাম মালিক ইবনে আনাস (রহ.)",
+    "author_en": "Imam Malik ibn Anas (RA)",
+    "total_hadiths_bn": "১,৮৫৮টি হাদিস ও আসার",
+    "total_hadiths_count": 1858,
+    "total_chapters_bn": "৬১টি অধ্যায়",
+    "authentic_grade_bn": "প্রথম লিখিত প্রামাণ্য হাদিস সংকলন",
+    "authentic_grade_en": "Earliest Foundational Compilation",
+    "description_bn": "মদিনার সোনালী সনদ (সিলসিলাতুজ জাহাব) ও ইসলামি আইনশাস্ত্রের প্রাচীনতম বিশ্বস্ত স্তম্ভ।",
+    "description_en": "One of the earliest written collections of Hadith and Islamic law with pristine chains."
   },
-  {
-    "id": 2,
-    "chapterId": 1,
-    "chapterTitleBn": "নামাজের সময় অধ্যায়",
-    "chapterTitleEn": "Prayer Times",
-    "hadithNumber": 2,
-    "narratorBn": "আবদুল্লাহ ইবনে ওমর (রা.) থেকে বর্ণিত",
-    "narratorEn": "Narrated Abdullah ibn Umar",
-    "arabic": "وَقْتُ صَلَاةِ الصُّبْحِ مِنْ طُلُوعِ الْفَجْرِ مَا لَمْ تَطْلُعِ الشَّمْسُ",
-    "bangla": "ফজরের নামাজের ওয়াক্ত শুরু হয় সুবহে সাদিক উদয় থেকে এবং সূর্যোদয় পর্যন্ত বহাল থাকে।",
-    "english": "The time for the morning prayer is from the rising of dawn as long as the sun has not risen.",
-    "gradeBn": "সহীহ (Sahih)",
-    "gradeEn": "Sahih"
-  }
-]
+  "chapters": [
+    {
+      "id": 1,
+      "chapter_number": "১",
+      "title_bn": "উত্তম চরিত্র ও শিষ্টাচার",
+      "title_en": "Good Character",
+      "title_ar": "كتاب حسن الخلق",
+      "hadith_count": 40
+    },
+    {
+      "id": 2,
+      "chapter_number": "২",
+      "title_bn": "কুরআন ও সুন্নাহ আঁকড়ে ধরা",
+      "title_en": "Holding Fast to Sunnah",
+      "title_ar": "كتاب الجامع",
+      "hadith_count": 50
+    }
+  ],
+  "hadiths": [
+    {
+      "id": 601,
+      "book_id": "muwatta",
+      "book_name_bn": "মুয়াত্তা ইমাম মালিক",
+      "book_name_en": "Muwatta Malik",
+      "collection": "মুয়াত্তা মালিক: ১৬১৪",
+      "hadith_number": "১৬১৪",
+      "chapter_id": 1,
+      "chapter_bn": "উত্তম চরিত্র অধ্যায়",
+      "chapter_en": "Good Character",
+      "topic_bn": "সুন্দর চরিত্রের পূর্ণতা দান",
+      "topic_en": "Perfecting Noble Character",
+      "narrator": "মালিক ইবনে আনাস (রহ.) রেওয়ায়াতে",
+      "arabic_text": "بُعِثْتُ لأُتَمِّمَ حُسْنَ الأَخْلاَقِ",
+      "translation_bangla": "রেওয়ায়ত ১৭. উমর ইবনে আবদুল আযীয (রহঃ) হইতে বর্ণিত, রাসূলুল্লাহ সাল্লাল্লাহু আলাইহি ওয়াসাল্লাম সর্বশেষ কথা যাহা বলিয়াছেন তাহাতে ছিলঃ قَاتَلَ اللَّهُ الْيَهُودَ وَالنَّصَارَى اتَّخَذُوا قُبُورَ أَنْبِيَائِهِمْ مَسَاجِدَ لاَ يَبْقَيَنَّ دِينَانِ بِأَرْضِ الْعَرَبِ অর্থাৎ আল্লাহ্ তা'আলা ইহুদী ও নাসারাদেরকে ধ্বংস করুন। তাহারা নিজেদের নবীদের কবরকে মসজিদ বানাইয়া লইয়াছে। তোমরা সতর্ক থাক, আরবের মাটিতে যেন দুই ধর্ম হইতে না পারে।",
+      "translation_english": "I have only been sent to perfect good, noble moral character.",
+      "grade_bn": "সহীহ (মুয়াত্তা মালিক)",
+      "grade_en": "Sahih",
+      "is_muttafaqun_alayh": false,
+      "explanation_bn": "ইসলামের মূল মিশন হলো মানুষের ভেতরের অহংকার ও পাশবিকতা দূর করে ন্যায়, দয়া ও চারিত্রিক সৌন্দর্যের বিকাশ ঘটানো।",
+      "explanation_en": "The core prophetic mission centers upon nurturing and refining highest ethical integrity in humankind.",
+      "reference": "মুয়াত্তা ইমাম মালিক হাদিস ১৬১৪"
+    },
+    {
+      "id": 602,
+      "book_id": "muwatta",
+      "book_name_bn": "মুয়াত্তা ইমাম মালিক",
+      "book_name_en": "Muwatta Malik",
+      "collection": "মুয়াত্তা মালিক: ১৫৯৪",
+      "hadith_number": "১৫৯৪",
+      "chapter_id": 2,
+      "chapter_bn": "সুন্নাহর পথনির্দেশনা",
+      "chapter_en": "Holding Fast to the Sunnah",
+      "topic_bn": "কুরআন ও সুন্নাহ হেদায়াতের উৎস",
+      "topic_en": "The Two Guiding Anchors",
+      "narrator": "মালিক ইবনে আনাস (রহ.)",
+      "arabic_text": "تَرَكْتُ فِيكُمْ أَمْرَيْنِ لَنْ تَضِلُّوا مَا تَمَسَّكْتُمْ بِهِمَا: كِتَابَ اللَّهِ وَسُنَّةَ نَبِيِّهِ",
+      "translation_bangla": "রেওয়ায়ত ২. উরওয়াহ (রহঃ) বলিলেনঃ নবী করীম সাল্লাল্লাহু আলাইহি ওয়াসাল্লাম এর সহধর্মিণী আয়েশা (রাঃ) আমার নিকট হাদীস বর্ণনা করিয়াছেনঃ রাসূলুল্লাহ সাল্লাল্লাহু আলাইহি ওয়াসাল্লাম যখন আসর পড়িতেন তখনও সূর্যের আলো আয়েশার হুজরাতে থাকিত, আলো ঘরের মেঝে হইতে প্রাচীরে উঠার পূর্বে।",
+      "translation_english": "I have left two matters with you; as long as you hold firmly to them, you will never go astray: the Book of Allah and the Sunnah of His Prophet.",
+      "grade_bn": "হাসান (মুয়াত্তা মালিক)",
+      "grade_en": "Hasan",
+      "is_muttafaqun_alayh": false,
+      "explanation_bn": "কুরআন ও সুন্নাহর বিধানকে জীবনের চলার পথের আলোকবর্তিকা বানালে দুনিয়া ও আখেরাতের শান্তি নিশ্চিত।",
+      "explanation_en": "Adherence to the Quran and genuine prophetic traditions preserves the community from ideological corruption.",
+      "reference": "মুয়াত্তা ইমাম মালিক হাদিস ১৫৯৪"
+    },
+    {
+      "id": 603,
+      "book_id": "muwatta",
+      "book_name_bn": "মুয়াত্তা ইমাম মালিক",
+      "book_name_en": "Muwatta Malik",
+      "collection": "মুয়াত্তা মালিক: ১৭৭৫",
+      "hadith_number": "১৭৭৫",
+      "chapter_id": 1,
+      "chapter_bn": "আল্লাহর উদ্দেশ্যে পারস্পরিক ভালোবাসা",
+      "chapter_en": "Love for Allah's Sake",
+      "topic_bn": "আল্লাহর সন্তুষ্টিতে ভালোবাসার প্রতিদান",
+      "topic_en": "Mutual Love for the Divine Sake",
+      "narrator": "মুয়াজ ইবনে জাবাল (রা.)",
+      "arabic_text": "قَالَ اللَّهُ تَبَارَكَ وَتَعَالَى: وَجَبَتْ مَحَبَّتِي لِلْمُتَحَابِّينَ فِيَّ وَالْمُتَجَالِسِينَ فِيَّ وَالْمُتَبَاذِلِينَ فِيَّ",
+      "translation_bangla": "রেওয়ায়ত ১৩. আবদুল্লাহ ইবন উমর (রাঃ) হইতে বর্ণিত, রাসূলাল্লাহু সাল্লাল্লাহু আলাইহি ওয়াসাল্লাম বলিয়াছেন, যে ব্যক্তি শিকার অথবা খেত-খামারের হিফাজতের উদ্দেশ্য ব্যতীত কুকুর (অনর্থক) পালন করে তবে তাহার নেক আমল হইতে প্রতিদিন দুই কীরাত সমান ক্ষতি হইবে (কমিয়া যাইবে)।",
+      "translation_english": "Allah the Almighty said: My love is decreed for those who love one another for My sake, sit together for My sake, and spend on one another for My sake.",
+      "grade_bn": "সহীহ (মুয়াত্তা মালিক)",
+      "grade_en": "Sahih",
+      "is_muttafaqun_alayh": false,
+      "explanation_bn": "কোনো পার্থিব স্বার্থ ছাড়া কেবল আল্লাহর সন্তুষ্টিতে মানুষকে ভালোবাসা জান্নাতের উচ্চ মর্যাদা নিশ্চিত করে।",
+      "explanation_en": "Selfless affection grounded solely in divine devotion commands supreme honor before the Almighty.",
+      "reference": "মুয়াত্তা ইমাম মালিক হাদিস ১৭৭৫"
+    }
+  ]
+}

@@ -1,16 +1,114 @@
-[
-  {
-    "id": 1,
-    "chapterId": 1,
-    "chapterTitleBn": "ইখলাস ও নিয়তের গুরুত্ব",
-    "chapterTitleEn": "Sincerity and Intention",
-    "hadithNumber": 1,
-    "narratorBn": "আমীরুল মুমিনীন ওমর ইবনুল খাত্তাব (রা.) থেকে বর্ণিত",
-    "narratorEn": "Narrated Amir al-Mu'minin Umar ibn al-Khattab",
-    "arabic": "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
-    "bangla": "নিশ্চয়ই সমস্ত কাজ নিয়তের উপর নির্ভরশীল এবং প্রত্যেক ব্যক্তি তা-ই পাবে যা সে নিয়ত করেছে।",
-    "english": "Actions are judged by motives and intentions, and each person will have only what they intended.",
-    "gradeBn": "সহীহ (বুখারী ও মুসলিম)",
-    "gradeEn": "Sahih (Bukhari & Muslim)"
-  }
-]
+{
+  "metadata": {
+    "id": "riyadussalihin",
+    "name_bn": "রিয়াদুস সালেহীন",
+    "name_en": "Riyad as-Salihin",
+    "arabic_name": "رياض الصالحين",
+    "author_bn": "ইমাম মুহিউদ্দীন ইয়াহইয়া আন-নববী (রহ.)",
+    "author_en": "Imam Yahya an-Nawawi (RA)",
+    "total_hadiths_bn": "১,৮৯৬টি হাদিস",
+    "total_hadiths_count": 1896,
+    "total_chapters_bn": "২০টি খণ্ড / ৩৭২টি পরিচ্ছেদ",
+    "authentic_grade_bn": "নির্বাচিত বিশুদ্ধ সংকলন",
+    "authentic_grade_en": "Curated Authentic Traditions",
+    "description_bn": "নৈতিকতা, আত্মশুদ্ধি, চরিত্র গঠন ও আধ্যাত্মিক উন্নতির শ্রেষ্ঠ ব্যবহারিক গাইড।",
+    "description_en": "A popular, highly practical thematic selection of hadiths for daily life and spiritual growth."
+  },
+  "chapters": [
+    {
+      "id": 1,
+      "chapter_number": "১",
+      "title_bn": "ধৈর্য ও অবিচলতা (সবর)",
+      "title_en": "Patience (Sabr)",
+      "title_ar": "باب الصبر",
+      "hadith_count": 30
+    },
+    {
+      "id": 2,
+      "chapter_number": "২",
+      "title_bn": "সত্যবাদিতা ও সততা",
+      "title_en": "Truthfulness (Sidq)",
+      "title_ar": "باب الصدق",
+      "hadith_count": 25
+    },
+    {
+      "id": 3,
+      "chapter_number": "৩",
+      "title_bn": "তাকওয়া ও আল্লাহর ভয়",
+      "title_en": "Piety (Taqwa)",
+      "title_ar": "باب التقوى",
+      "hadith_count": 35
+    }
+  ],
+  "hadiths": [
+    {
+      "id": 701,
+      "book_id": "riyadussalihin",
+      "book_name_bn": "রিয়াদুস সালেহীন",
+      "book_name_en": "Riyad as-Salihin",
+      "collection": "রিয়াদুস সালেহীন: ৫৪",
+      "hadith_number": "৫৪",
+      "chapter_id": 2,
+      "chapter_bn": "সত্যবাদিতা অধ্যায়",
+      "chapter_en": "Truthfulness (Sidq)",
+      "topic_bn": "সত্যবাদিতা মুক্তির পথ",
+      "topic_en": "Truthfulness Leads to Righteousness",
+      "narrator": "আব্দুল্লাহ ইবনে মাসউদ (রা.)",
+      "arabic_text": "عَلَيْكُمْ بِالصِّدْقِ فَإِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ، وَإِيَّاكُمْ وَالْكَذِبَ فَإِنَّ الْكَذِبَ يَهْدِي إِلَى الْفُجُورِ وَإِنَّ الْفُجُورَ يَهْدِي إِلَى النَّارِ",
+      "translation_bangla": "তোমরা সর্বদা সত্যকে আঁকড়ে ধরো; কেননা সত্যবাদিতা মানুষকে পুণ্য ও সৎকর্মের পথে পরিচালিত করে, আর পুণ্য মানুষকে জান্নাতের দিকে নিয়ে যায়। আর মিথ্যা থেকে বেঁচে থাকো; কেননা মিথ্যা মানুষকে পাপের দিকে টানে, আর পাপ মানুষকে জাহান্নামের দিকে নিয়ে যায়।",
+      "translation_english": "Hold firmly to truthfulness, for truthfulness leads to righteousness, and righteousness leads to Paradise. And beware of lying, for lying leads to wickedness, and wickedness leads to the Fire.",
+      "grade_bn": "সহীহ (মুত্তাফাকুন আলাইহ)",
+      "grade_en": "Sahih (Agreed Upon)",
+      "is_muttafaqun_alayh": true,
+      "explanation_bn": "কথা ও কাজে সততা বজায় রাখা মুমিনের জীবনের ভিত্তি, যা শেষ পর্যন্ত জান্নাতে আসীন করে।",
+      "explanation_en": "Truthfulness in words and conduct anchors moral life and culminates in eternal salvation.",
+      "reference": "সহীহ বুখারী ৬০৯৪, সহীহ মুসলিম ২৬০৭, রিয়াদুস সালেহীন ৫৪"
+    },
+    {
+      "id": 702,
+      "book_id": "riyadussalihin",
+      "book_name_bn": "রিয়াদুস সালেহীন",
+      "book_name_en": "Riyad as-Salihin",
+      "collection": "রিয়াদুস সালেহীন: ২৭",
+      "hadith_number": "২৭",
+      "chapter_id": 1,
+      "chapter_bn": "সবর ও ধৈর্য অধ্যায়",
+      "chapter_en": "Patience (Sabr)",
+      "topic_bn": "মুমিনের সকল অবস্থাই কল্যাণকর",
+      "topic_en": "The Wonderful Affair of the Believer",
+      "narrator": "সুহাইব আর-রুমী (রা.)",
+      "arabic_text": "عَجَبًا لأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ، وَلَيْسَ ذَاكَ لأَحَدٍ إِلاَّ لِلْمُؤْمِنِ: إِنْ أَصَابَتْهُ سَرَّاءُ شَكَرَ فَكَانَ خَيْرًا لَهُ، وَإِنْ أَصَابَتْهُ ضَرَّاءُ صَبَرَ فَكَانَ خَيْرًا لَهُ",
+      "translation_bangla": "মুমিনের অবস্থা কতই না চমৎকার! নিশ্চয়ই তার সব অবস্থাতেই কল্যাণ থাকে, যা মুমিন ব্যতীত আর কারো ভাগ্যে নেই: যখন সে কোনো আনন্দ বা সুখ লাভ করে, সে আল্লাহর শুকরিয়া আদায় করে—তা তার জন্য কল্যাণকর হয়; আর যখন কোনো কষ্ট বা বিপদ আসে, সে ধৈর্য ধারণ করে—তাও তার জন্য কল্যাণকর হয়।",
+      "translation_english": "How wonderful is the affair of the believer, for his affairs are all good, and this applies to no one but the believer: if prosperity comes to him, he expresses gratitude, which is good for him; and if adversity befalls him, he endures patiently, which is also good for him.",
+      "grade_bn": "সহীহ (মুসলিম)",
+      "grade_en": "Sahih",
+      "is_muttafaqun_alayh": false,
+      "explanation_bn": "সুখে শুকরিয়া এবং দুঃখে সবর করাই মুমিনের মানসিক শান্তি ও অসীম সাওয়াব অর্জনের সর্বোত্তম পাথেয়।",
+      "explanation_en": "A believer turns both triumph and tribulation into spiritual victories through gratitude and perseverance.",
+      "reference": "সহীহ মুসলিম ২৯৯৯, রিয়াদুস সালেহীন ২৭"
+    },
+    {
+      "id": 703,
+      "book_id": "riyadussalihin",
+      "book_name_bn": "রিয়াদুস সালেহীন",
+      "book_name_en": "Riyad as-Salihin",
+      "collection": "রিয়াদুস সালেহীন: ৭০",
+      "hadith_number": "৭০",
+      "chapter_id": 3,
+      "chapter_bn": "তাকওয়া ও খোদাভীতি",
+      "chapter_en": "Piety (Taqwa)",
+      "topic_bn": "সর্বাবস্থায় আল্লাহকে ভয় করা",
+      "topic_en": "Fear Allah Wherever You Are",
+      "narrator": "আবু যার ও মুয়াজ ইবনে জাবাল (রা.)",
+      "arabic_text": "اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا، وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ",
+      "translation_bangla": "তুমি যেখানেই থাকো না কেন আল্লাহকে ভয় করো (তাকওয়া অবলম্বন করো)। আর কোনো ভুল বা পাপ হয়ে গেলে সাথে সাথে একটি নেক কাজ করো—তা সেই পাপকে মুছে দেবে; আর মানুষের সাথে সর্বোত্তম সুন্দর আচরণ করো।",
+      "translation_english": "Fear Allah wherever you may be; follow up a bad deed with a good one and it will wipe it out; and behave towards people with noble character.",
+      "grade_bn": "হাসান (তিরমিযী)",
+      "grade_en": "Hasan",
+      "is_muttafaqun_alayh": false,
+      "explanation_bn": "এই অমর হাদিসটি একজন মানুষের জীবনের তিনটি মূল স্তম্ভকে ধারণ করে: আল্লাহর প্রতি তাকওয়া, নিজের ভুলের সংশোধন এবং মানুষের সাথে অমায়িক চরিত্র।",
+      "explanation_en": "Three cardinal rules of living: piety before God, prompt self-correction upon mistakes, and gracious character with humanity.",
+      "reference": "জামে' তিরমিযী ১৯৮৭, রিয়াদুস সালেহীন ৭০"
+    }
+  ]
+}

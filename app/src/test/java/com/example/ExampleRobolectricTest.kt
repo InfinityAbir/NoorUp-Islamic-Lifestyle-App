@@ -26,6 +26,67 @@ class ExampleRobolectricTest {
   }
 
   @Test
+  fun `verify noorup notification icon is monochrome white on transparent background`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val drawable = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.ic_noorup_notification)
+    org.junit.Assert.assertNotNull("Notification icon drawable must exist", drawable)
+
+    val size = 24
+    val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bitmap)
+    drawable!!.setBounds(0, 0, size, size)
+    drawable.draw(canvas)
+
+    // Check corners are transparent (not a solid colored card/circle)
+    val corners = listOf(Pair(0, 0), Pair(size - 1, 0), Pair(0, size - 1), Pair(size - 1, size - 1))
+    for ((cx, cy) in corners) {
+      val alpha = android.graphics.Color.alpha(bitmap.getPixel(cx, cy))
+      assertEquals("Corner ($cx, $cy) must be transparent", 0, alpha)
+    }
+
+    var countAlpha = 0
+    for (y in 0 until size) {
+      for (x in 0 until size) {
+        val pixel = bitmap.getPixel(x, y)
+        val alpha = android.graphics.Color.alpha(pixel)
+        if (alpha > 0) {
+          countAlpha++
+          val red = android.graphics.Color.red(pixel)
+          val green = android.graphics.Color.green(pixel)
+          val blue = android.graphics.Color.blue(pixel)
+          // For white with alpha, red == green == blue == 255
+          assertEquals("Pixel at ($x, $y) red channel must be 255", 255, red)
+          assertEquals("Pixel at ($x, $y) green channel must be 255", 255, green)
+          assertEquals("Pixel at ($x, $y) blue channel must be 255", 255, blue)
+        }
+      }
+    }
+    assertTrue("Icon must contain visible foreground pixels (found $countAlpha)", countAlpha > 0)
+  }
+
+  @Test
+  fun `verify prayer notification uses ic_noorup_notification small icon`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    com.example.ui.noorup.PrayerNotificationHelper.createNotificationChannels(context)
+    com.example.ui.noorup.PrayerNotificationHelper.showPrayerAlert(
+      context = context,
+      notificationId = 1234,
+      title = "Test Prayer",
+      message = "Test Message"
+    )
+
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+    val shadowNotificationManager = org.robolectric.Shadows.shadowOf(notificationManager)
+    val notification = shadowNotificationManager.getNotification(1234)
+    org.junit.Assert.assertNotNull("Notification should be posted", notification)
+    assertEquals(
+      "Small icon should be ic_noorup_notification",
+      R.drawable.ic_noorup_notification,
+      notification.icon
+    )
+  }
+
+  @Test
   fun `launch MainActivity`() {
     try {
       org.robolectric.Robolectric.buildActivity(MainActivity::class.java).setup()

@@ -2,9 +2,20 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="#10B981"
-        android:pathData="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M12,6A6,6 0 1,1 6,12A6,6 0 0,1 12,6Z" />
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:pivotX="54"
+        android:pivotY="54">
+        <!-- NoorUp Crescent Moon -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,20 A34,34 0 1 0 88,54 A28,28 0 1 1 54,20 Z" />
+        <!-- NoorUp Star / Sparkle -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M70,36 L72,42 L78,44 L72,46 L70,52 L68,46 L62,44 L68,42 Z" />
+    </group>
 </vector>

@@ -14,17 +14,21 @@ object PrayerNotificationScheduler {
     private const val ALARM_REQ_BASE = 5000
 
     fun scheduleDailyTasks(context: Context) {
-        val workManager = WorkManager.getInstance(context)
+        try {
+            val workManager = WorkManager.getInstance(context)
 
-        val gardenRequest = PeriodicWorkRequestBuilder<NoorGardenReminderWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(6, TimeUnit.HOURS)
-            .build()
+            val gardenRequest = PeriodicWorkRequestBuilder<NoorGardenReminderWorker>(24, TimeUnit.HOURS)
+                .setInitialDelay(6, TimeUnit.HOURS)
+                .build()
 
-        workManager.enqueueUniquePeriodicWork(
-            "noor_garden_daily_reminder",
-            ExistingPeriodicWorkPolicy.KEEP,
-            gardenRequest
-        )
+            workManager.enqueueUniquePeriodicWork(
+                "noor_garden_daily_reminder",
+                ExistingPeriodicWorkPolicy.KEEP,
+                gardenRequest
+            )
+        } catch (e: Throwable) {
+            android.util.Log.e("PrayerScheduler", "WorkManager not available during scheduleDailyTasks", e)
+        }
     }
 
     fun isExactAlarmPermissionGranted(context: Context): Boolean {

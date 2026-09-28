@@ -165,4 +165,66 @@ class ExampleRobolectricTest {
       .apply()
     NoorUpWidgetProvider.updateWidget(context, appWidgetManager, 101)
   }
+
+  @Test
+  fun `test dynamic widget update scheduler calculates future transition timestamp`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val now = System.currentTimeMillis()
+    val nextTransition = com.example.ui.noorup.WidgetUpdateScheduler.getNextTransitionMillis(context, now)
+
+    assertTrue("Next prayer transition ($nextTransition) must be strictly in the future (> $now)", nextTransition > now)
+    assertTrue("Next prayer transition should be within the next 24 hours", nextTransition <= now + 24 * 60 * 60 * 1000L)
+  }
+
+  @Test
+  fun `test dynamic widget update scheduler sets alarm in AlarmManager`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+    val shadowAlarmManager = org.robolectric.Shadows.shadowOf(alarmManager)
+
+    com.example.ui.noorup.WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+
+    val scheduledAlarms = shadowAlarmManager.scheduledAlarms
+    assertTrue("AlarmManager should have at least one scheduled alarm for dynamic widget updating", scheduledAlarms.isNotEmpty())
+
+    val nextAlarm = shadowAlarmManager.nextScheduledAlarm
+    org.junit.Assert.assertNotNull("Next scheduled alarm must not be null", nextAlarm)
+    assertTrue("Scheduled trigger time must be >= current time", nextAlarm!!.triggerAtTime >= System.currentTimeMillis())
+  }
+
+  @Test
+  fun `test widget update broadcast receiver executes without error`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val receiver = com.example.ui.noorup.WidgetUpdateReceiver()
+    val intent = android.content.Intent(com.example.ui.noorup.WidgetUpdateScheduler.ACTION_AUTO_UPDATE_WIDGET)
+
+    receiver.onReceive(context, intent)
+    // Verification that widget provider and scheduler were called cleanly
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+    val shadowAlarmManager = org.robolectric.Shadows.shadowOf(alarmManager)
+    assertTrue("Receiver should ensure an alarm is scheduled", shadowAlarmManager.scheduledAlarms.isNotEmpty())
+  }
+
+  @Test
+  fun `test widget provider lifecycle onEnabled and onDisabled`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val provider = NoorUpWidgetProvider()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+    val shadowAlarmManager = org.robolectric.Shadows.shadowOf(alarmManager)
+
+    provider.onEnabled(context)
+    assertTrue("onEnabled should schedule widget update alarm", shadowAlarmManager.scheduledAlarms.isNotEmpty())
+
+    provider.onDisabled(context)
+    val cancelledIntent = android.content.Intent(context, com.example.ui.noorup.WidgetUpdateReceiver::class.java).apply {
+      action = com.example.ui.noorup.WidgetUpdateScheduler.ACTION_AUTO_UPDATE_WIDGET
+    }
+    val pendingIntent = android.app.PendingIntent.getBroadcast(
+      context,
+      9001,
+      cancelledIntent,
+      android.app.PendingIntent.FLAG_NO_CREATE or android.app.PendingIntent.FLAG_IMMUTABLE
+    )
+    assertTrue("onDisabled should cancel or nullify pending alarm intent", pendingIntent == null || shadowAlarmManager.scheduledAlarms.none { it.operation == pendingIntent })
+  }
 }

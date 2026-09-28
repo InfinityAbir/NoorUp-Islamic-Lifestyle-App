@@ -10,6 +10,9 @@ class NoorUpApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
+        NoorUpWidgetProvider.updateAllWidgets(this)
+        com.example.ui.noorup.WidgetUpdateScheduler.scheduleNextWidgetUpdate(this)
+        com.example.ui.noorup.PrayerNotificationScheduler.scheduleDailyTasks(this)
     }
 
     private fun createNotificationChannels() {

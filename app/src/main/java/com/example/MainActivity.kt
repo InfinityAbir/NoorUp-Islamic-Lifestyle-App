@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
         // Initialize high-importance Notification Channels for prayer times and daily updates
         PrayerNotificationHelper.createNotificationChannels(this)
         NoorUpWidgetProvider.updateAllWidgets(this)
+        WidgetUpdateScheduler.scheduleNextWidgetUpdate(this)
 
         setContent {
             val viewModel: NoorUpViewModel = viewModel()

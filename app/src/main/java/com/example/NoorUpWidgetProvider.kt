@@ -12,9 +12,29 @@ import com.example.ui.noorup.CalculationMethod
 import com.example.ui.noorup.HijriDateCalculator
 import com.example.ui.noorup.JuristicMethod
 import com.example.ui.noorup.SolarPrayerEngine
+import com.example.ui.noorup.WidgetUpdateScheduler
 import java.util.Calendar
 
 class NoorUpWidgetProvider : AppWidgetProvider() {
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        try {
+            updateAllWidgets(context)
+            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+        } catch (e: Exception) {
+            android.util.Log.e("NoorUpWidget", "Error in onEnabled", e)
+        }
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        try {
+            WidgetUpdateScheduler.cancelWidgetUpdates(context)
+        } catch (e: Exception) {
+            android.util.Log.e("NoorUpWidget", "Error in onDisabled", e)
+        }
+    }
 
     override fun onUpdate(
         context: Context,
@@ -25,6 +45,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             for (appWidgetId in appWidgetIds) {
                 updateWidget(context, appWidgetManager, appWidgetId)
             }
+            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
         } catch (e: Exception) {
             android.util.Log.e("NoorUpWidget", "Error in onUpdate", e)
         }
@@ -40,6 +61,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 for (appWidgetId in appWidgetIds) {
                     updateWidget(context, appWidgetManager, appWidgetId)
                 }
+                WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
             }
         } catch (e: Exception) {
             android.util.Log.e("NoorUpWidget", "Error in onReceive", e)
@@ -53,11 +75,10 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 val componentName = ComponentName(context, NoorUpWidgetProvider::class.java)
                 val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
                 if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-                    val intent = Intent(context, NoorUpWidgetProvider::class.java).apply {
-                        action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+                    for (appWidgetId in appWidgetIds) {
+                        updateWidget(context, appWidgetManager, appWidgetId)
                     }
-                    context.sendBroadcast(intent)
+                    WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
                 }
             } catch (e: Exception) {
                 android.util.Log.e("NoorUpWidget", "Error updating all widgets", e)

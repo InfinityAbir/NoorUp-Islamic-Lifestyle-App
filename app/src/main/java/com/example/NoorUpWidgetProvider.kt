@@ -254,7 +254,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                     }
                     // 3. Sunrise prohibited interval (Sunrise to Sunrise + 15 min)
                     curMins in sunriseS..sunriseE -> {
-                        activePrayerIndex = 1
+                        activePrayerIndex = -1
                         val remMins = dhuhrS - curMins
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "⚠️ PROHIBITED (SUNRISE)" else "⚠️ মাকরুহ সময় (সূর্যোদয়)"
@@ -262,19 +262,19 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
-                    // 4. Duha / Chasht morning time
+                    // 4. Duha / Chasht morning time (between sunrise end and zawal start)
                     curMins in (sunriseE + 1) until zawalS -> {
-                        activePrayerIndex = 1
+                        activePrayerIndex = -1
                         val remMins = dhuhrS - curMins
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "NEXT PRAYER (DUHA)" else "পরবর্তী ওয়াক্ত (চাশত)"
-                        activeName = if (isEnglish) "Dhuhr" else "যোহর"
+                        activeName = if (isEnglish) "Next: Dhuhr" else "পরবর্তী: যোহর"
                         activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
                     // 5. Zawal zenith prohibited interval
                     curMins in zawalS until zawalE -> {
-                        activePrayerIndex = 1
+                        activePrayerIndex = -1
                         val remMins = dhuhrS - curMins
                         val remStr = formatRemTime(remMins, isEnglish)
                         stageLabel = if (isEnglish) "⚠️ PROHIBITED (ZAWAL)" else "⚠️ মাকরুহ সময় (দ্বিপ্রহর)"

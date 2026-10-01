@@ -298,7 +298,7 @@ fun ModernPrayerOrbitWidget(
         when {
             curMins in fajrS..fajrE -> Triple(OrbitPrayerStage.FAJR, (fajrE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.SUNRISE)
             curMins in sunriseS..sunriseE -> Triple(OrbitPrayerStage.SUNRISE, (sunriseE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
-            curMins in (sunriseE + 1) until zawalS -> Triple(OrbitPrayerStage.SUNRISE, (zawalS - curMins).coerceAtLeast(1), OrbitPrayerStage.ZAWAL)
+            curMins in (sunriseE + 1) until zawalS -> Triple(null, (dhuhrS - curMins).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
             curMins in zawalS..zawalE -> Triple(OrbitPrayerStage.ZAWAL, (zawalE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.DHUHR)
             curMins in dhuhrS..dhuhrE -> Triple(OrbitPrayerStage.DHUHR, (dhuhrE - curMins + 1).coerceAtLeast(1), OrbitPrayerStage.ASR)
             curMins in asrS until sunsetS -> Triple(OrbitPrayerStage.ASR, (sunsetS - curMins).coerceAtLeast(1), OrbitPrayerStage.SUNSET)
@@ -318,9 +318,14 @@ fun ModernPrayerOrbitWidget(
         OrbitPrayerStage.SUNSET -> Pair(selectedCityLocation.makruhSunsetStart, selectedCityLocation.makruhSunsetEnd)
         OrbitPrayerStage.MAGHRIB -> Pair(selectedCityLocation.maghribStart, selectedCityLocation.maghribEnd)
         OrbitPrayerStage.ISHA -> Pair(selectedCityLocation.ishaStart, selectedCityLocation.ishaEnd)
+        null -> Pair(selectedCityLocation.dhuhrStart, selectedCityLocation.dhuhrEnd)
     }
 
-    val activeName = if (isEnglish) activeStage.nameEn else activeStage.nameBn
+    val activeName = if (activeStage != null) {
+        if (isEnglish) activeStage.nameEn else activeStage.nameBn
+    } else {
+        if (isEnglish) "Next: ${nextStage.nameEn}" else "পরবর্তী: ${nextStage.nameBn}"
+    }
     val nextName = if (isEnglish) nextStage.nameEn else nextStage.nameBn
     val hrs = remainingMins / 60
     val mins = remainingMins % 60
@@ -370,7 +375,7 @@ fun ModernPrayerOrbitWidget(
         BorderStroke(
             1.4.dp,
             Brush.sweepGradient(
-                if (activeStage.isMakruh) {
+                if (activeStage?.isMakruh == true) {
                     listOf(
                         Color(0xFFF59E0B).copy(alpha = 0.8f),
                         Color(0xFFEF4444).copy(alpha = 0.6f),
@@ -389,7 +394,7 @@ fun ModernPrayerOrbitWidget(
     } else {
         BorderStroke(
             1.2.dp,
-            if (activeStage.isMakruh) Color(0xFFF59E0B).copy(alpha = 0.6f) else Color(0xFF10B981).copy(alpha = 0.35f)
+            if (activeStage?.isMakruh == true) Color(0xFFF59E0B).copy(alpha = 0.6f) else Color(0xFF10B981).copy(alpha = 0.35f)
         )
     }
 
@@ -422,10 +427,14 @@ fun ModernPrayerOrbitWidget(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    val statusDotColor = if (activeStage.isMakruh) Color(0xFFF59E0B) else Color(0xFF10B981)
+                    val statusDotColor = when {
+                        activeStage?.isMakruh == true -> Color(0xFFF59E0B)
+                        activeStage == null -> Color(0xFF38BDF8)
+                        else -> Color(0xFF10B981)
+                    }
                     Box(
                         modifier = Modifier
-                            .size(10.dp * pulseScale)
+                            .size(10.dp * (if (activeStage != null) pulseScale else 1f))
                             .clip(CircleShape)
                             .background(statusDotColor.copy(alpha = 0.3f)),
                         contentAlignment = Alignment.Center
@@ -441,15 +450,21 @@ fun ModernPrayerOrbitWidget(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = if (activeStage.isMakruh) {
-                                    if (isEnglish) "⚠️ PROHIBITED TIME" else "⚠️ নামাজের নিষিদ্ধ সময়"
-                                } else {
-                                    if (isEnglish) "LIVE PRAYER ORBIT" else "লাইভ নামাজের অরবিট"
+                                text = when {
+                                    activeStage?.isMakruh == true -> {
+                                        if (isEnglish) "⚠️ PROHIBITED TIME" else "⚠️ নামাজের নিষিদ্ধ সময়"
+                                    }
+                                    activeStage == null -> {
+                                        if (isEnglish) "NEXT PRAYER (CHASHT / DUHA)" else "পরবর্তী ওয়াক্ত (চাশত / দুহা)"
+                                    }
+                                    else -> {
+                                        if (isEnglish) "LIVE PRAYER ORBIT" else "লাইভ নামাজের অরবিট"
+                                    }
                                 },
-                                color = if (activeStage.isMakruh) {
-                                    if (isDarkMode) Color(0xFFFDE68A) else Color(0xFFD97706)
-                                } else {
-                                    if (isDarkMode) Color(0xFFA7F3D0) else Color(0xFF047857)
+                                color = when {
+                                    activeStage?.isMakruh == true -> if (isDarkMode) Color(0xFFFDE68A) else Color(0xFFD97706)
+                                    activeStage == null -> if (isDarkMode) Color(0xFF7DD3FC) else Color(0xFF0284C7)
+                                    else -> if (isDarkMode) Color(0xFFA7F3D0) else Color(0xFF047857)
                                 },
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -457,18 +472,22 @@ fun ModernPrayerOrbitWidget(
                             )
                         }
                         Text(
-                            text = "$activeName • ${if (isEnglish) "Ends in" else "বাকি"} $countdownText",
+                            text = if (activeStage != null) {
+                                "$activeName • ${if (isEnglish) "Ends in" else "বাকি"} $countdownText"
+                            } else {
+                                "$activeName • ${if (isEnglish) "Starts in" else "শুরু হতে বাকি"} $countdownText"
+                            },
                             color = primaryTextColor,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${if (isEnglish) "Time window" else "ওয়াক্তের সময়কাল"}: $activeStartTime – $activeEndTime",
+                            text = "${if (activeStage != null) (if (isEnglish) "Time window" else "ওয়াক্তের সময়কাল") else (if (isEnglish) "Upcoming window" else "ওয়াক্তের সময়কাল")}: $activeStartTime – $activeEndTime",
                             color = secondaryTextColor,
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Medium
                         )
-                        if (activeStage.isMakruh) {
+                        if (activeStage?.isMakruh == true) {
                             Text(
                                 text = if (isEnglish) activeStage.makruhReasonEn else activeStage.makruhReasonBn,
                                 color = if (isDarkMode) Color(0xFFFCD34D) else Color(0xFFB45309),
@@ -892,7 +911,7 @@ private fun ProhibitedItemChip(
  */
 @Composable
 private fun PrayerOrbitArcCanvas(
-    activeStage: OrbitPrayerStage,
+    activeStage: OrbitPrayerStage?,
     isEnglish: Boolean,
     isDarkMode: Boolean,
     selectedCityLocation: CityLocation
@@ -1127,7 +1146,7 @@ private fun PrayerOrbitArcCanvas(
  */
 @Composable
 private fun PrayerVerticalTimeline(
-    activeStage: OrbitPrayerStage,
+    activeStage: OrbitPrayerStage?,
     isEnglish: Boolean,
     isDarkMode: Boolean,
     selectedCityLocation: CityLocation

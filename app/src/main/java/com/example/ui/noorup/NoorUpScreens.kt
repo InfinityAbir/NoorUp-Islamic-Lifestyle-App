@@ -3646,7 +3646,8 @@ fun PrayerAlertsManagementCard(viewModel: NoorUpViewModel) {
             Triple(if (isEnglish) "Asr Prayer" else "আসরের নামাজ", "${selectedCityLocation.asrStart} – ${selectedCityLocation.asrEnd}", if (isEnglish) "Guard strictly the middle prayer" else "মধ্যবর্তী নামাজের (আসর) বিশেষ যত্ন নিন"),
             Triple(if (isEnglish) "Maghrib & Iftar" else "মাগরিবের নামাজ ও ইফতার", "${selectedCityLocation.maghribStart} – ${selectedCityLocation.maghribEnd}", if (isEnglish) "Sunset prayer & fasting completion" else "সূর্যাস্ত ও ইফতারের দোয়া সহ নোটিফিকেশন"),
             Triple(if (isEnglish) "Isha Prayer" else "এশার নামাজ", "${selectedCityLocation.ishaStart} – ${selectedCityLocation.ishaEnd}", if (isEnglish) "Night prayer before sleep" else "শান্তিময় রাত্রির পূর্বে এশা ও বিতর"),
-            Triple(if (isEnglish) "Daily Hadith" else "দৈনিক নূর হাদিস", "09:00 AM", if (isEnglish) "Spiritual boost & authentic guidance" else "প্রতিদিন সকাল ৯টায় আত্মশুদ্ধির বাণী")
+            Triple(if (isEnglish) "Daily Hadith" else "দৈনিক নূর হাদিস", "09:00 AM", if (isEnglish) "Spiritual boost & authentic guidance" else "প্রতিদিন সকাল ৯টায় আত্মশুদ্ধির বাণী"),
+            Triple(if (isEnglish) "🌱 Noor Garden Habit Update" else "🌱 নূর বাগান আমল রিমাইন্ডার", "10:00 PM", if (isEnglish) "Daily 10:00 PM check to cultivate habits & complete prayer log" else "প্রতিদিন রাত ১০:০০ টায় সারাদিনের আমল পূর্ণ করার সতর্কবার্তা")
         )
 
         scheduleItems.forEach { (name, time, note) ->

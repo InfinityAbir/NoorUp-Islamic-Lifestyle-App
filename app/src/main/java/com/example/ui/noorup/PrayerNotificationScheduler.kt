@@ -12,23 +12,91 @@ import java.util.concurrent.TimeUnit
 object PrayerNotificationScheduler {
 
     private const val ALARM_REQ_BASE = 5000
+    const val GARDEN_ALARM_REQ_CODE = 7001
+    const val GARDEN_NOTIFICATION_ID = 1001
 
-    fun scheduleDailyTasks(context: Context) {
+    fun getTarget10PmCalendar(): Calendar {
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 22)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        if (target.timeInMillis <= now.timeInMillis) {
+            target.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        return target
+    }
+
+    fun scheduleGardenExactAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        val targetCal = getTarget10PmCalendar()
+        val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+        val isEnglish = prefs.getBoolean("is_english", false)
+
+        val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
+            putExtra("is_garden_reminder", true)
+            putExtra("notification_id", GARDEN_NOTIFICATION_ID)
+            putExtra("channel_id", "garden_reminders_channel")
+            putExtra(
+                "prayer_name",
+                if (isEnglish) "🌱 Noor Garden (10:00 PM Reminder)" else "🌱 নূর বাগান (রাত ১০:০০ ঘটিকার অনুস্মারক)"
+            )
+            putExtra(
+                "message",
+                if (isEnglish) "Complete today's prayers and daily deeds to keep your garden vibrant and green."
+                else "আজকের নামাজের ওয়াক্ত ও আমলগুলো সম্পূর্ণ করে বাগান সবুজ রাখুন।"
+            )
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            GARDEN_ALARM_REQ_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+                } else {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+                }
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+            }
+            android.util.Log.d("PrayerScheduler", "Scheduled 10:00 PM Noor Garden exact alarm for ${targetCal.time}")
+        } catch (e: Exception) {
+            android.util.Log.e("PrayerScheduler", "Error scheduling 10:00 PM garden exact alarm", e)
+        }
+    }
+
+    fun scheduleGardenWorkManager(context: Context) {
         try {
             val workManager = WorkManager.getInstance(context)
+            val targetCal = getTarget10PmCalendar()
+            val initialDelayMillis = targetCal.timeInMillis - System.currentTimeMillis()
 
             val gardenRequest = PeriodicWorkRequestBuilder<NoorGardenReminderWorker>(24, TimeUnit.HOURS)
-                .setInitialDelay(6, TimeUnit.HOURS)
+                .setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
                 .build()
 
             workManager.enqueueUniquePeriodicWork(
                 "noor_garden_daily_reminder",
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 gardenRequest
             )
+            android.util.Log.d("PrayerScheduler", "Scheduled 10:00 PM Noor Garden periodic work with delay ${initialDelayMillis / 1000}s")
         } catch (e: Throwable) {
-            android.util.Log.e("PrayerScheduler", "WorkManager not available during scheduleDailyTasks", e)
+            android.util.Log.e("PrayerScheduler", "WorkManager not available during scheduleGardenWorkManager", e)
         }
+    }
+
+    fun scheduleDailyTasks(context: Context) {
+        scheduleGardenExactAlarm(context)
+        scheduleGardenWorkManager(context)
     }
 
     fun isExactAlarmPermissionGranted(context: Context): Boolean {

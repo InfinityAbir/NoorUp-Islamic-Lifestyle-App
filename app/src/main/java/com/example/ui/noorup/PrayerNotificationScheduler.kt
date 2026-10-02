@@ -73,30 +73,20 @@ object PrayerNotificationScheduler {
         }
     }
 
-    fun scheduleGardenWorkManager(context: Context) {
+    fun cancelGardenWorkManagerIfAny(context: Context) {
         try {
             val workManager = WorkManager.getInstance(context)
-            val targetCal = getTarget10PmCalendar()
-            val initialDelayMillis = targetCal.timeInMillis - System.currentTimeMillis()
-
-            val gardenRequest = PeriodicWorkRequestBuilder<NoorGardenReminderWorker>(24, TimeUnit.HOURS)
-                .setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
-                .build()
-
-            workManager.enqueueUniquePeriodicWork(
-                "noor_garden_daily_reminder",
-                ExistingPeriodicWorkPolicy.UPDATE,
-                gardenRequest
-            )
-            android.util.Log.d("PrayerScheduler", "Scheduled 10:00 PM Noor Garden periodic work with delay ${initialDelayMillis / 1000}s")
+            workManager.cancelUniqueWork("noor_garden_daily_reminder")
+            workManager.cancelAllWorkByTag("noor_garden")
+            android.util.Log.d("PrayerScheduler", "Cancelled any leftover WorkManager tasks for Noor Garden")
         } catch (e: Throwable) {
-            android.util.Log.e("PrayerScheduler", "WorkManager not available during scheduleGardenWorkManager", e)
+            android.util.Log.e("PrayerScheduler", "Error cancelling garden work manager", e)
         }
     }
 
     fun scheduleDailyTasks(context: Context) {
+        cancelGardenWorkManagerIfAny(context)
         scheduleGardenExactAlarm(context)
-        scheduleGardenWorkManager(context)
     }
 
     fun isExactAlarmPermissionGranted(context: Context): Boolean {

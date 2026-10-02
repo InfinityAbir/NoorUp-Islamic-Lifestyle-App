@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.work.*
+import com.example.ui.noorup.hadith.DailyHadithProvider
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -14,11 +15,27 @@ object PrayerNotificationScheduler {
     private const val ALARM_REQ_BASE = 5000
     const val GARDEN_ALARM_REQ_CODE = 7001
     const val GARDEN_NOTIFICATION_ID = 1001
+    const val HADITH_ALARM_REQ_CODE = 7002
+    const val HADITH_NOTIFICATION_ID = 1002
 
     fun getTarget10PmCalendar(): Calendar {
         val now = Calendar.getInstance()
         val target = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 22)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        if (target.timeInMillis <= now.timeInMillis) {
+            target.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        return target
+    }
+
+    fun getTarget9AmCalendar(): Calendar {
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
@@ -73,6 +90,39 @@ object PrayerNotificationScheduler {
         }
     }
 
+    fun scheduleDailyHadithExactAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        val targetCal = getTarget9AmCalendar()
+
+        val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
+            putExtra("is_hadith_reminder", true)
+            putExtra("notification_id", HADITH_NOTIFICATION_ID)
+            putExtra("channel_id", "hadith_reminders_channel")
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            HADITH_ALARM_REQ_CODE,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+                } else {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+                }
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, targetCal.timeInMillis, pendingIntent)
+            }
+            android.util.Log.d("PrayerScheduler", "Scheduled 09:00 AM Daily Hadith exact alarm for ${targetCal.time}")
+        } catch (e: Exception) {
+            android.util.Log.e("PrayerScheduler", "Error scheduling 09:00 AM Hadith alarm", e)
+        }
+    }
+
     fun cancelGardenWorkManagerIfAny(context: Context) {
         try {
             val workManager = WorkManager.getInstance(context)
@@ -87,6 +137,7 @@ object PrayerNotificationScheduler {
     fun scheduleDailyTasks(context: Context) {
         cancelGardenWorkManagerIfAny(context)
         scheduleGardenExactAlarm(context)
+        scheduleDailyHadithExactAlarm(context)
     }
 
     fun isExactAlarmPermissionGranted(context: Context): Boolean {
@@ -218,11 +269,25 @@ object PrayerNotificationScheduler {
     fun triggerGardenReminderNowForTesting(context: Context, isEnglish: Boolean) {
         PrayerNotificationHelper.showPrayerAlert(
             context = context,
-            notificationId = 1001,
+            notificationId = GARDEN_NOTIFICATION_ID,
             title = if (isEnglish) "🌱 Noor Garden Evening Reminder" else "🌱 নূর বাগান সন্ধ্যার অনুস্মারক",
             message = if (isEnglish) "Keep your garden green by recording your today's prayers and dhikr!"
             else "আজকের নামাজের ওয়াক্ত ও আমলগুলো পূরণ করে আপনার নূর বাগান সবুজ রাখুন!",
             channelId = "garden_reminders_channel"
+        )
+    }
+
+    fun triggerDailyHadithNowForTesting(context: Context, isEnglish: Boolean) {
+        val hadith = DailyHadithProvider.getTodayHadith()
+        val title = if (isEnglish) "📖 Daily Noor Hadith • ${hadith.referenceEn}" else "📖 আজকের নূর হাদিস • ${hadith.referenceBn}"
+        val message = if (isEnglish) "\"${hadith.textEn}\"\n— ${hadith.narratorEn}" else "\"${hadith.textBn}\"\n— ${hadith.narratorBn}"
+
+        PrayerNotificationHelper.showPrayerAlert(
+            context = context,
+            notificationId = HADITH_NOTIFICATION_ID,
+            title = title,
+            message = message,
+            channelId = "hadith_reminders_channel"
         )
     }
 

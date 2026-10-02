@@ -371,6 +371,22 @@ class HadithRepository(private val context: Context) {
         }
     }
 
+    fun getAllCuratedHadiths(): List<Hadith> {
+        val list = mutableListOf<Hadith>()
+        for (book in defaultCanonicalBooks) {
+            list.addAll(getCoreCuratedHadithsForBook(book.id, book.nameBn, book.nameEn))
+        }
+        return list
+    }
+
+    fun getDailyHadith(calendar: java.util.Calendar = java.util.Calendar.getInstance()): Hadith {
+        val allPool = cachedHadiths.values.flatten().ifEmpty { getAllCuratedHadiths() }
+        val dayOfYear = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+        val year = calendar.get(java.util.Calendar.YEAR)
+        val index = kotlin.math.abs((dayOfYear * 37 + year) % allPool.size)
+        return allPool[index]
+    }
+
     suspend fun getRandomDailyHadith(): Hadith? = withContext(Dispatchers.IO) {
         val bukhariHadiths = getHadithsForBook("bukhari")
         if (bukhariHadiths.isNotEmpty()) bukhariHadiths.random() else null

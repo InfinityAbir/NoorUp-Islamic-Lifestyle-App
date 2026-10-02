@@ -47,6 +47,39 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             return
         }
 
+        val isHadith = intent.getBooleanExtra("is_hadith_reminder", false)
+        if (isHadith) {
+            val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+            val todayDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+            val lastPostedDate = prefs.getString("last_hadith_reminder_date_posted", "")
+            val isEnglish = prefs.getBoolean("is_english", false)
+
+            val alreadyPostedToday = (lastPostedDate == todayDateKey)
+            if (!alreadyPostedToday) {
+                val hadith = com.example.ui.noorup.hadith.DailyHadithProvider.getTodayHadith()
+                val title = if (isEnglish) "📖 Daily Hadith • ${hadith.referenceEn}" else "📖 আজকের নূর হাদিস • ${hadith.referenceBn}"
+                val message = if (isEnglish) {
+                    "\"${hadith.textEn}\"\n— ${hadith.narratorEn}\n💡 ${hadith.lessonEn}"
+                } else {
+                    "\"${hadith.textBn}\"\n— ${hadith.narratorBn}\n💡 ${hadith.lessonBn}"
+                }
+
+                PrayerNotificationHelper.showPrayerAlert(
+                    context = context,
+                    notificationId = PrayerNotificationScheduler.HADITH_NOTIFICATION_ID,
+                    title = title,
+                    message = message,
+                    channelId = "hadith_reminders_channel"
+                )
+
+                prefs.edit().putString("last_hadith_reminder_date_posted", todayDateKey).apply()
+            }
+
+            // Always ensure exact alarm is scheduled for the next 09:00 AM
+            PrayerNotificationScheduler.scheduleDailyHadithExactAlarm(context)
+            return
+        }
+
         // Standard 5 Daily Prayer Alarms
         val prayerName = intent.getStringExtra("prayer_name") ?: "নামাজ"
         val message = intent.getStringExtra("message") ?: "নামাজের ওয়াক্ত হয়েছে।"

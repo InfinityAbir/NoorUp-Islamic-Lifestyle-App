@@ -3586,27 +3586,55 @@ fun PrayerAlertsManagementCard(viewModel: NoorUpViewModel) {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = {
-                viewModel.triggerGardenReminderTest(context)
-                testFeedbackMessage = if (isEnglish) {
-                    "🌿 10:00 PM Noor Garden reminder posted! Check your notification shade."
-                } else {
-                    "🌿 রাত ১০:০০ নূর বাগান রিমাইন্ডার পাঠানো হয়েছে! ড্রয়ার চেক করুন।"
-                }
-            },
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, GoldAccent)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(Icons.Default.Eco, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                if (isEnglish) "Test 10:00 PM Noor Garden Reminder" else "রাত ১০:০০ নূর বাগান রিমাইন্ডার টেস্ট",
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = GoldAccent
-            )
+            OutlinedButton(
+                onClick = {
+                    viewModel.triggerHadithReminderTest(context)
+                    testFeedbackMessage = if (isEnglish) {
+                        "📖 09:00 AM Daily Hadith alert posted! Check your notification shade."
+                    } else {
+                        "📖 সকাল ০৯:০০ দৈনিক নূর হাদিস পাঠানো হয়েছে! নোটিফিকেশন চেক করুন।"
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(Icons.Default.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    if (isEnglish) "Daily Hadith Test" else "দৈনিক হাদিস টেস্ট",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+                    viewModel.triggerGardenReminderTest(context)
+                    testFeedbackMessage = if (isEnglish) {
+                        "🌿 10:00 PM Noor Garden reminder posted! Check your notification shade."
+                    } else {
+                        "🌿 রাত ১০:০০ নূর বাগান রিমাইন্ডার পাঠানো হয়েছে! ড্রয়ার চেক করুন।"
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, GoldAccent)
+            ) {
+                Icon(Icons.Default.Eco, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    if (isEnglish) "Garden 10PM Test" else "বাগান ১০PM টেস্ট",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = GoldAccent
+                )
+            }
         }
 
         testFeedbackMessage?.let { msg ->

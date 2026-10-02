@@ -1452,6 +1452,10 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         PrayerNotificationScheduler.triggerGardenReminderNowForTesting(context, _isEnglish.value)
     }
 
+    fun triggerHadithReminderTest(context: Context) {
+        PrayerNotificationScheduler.triggerDailyHadithNowForTesting(context, _isEnglish.value)
+    }
+
     init {
         recalculateSolarTimes()
         loadHadithData()

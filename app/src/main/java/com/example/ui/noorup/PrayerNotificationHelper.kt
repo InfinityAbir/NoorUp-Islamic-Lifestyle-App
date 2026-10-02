@@ -30,9 +30,18 @@ object PrayerNotificationHelper {
                 description = "Daily evening reminder to check and cultivate your Noor Garden"
             }
 
+            val hadithChannel = NotificationChannel(
+                "hadith_reminders_channel",
+                "Daily Hadith & Spiritual Reminders",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Daily morning authentic Sahih Hadith for spiritual reflection"
+            }
+
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(prayerChannel)
             manager.createNotificationChannel(gardenChannel)
+            manager.createNotificationChannel(hadithChannel)
         }
     }
 
@@ -57,6 +66,7 @@ object PrayerNotificationHelper {
             .setSmallIcon(R.drawable.ic_noorup_notification)
             .setContentTitle(title)
             .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

@@ -1,17 +1,17 @@
 package com.example
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
+import com.example.ui.noorup.PrayerNotificationHelper
+import com.example.ui.noorup.PrayerNotificationScheduler
+import com.example.ui.noorup.WidgetUpdateScheduler
 
 class NoorUpApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        com.example.ui.noorup.PrayerNotificationHelper.createNotificationChannels(this)
+        PrayerNotificationHelper.createNotificationChannels(this)
+        PrayerNotificationScheduler.scheduleAllPrayerAlerts(this)
+        PrayerNotificationScheduler.scheduleDailyTasks(this)
         NoorUpWidgetProvider.updateAllWidgets(this)
-        com.example.ui.noorup.WidgetUpdateScheduler.scheduleNextWidgetUpdate(this)
-        com.example.ui.noorup.PrayerNotificationScheduler.scheduleDailyTasks(this)
+        WidgetUpdateScheduler.scheduleNextWidgetUpdate(this)
     }
 }

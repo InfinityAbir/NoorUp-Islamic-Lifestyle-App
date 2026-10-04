@@ -10,6 +10,7 @@ class PrayerRescheduleWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        PrayerNotificationScheduler.scheduleAllPrayerAlerts(context)
         PrayerNotificationScheduler.scheduleDailyTasks(context)
         return Result.success()
     }

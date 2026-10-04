@@ -10,10 +10,11 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
             intent.action == "android.intent.action.QUICKBOOT_POWERON" ||
             intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+            PrayerNotificationHelper.createNotificationChannels(context)
+            PrayerNotificationScheduler.scheduleAllPrayerAlerts(context)
             PrayerNotificationScheduler.scheduleDailyTasks(context)
             NoorUpWidgetProvider.updateAllWidgets(context)
             WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
         }
     }
 }
-

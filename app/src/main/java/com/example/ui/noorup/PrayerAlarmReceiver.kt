@@ -3,12 +3,15 @@ package com.example.ui.noorup
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import com.example.NoorUpWidgetProvider
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context, intent: Intent) {
         val isGarden = intent.getBooleanExtra("is_garden_reminder", false)
 
@@ -19,7 +22,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             val cal = Calendar.getInstance()
             val hour = cal.get(Calendar.HOUR_OF_DAY) // 0..23
 
-            // Strictly allow only 1 reminder per day at 10 PM (21:00 - 23:59), never at midnight/early morning (0:00 - 6:00)
+            // Strictly allow 1 reminder per evening at 10 PM (21:00 - 23:59)
             val isValidEveningHour = (hour in 21..23)
             val alreadyPostedToday = (lastPostedDate == todayDateKey)
 
@@ -80,11 +83,13 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             return
         }
 
-        // Standard 5 Daily Prayer Alarms
+        // Standard 5 Daily Prayer Alarms (Fajr, Dhuhr, Asr, Maghrib, Isha)
         val prayerName = intent.getStringExtra("prayer_name") ?: "নামাজ"
         val message = intent.getStringExtra("message") ?: "নামাজের ওয়াক্ত হয়েছে।"
         val channelId = intent.getStringExtra("channel_id") ?: "prayer_reminders_channel"
         val notificationId = intent.getIntExtra("notification_id", (2000..3000).random())
+
+        Log.d("PrayerAlarmReceiver", "Received prayer alarm for $prayerName (id=$notificationId)")
 
         PrayerNotificationHelper.showPrayerAlert(
             context = context,
@@ -93,5 +98,14 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             message = message,
             channelId = channelId
         )
+
+        // Reschedule all 5 prayer alarms so upcoming prayer and next day's slots are seamlessly maintained
+        try {
+            PrayerNotificationScheduler.scheduleAllPrayerAlerts(context)
+            NoorUpWidgetProvider.updateAllWidgets(context)
+            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+        } catch (e: Exception) {
+            Log.e("PrayerAlarmReceiver", "Error rescheduling prayers after alarm fire", e)
+        }
     }
 }

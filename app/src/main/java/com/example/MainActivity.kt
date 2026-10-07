@@ -38,8 +38,21 @@ class MainActivity : ComponentActivity() {
 
         // Initialize high-importance Notification Channels for prayer times and daily updates
         PrayerNotificationHelper.createNotificationChannels(this)
-        NoorUpWidgetProvider.updateAllWidgets(this)
-        WidgetUpdateScheduler.scheduleNextWidgetUpdate(this)
+        // Widget + alarm scheduling does Solar math + WorkManager init — keep it
+        // off the main thread to avoid startup ANR (especially on emulator).
+        val appCtx = applicationContext
+        Thread {
+            try {
+                NoorUpWidgetProvider.updateAllWidgets(appCtx)
+            } catch (e: Exception) {
+                android.util.Log.e("NoorUpActivity", "updateAllWidgets failed", e)
+            }
+            try {
+                WidgetUpdateScheduler.scheduleNextWidgetUpdate(appCtx)
+            } catch (e: Exception) {
+                android.util.Log.e("NoorUpActivity", "scheduleNextWidgetUpdate failed", e)
+            }
+        }.start()
 
         setContent {
             val viewModel: NoorUpViewModel = viewModel()
@@ -259,6 +272,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        NoorUpWidgetProvider.updateAllWidgets(this)
+        val appCtx = applicationContext
+        Thread {
+            try {
+                NoorUpWidgetProvider.updateAllWidgets(appCtx)
+            } catch (e: Exception) {
+                android.util.Log.e("NoorUpActivity", "onResume updateAllWidgets failed", e)
+            }
+        }.start()
     }
 }

@@ -45,7 +45,14 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     fun toggleLanguage() {
         _isEnglish.update { !it }
         prefs.edit().putBoolean("is_english", _isEnglish.value).apply()
-        NoorUpWidgetProvider.updateAllWidgets(getApplication())
+        val appContext = getApplication<Application>().applicationContext
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                NoorUpWidgetProvider.updateAllWidgets(appContext)
+            } catch (e: Exception) {
+                Log.e("NoorUpViewModel", "toggleLanguage widget update failed", e)
+            }
+        }
         refreshConsistencyHistory()
     }
 
@@ -1425,15 +1432,23 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun schedulePrayerNotifications(context: Context) {
-        val loc = _selectedCityLocation.value
-        PrayerNotificationScheduler.scheduleAllPrayerAlerts(
-            context = context,
-            latitude = loc.latitude,
-            longitude = loc.longitude,
-            method = _calculationMethod.value,
-            juristic = _juristicMethod.value,
-            isEnglish = _isEnglish.value
-        )
+        // AlarmManager setAlarmClock x5 is slow IPC — never block the UI thread.
+        val appContext = context.applicationContext
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val loc = _selectedCityLocation.value
+                PrayerNotificationScheduler.scheduleAllPrayerAlerts(
+                    context = appContext,
+                    latitude = loc.latitude,
+                    longitude = loc.longitude,
+                    method = _calculationMethod.value,
+                    juristic = _juristicMethod.value,
+                    isEnglish = _isEnglish.value
+                )
+            } catch (e: Exception) {
+                Log.e("NoorUpViewModel", "schedulePrayerNotifications failed", e)
+            }
+        }
     }
 
     fun sendTestNotification(context: Context) {

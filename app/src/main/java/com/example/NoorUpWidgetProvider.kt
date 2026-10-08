@@ -292,19 +292,26 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         activeWindowStr = "${formatTimeWithAmPm(todayTimes.dhuhrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.dhuhrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
                     }
-                    // 7. Asr time (Asr start to Maghrib start)
-                    curMins in asrS until maghribS -> {
+                    // 7. Asr time (Asr start until Makruh sunset starts).
+                    // Countdown stops at the prohibited window so it matches the app.
+                    curMins in asrS until sunsetS -> {
                         activePrayerIndex = 2
-                        val remMins = maghribS - curMins
+                        val remMins = sunsetS - curMins
                         val remStr = formatRemTime(remMins, isEnglish)
-                        stageLabel = if (curMins in sunsetS..sunsetE) {
-                            if (isEnglish) "⚠️ MAKRUH (SUNSET)" else "⚠️ মাকরুহ সময় (সূর্যাস্ত পূর্ব)"
-                        } else {
-                            if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
-                        }
+                        stageLabel = if (isEnglish) "ACTIVE PRAYER" else "চলমান ওয়াক্ত"
                         activeName = if (isEnglish) "Asr" else "আসর"
                         activeWindowStr = "${formatTimeWithAmPm(todayTimes.asrStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.asrEnd, isEnglish)}"
                         countdownStr = if (isEnglish) "Ends in $remStr" else "বাকি $remStr"
+                    }
+                    // 7b. Makruh sunset window (prohibited): count down to Maghrib.
+                    curMins in sunsetS..sunsetE -> {
+                        activePrayerIndex = -1
+                        val remMins = maghribS - curMins
+                        val remStr = formatRemTime(remMins, isEnglish)
+                        stageLabel = if (isEnglish) "⚠️ MAKRUH (SUNSET)" else "⚠️ মাকরুহ সময় (সূর্যাস্ত পূর্ব)"
+                        activeName = if (isEnglish) "Next: Maghrib" else "পরবর্তী: মাগরিব"
+                        activeWindowStr = "${formatTimeWithAmPm(todayTimes.makruhSunsetStart, isEnglish)} – ${formatTimeWithAmPm(todayTimes.makruhSunsetEnd, isEnglish)}"
+                        countdownStr = if (isEnglish) "Starts in $remStr" else "শুরু হতে বাকি $remStr"
                     }
                     // 8. Maghrib time (Maghrib start to Isha start)
                     curMins in maghribS until ishaS -> {

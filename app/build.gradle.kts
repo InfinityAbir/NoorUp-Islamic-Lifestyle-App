@@ -12,8 +12,8 @@ android {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GEMINI_API_KEY", "\"\"")
@@ -23,8 +23,11 @@ android {
         debug {
         }
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 enabled: Play requires DEX obfuscation (threshold deadline Feb 2027).
+            // Gson models are protected in proguard-rules.pro — verify Hadith/Quran
+            // screens + family Zikr after building before uploading.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -78,7 +78,9 @@ object SolarPrayerEngine {
         val asrStartStr = formatTime(asrHours)
         val sunsetStartStr = formatTimePlusMins(sunsetHours, -18)
         val sunsetEndStr = formatTimePlusMins(maghribHours, -1)
-        val asrEndStr = formatTimePlusMins(maghribHours, -1)
+        // Makruh sunset window starts 18 min before sunset; Asr must end 1 min
+        // before it so prayer windows never overlap the prohibited time.
+        val asrEndStr = formatTimePlusMins(sunsetHours, -19)
         val maghribStartStr = formatTime(maghribHours)
         val maghribEndStr = formatTimePlusMins(ishaHours, -1)
 

@@ -356,9 +356,113 @@ class HadithRepository(private val context: Context) {
                     grade = "সহীহ (ইবনে মাজাহ)", reference = "সুনানে ইবনে মাজাহ #২২৪", bookNameBn = nameBn, bookNameEn = nameEn
                 )
             )
+            "muwatta" -> listOf(
+                Hadith(
+                    id = 701, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 1, chapterBn = "ইলম ও সুন্নাহ অধ্যায়", chapterEn = "Knowledge and Sunnah",
+                    topicBn = "ইলম ও দ্বীন শিক্ষা", topicEn = "Knowledge & Quran", hadithNumber = 1,
+                    narrator = "মালিক (রহ.) — রাসূলুল্লাহ (ﷺ)",
+                    arabicText = "تَرَكْتُ فِيكُمْ أَمْرَيْنِ لَنْ تَضِلُّوا مَا تَمَسَّكْتُمْ بِهِمَا: كِتَابَ اللَّهِ وَسُنَّةَ نَبِيِّهِ",
+                    translationBangla = "আমি তোমাদের মাঝে দুটি জিনিস রেখে যাচ্ছি; যতক্ষণ তোমরা এ দুটিকে আঁকড়ে ধরবে, পথভ্রষ্ট হবে না: আল্লাহর কিতাব ও তাঁর নবীর সুন্নাহ।",
+                    translationEnglish = "I have left among you two matters; you will never go astray as long as you hold to them: the Book of Allah and the Sunnah of His Prophet.",
+                    grade = "সহীহ (মুওয়াত্তা)", reference = "মুওয়াত্তা মালিক #১", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 702, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 2, chapterBn = "নামাজের সময় অধ্যায়", chapterEn = "Prayer Times",
+                    topicBn = "সালাত ও তাহারাত", topicEn = "Purification & Prayer", hadithNumber = 8,
+                    narrator = "আয়েশা (রা.)",
+                    arabicText = "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ",
+                    translationBangla = "নিশ্চয়ই আমলের প্রতিদান নিয়ত অনুযায়ী। মদিনার আমল অনুযায়ী প্রতিটি ইবাদতে ইখলাস অপরিহার্য।",
+                    translationEnglish = "Deeds are but by intentions — the foundation of Madinah's practice in every worship.",
+                    grade = "সহীহ (মুওয়াত্তা)", reference = "মুওয়াত্তা মালিক #৮", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 703, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 3, chapterBn = "উত্তম চরিত্র অধ্যায়", chapterEn = "Good Character",
+                    topicBn = "আখলাক ও উত্তম চরিত্র", topicEn = "Good Character", hadithNumber = 1614,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ",
+                    translationBangla = "উত্তম ও মিষ্টি কথা বলাও একটি সদকা।",
+                    translationEnglish = "A good word is charity.",
+                    grade = "সহীহ (মুওয়াত্তা)", reference = "মুওয়াত্তা মালিক #১৬১৪", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 704, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 4, chapterBn = "প্রতিবেশীর হক অধ্যায়", chapterEn = "Rights of Neighbors",
+                    topicBn = "পিতা-মাতা ও আত্মীয়তা", topicEn = "Parents & Family", hadithNumber = 1700,
+                    narrator = "আবদুল্লাহ ইবনে উমর (রা.)",
+                    arabicText = "مَا زَالَ جِبْرِيلُ يُوصِينِي بِالْجَارِ حَتَّى ظَنَنْتُ أَنَّهُ سَيُوَرِّثُهُ",
+                    translationBangla = "জিবরীল (আ.) প্রতিবেশীর ব্যাপারে আমাকে এত বেশি উপদেশ দিতেন যে, আমি ভাবতাম তিনি প্রতিবেশীকে উত্তরাধিকারী বানিয়ে দেবেন।",
+                    translationEnglish = "Jibril kept advising me about the neighbor until I thought he would make him an heir.",
+                    grade = "সহীহ (মুওয়াত্তা)", reference = "মুওয়াত্তা মালিক #১৭০০", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 705, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 5, chapterBn = "রোজা ও সংযম অধ্যায়", chapterEn = "Fasting",
+                    topicBn = "দান-সদকা ও রিযিক", topicEn = "Charity & Provision", hadithNumber = 690,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "الصِّيَامُ جُنَّةٌ",
+                    translationBangla = "রোজা হলো (জাহান্নাম থেকে রক্ষাকারী) ঢাল।",
+                    translationEnglish = "Fasting is a shield (from the Fire).",
+                    grade = "সহীহ (মুওয়াত্তা)", reference = "মুওয়াত্তা মালিক #৬৯০", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
+            "riyadussalihin" -> listOf(
+                Hadith(
+                    id = 801, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    chapterId = 1, chapterBn = "ইখলাস ও নিয়ত অধ্যায়", chapterEn = "Sincerity",
+                    topicBn = "নিয়ত ও ইখলাস", topicEn = "Intentions & Sincerity", hadithNumber = 1,
+                    narrator = "উমর ইবনুল খাত্তাব (রা.)",
+                    arabicText = "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+                    translationBangla = "নিশ্চয়ই সমস্ত কাজ নিয়তের ওপর নির্ভরশীল; প্রত্যেক ব্যক্তি তাই পাবে যা সে নিয়ত করেছে।",
+                    translationEnglish = "Deeds are but by intentions, and every person shall have only that which he intended.",
+                    grade = "মুত্তাফাকুন আলাইহি", reference = "রিয়াদুস সালেহীন #১", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 802, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 2, chapterBn = "তাওবা অধ্যায়", chapterEn = "Repentance",
+                    topicBn = "তাওবা ও ক্ষমা", topicEn = "Repentance", hadithNumber = 13,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "وَاللَّهِ إِنِّي لَأَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ فِي الْيَوْمِ أَكْثَرَ مِنْ سَبْعِينَ مَرَّةً",
+                    translationBangla = "আল্লাহর শপথ! আমি প্রতিদিন সত্তরবারেরও বেশি আল্লাহর কাছে ক্ষমা চাই ও তাওবা করি।",
+                    translationEnglish = "By Allah! I seek Allah's forgiveness and repent to Him more than seventy times a day.",
+                    grade = "সহীহ (রিয়াদুস সালেহীন)", reference = "রিয়াদুস সালেহীন #১৩", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 803, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 3, chapterBn = "ধৈর্য অধ্যায়", chapterEn = "Patience",
+                    topicBn = "ধৈর্য ও শোকর", topicEn = "Patience & Gratitude", hadithNumber = 25,
+                    narrator = "সুহায়ব (রা.)",
+                    arabicText = "عَجَبًا لِأَمْرِ الْمُؤْمِنِ، إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ",
+                    translationBangla = "মুমিনের বিষয় কতই না আশ্চর্যজনক! তার প্রতিটি বিষয়ই কল্যাণকর।",
+                    translationEnglish = "How wonderful is the affair of the believer! All of his affairs are good.",
+                    grade = "সহীহ (রিয়াদুস সালেহীন)", reference = "রিয়াদুস সালেহীন #২৫", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 804, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 4, chapterBn = "সত্যবাদিতা অধ্যায়", chapterEn = "Truthfulness",
+                    topicBn = "আখলাক ও উত্তম চরিত্র", topicEn = "Good Character", hadithNumber = 54,
+                    narrator = "আবদুল্লাহ ইবনে মাসউদ (রা.)",
+                    arabicText = "عَلَيْكُمْ بِالصِّدْقِ، فَإِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ",
+                    translationBangla = "তোমরা সত্যবাদিতা অবলম্বন করো; কেননা সত্যবাদিতা পুণ্যের পথ দেখায়।",
+                    translationEnglish = "Adhere to truthfulness, for truthfulness guides to righteousness.",
+                    grade = "সহীহ (রিয়াদুস সালেহীন)", reference = "রিয়াদুস সালেহীন #৫৪", bookNameBn = nameBn, bookNameEn = nameEn
+                ),
+                Hadith(
+                    id = 805, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = false,
+                    chapterId = 5, chapterBn = "আল্লাহভীতি অধ্যায়", chapterEn = "Mindfulness of Allah",
+                    topicBn = "ঈমান ও তাওহীদ", topicEn = "Faith & Brotherhood", hadithNumber = 60,
+                    narrator = "আবু হুরায়রা (রা.)",
+                    arabicText = "اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا",
+                    translationBangla = "তুমি যেখানেই থাকো আল্লাহকে ভয় করো; আর মন্দ কাজের পর ভালো কাজ করো, তা মন্দকে মুছে দেবে।",
+                    translationEnglish = "Fear Allah wherever you are; and follow a bad deed with a good one, it will erase it.",
+                    grade = "হাসান (রিয়াদুস সালেহীন)", reference = "রিয়াদুস সালেহীন #৬০", bookNameBn = nameBn, bookNameEn = nameEn
+                )
+            )
             else -> listOf(
                 Hadith(
-                    id = 701, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
+                    id = 901, bookId = bookId, collection = nameBn, isMuttafaqunAlayh = true,
                     chapterId = 1, chapterBn = "আমল ও আখলাক অধ্যায়", chapterEn = "Virtuous Conduct",
                     topicBn = "আখলাক ও উত্তম চরিত্র", topicEn = "Good Character", hadithNumber = 1,
                     narrator = "আবু হুরায়রা (রা.)",

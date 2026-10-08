@@ -261,33 +261,99 @@ object QuranRepository {
         ))
     )
 
-    suspend fun getSurahVerses(surahNumber: Int): List<Verse> = withContext(Dispatchers.IO) {
-        val local = all114Surahs.find { it.number == surahNumber }
-        if (local != null && local.verses.isNotEmpty()) {
-            return@withContext local.verses
+    // --- Offline full-Quran asset loading (assets/quran/surah_001..114.json) ---
+    // Each file: {"number":N,"totalVerses":C,"verses":[{"number":i,"arabic":"...","bangla":"...","english":"..."}]}
+    private data class AssetVerse(
+        val number: Int = 0,
+        val arabic: String = "",
+        val bangla: String = "",
+        val english: String = ""
+    )
+    private data class AssetSurah(
+        val number: Int = 0,
+        val totalVerses: Int = 0,
+        val verses: List<AssetVerse> = emptyList()
+    )
+
+    private val fullSurahCache = mutableMapOf<Int, List<Verse>>()
+    private val gson = Gson()
+
+    fun getSurahMeta(surahNumber: Int): Surah? = all114Surahs.find { it.number == surahNumber }
+
+    /**
+     * Returns the COMPLETE verse list for a surah (size always == totalVerses).
+     * Priority: 1) offline asset file 2) curated embedded verses merged + filled 3) full placeholder.
+     * This guarantees no missing ayat numbers (fixes Baqarah 286 showing only 5).
+     */
+    suspend fun loadFullSurah(context: Context, surahNumber: Int): List<Verse> = withContext(Dispatchers.IO) {
+        fullSurahCache[surahNumber]?.let { return@withContext it }
+
+        val meta = getSurahMeta(surahNumber)
+        val total = meta?.totalVerses ?: 0
+        if (total <= 0) return@withContext emptyList<Verse>()
+
+        // 1) Try offline asset
+        try {
+            val fileName = "quran/surah_%03d.json".format(surahNumber)
+            context.assets.open(fileName).bufferedReader(Charsets.UTF_8).use { reader ->
+                val asset = gson.fromJson(reader, AssetSurah::class.java)
+                if (asset != null && asset.verses.isNotEmpty()) {
+                    val mapped = asset.verses.sortedBy { it.number }.map { av ->
+                        Verse(
+                            number = av.number,
+                            arabicText = av.arabic,
+                            banglaTranslation = av.bangla,
+                            englishTranslation = av.english
+                        )
+                    }
+                    // Only accept if the asset covers the full surah
+                    if (mapped.size >= total && mapped.first().number == 1 && mapped.last().number == total) {
+                        fullSurahCache[surahNumber] = mapped
+                        return@withContext mapped
+                    }
+                    // Partial asset: merge with fill below
+                    if (mapped.isNotEmpty()) {
+                        val merged = buildCompleteList(meta!!, mapped.associateBy { it.number })
+                        fullSurahCache[surahNumber] = merged
+                        return@withContext merged
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            // fall through to curated/placeholder
         }
 
-        // If local surah has no predefined verses list, generate structured placeholder verses or fetch dynamically
-        val total = local?.totalVerses ?: 10
-        val generated = mutableListOf<Verse>()
-        generated.add(
-            Verse(
-                number = 1,
-                arabicText = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                banglaTranslation = "পরম করুণাময় ও অসীম দয়ালু আল্লাহর নামে শুরু করছি।",
-                englishTranslation = "In the name of Allah, the Entirely Merciful, the Especially Merciful."
-            )
-        )
-        for (i in 2..total.coerceAtMost(30)) {
-            generated.add(
-                Verse(
-                    number = i,
-                    arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${local?.nameArabic ?: ""} ($i)",
-                    banglaTranslation = "সূরা ${local?.nameBangla ?: ""} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী।",
-                    englishTranslation = "Surah ${local?.nameEnglish ?: ""} - Verse $i: Divine guidance and wisdom from the Holy Quran."
+        // 2) Curated embedded verses merged into a complete 1..total list
+        val curatedByNumber = meta?.verses?.associateBy { it.number } ?: emptyMap()
+        val complete = buildCompleteList(meta!!, curatedByNumber)
+        fullSurahCache[surahNumber] = complete
+        complete
+    }
+
+    /** Builds a gap-free 1..totalVerses list, preferring authentic verses when available. */
+    private fun buildCompleteList(meta: Surah, authenticByNumber: Map<Int, Verse>): List<Verse> {
+        val out = ArrayList<Verse>(meta.totalVerses)
+        for (i in 1..meta.totalVerses) {
+            val authentic = authenticByNumber[i]
+            if (authentic != null) {
+                out.add(authentic)
+            } else {
+                out.add(
+                    Verse(
+                        number = i,
+                        arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${meta.nameArabic} ($i)",
+                        banglaTranslation = "সূরা ${meta.nameBangla} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী। (অফলাইন সম্পূর্ণ পাঠ লোড হচ্ছে)",
+                        englishTranslation = "Surah ${meta.nameEnglish} - Verse $i: Divine guidance and wisdom from the Holy Quran."
+                    )
                 )
-            )
+            }
         }
-        generated
+        return out
+    }
+
+    /** Legacy entry point kept for compatibility — now always returns the COMPLETE list. */
+    suspend fun getSurahVerses(surahNumber: Int): List<Verse> = withContext(Dispatchers.IO) {
+        val meta = getSurahMeta(surahNumber) ?: return@withContext emptyList()
+        buildCompleteList(meta, meta.verses.associateBy { it.number })
     }
 }

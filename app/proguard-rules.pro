@@ -6,5 +6,8 @@
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 -keep class com.example.ui.noorup.hadith.** { *; }
+-keep class com.example.ui.noorup.quran.** { *; }
+-keep class com.example.ui.noorup.Surah { *; }
+-keep class com.example.ui.noorup.Verse { *; }
 -keep class com.example.ui.noorup.FamilyMember { *; }
 -keep class com.example.ui.noorup.FamilyLiveEvent { *; }

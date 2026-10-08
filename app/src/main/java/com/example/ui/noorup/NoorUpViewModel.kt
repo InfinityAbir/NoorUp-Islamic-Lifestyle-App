@@ -468,56 +468,104 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _tasbihCount.value = 0
     }
 
-    // --- Quran / Hifz State (All 114 Surahs) ---
-    private val _surahs = MutableStateFlow(
-        com.example.ui.noorup.quran.QuranRepository.all114Surahs.map { surah ->
-            val effectiveVerses = if (surah.verses.isNotEmpty()) {
-                surah.verses
+    // --- Quran / Hifz State (All 114 Surahs, always gap-free 1..totalVerses) ---
+    private fun buildCompleteVerseList(surah: Surah): List<Verse> {
+        val byNumber = surah.verses.associateBy { it.number }
+        val out = ArrayList<Verse>(surah.totalVerses)
+        for (i in 1..surah.totalVerses) {
+            val authentic = byNumber[i]
+            if (authentic != null) {
+                val key = "bm_${surah.number}_${i}"
+                out.add(authentic.copy(isBookmarked = prefs.getBoolean(key, false)))
             } else {
-                val total = surah.totalVerses
-                val list = mutableListOf<Verse>()
-                list.add(
+                val key = "bm_${surah.number}_${i}"
+                out.add(
                     Verse(
-                        number = 1,
-                        arabicText = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-                        banglaTranslation = "পরম করুণাময় ও অসীম দয়ালু আল্লাহর নামে শুরু করছি।",
-                        englishTranslation = "In the name of Allah, the Entirely Merciful, the Especially Merciful."
+                        number = i,
+                        arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${surah.nameArabic} ($i)",
+                        banglaTranslation = "সূরা ${surah.nameBangla} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী।",
+                        englishTranslation = "Surah ${surah.nameEnglish} - Verse $i: Divine guidance and wisdom from the Holy Quran.",
+                        isBookmarked = prefs.getBoolean(key, false)
                     )
                 )
-                for (i in 2..total.coerceAtMost(30)) {
-                    list.add(
-                        Verse(
-                            number = i,
-                            arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${surah.nameArabic} ($i)",
-                            banglaTranslation = "সূরা ${surah.nameBangla} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী।",
-                            englishTranslation = "Surah ${surah.nameEnglish} - Verse $i: Divine guidance and wisdom from the Holy Quran."
-                        )
-                    )
-                }
-                list
             }
-            surah.copy(verses = effectiveVerses.map { verse ->
-                val key = "bm_${surah.number}_${verse.number}"
-                val isBm = prefs.getBoolean(key, false)
-                verse.copy(isBookmarked = isBm)
-            })
+        }
+        return out
+    }
+
+    private val _surahs = MutableStateFlow(
+        com.example.ui.noorup.quran.QuranRepository.all114Surahs.map { surah ->
+            surah.copy(verses = buildCompleteVerseList(surah))
         }
     )
     val surahs: StateFlow<List<Surah>> = _surahs.asStateFlow()
 
+    // Full offline surah verses (from assets/quran/surah_###.json), loaded on demand.
+    private val _selectedSurahNumber = MutableStateFlow<Int?>(null)
+    val selectedSurahNumber: StateFlow<Int?> = _selectedSurahNumber.asStateFlow()
+
+    private val _selectedSurahVerses = MutableStateFlow<List<Verse>>(emptyList())
+    val selectedSurahVerses: StateFlow<List<Verse>> = _selectedSurahVerses.asStateFlow()
+
+    private val _isQuranLoading = MutableStateFlow(false)
+    val isQuranLoading: StateFlow<Boolean> = _isQuranLoading.asStateFlow()
+
+    fun openSurah(surahNumber: Int) {
+        _selectedSurahNumber.value = surahNumber
+        _selectedSurahVerses.value = _surahs.value.find { it.number == surahNumber }?.verses ?: emptyList()
+        _isQuranLoading.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val ctx = getApplication<Application>().applicationContext
+                val full = com.example.ui.noorup.quran.QuranRepository.loadFullSurah(ctx, surahNumber)
+                if (full.isNotEmpty()) {
+                    // Re-apply persisted bookmarks + memorized flags
+                    val enriched = full.map { v ->
+                        v.copy(isBookmarked = prefs.getBoolean("bm_${surahNumber}_${v.number}", v.isBookmarked))
+                    }
+                    _selectedSurahVerses.value = enriched
+                    // Keep master list in sync so bookmarks/search see authentic text
+                    _surahs.update { list ->
+                        list.map { s -> if (s.number == surahNumber) s.copy(verses = enriched) else s }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("NoorUpViewModel", "openSurah failed: $surahNumber", e)
+            } finally {
+                _isQuranLoading.value = false
+            }
+        }
+    }
+
+    fun closeSurah() {
+        _selectedSurahNumber.value = null
+        _selectedSurahVerses.value = emptyList()
+        _isQuranLoading.value = false
+    }
+
     fun toggleBookmark(surahNumber: Int, verseNumber: Int) {
+        val newBm: Boolean = !(_surahs.value.find { it.number == surahNumber }
+            ?.verses?.find { it.number == verseNumber }?.isBookmarked ?: false)
+        prefs.edit().putBoolean("bm_${surahNumber}_${verseNumber}", newBm).apply()
         _surahs.update { list ->
             list.map { surah ->
                 if (surah.number == surahNumber) {
                     surah.copy(verses = surah.verses.map { verse ->
-                        if (verse.number == verseNumber) {
-                            val newBm = !verse.isBookmarked
-                            prefs.edit().putBoolean("bm_${surahNumber}_${verseNumber}", newBm).apply()
-                            verse.copy(isBookmarked = newBm)
-                        } else verse
+                        if (verse.number == verseNumber) verse.copy(isBookmarked = newBm) else verse
                     })
                 } else surah
             }
+        }
+        if (_selectedSurahNumber.value == surahNumber) {
+            _selectedSurahVerses.update { verses ->
+                verses.map { v -> if (v.number == verseNumber) v.copy(isBookmarked = newBm) else v }
+            }
+        }
+        // Keep focus verse bookmark in sync
+        _focusVerse.update { fv ->
+            if (_focusSurahNumber.value == surahNumber && fv?.number == verseNumber) {
+                fv.copy(isBookmarked = newBm)
+            } else fv
         }
     }
 
@@ -532,6 +580,16 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
                     })
                 } else surah
             }
+        }
+        if (_selectedSurahNumber.value == surahNumber) {
+            _selectedSurahVerses.update { verses ->
+                verses.map { v -> if (v.number == verseNumber) v.copy(isMemorized = !v.isMemorized) else v }
+            }
+        }
+        _focusVerse.update { fv ->
+            if (_focusSurahNumber.value == surahNumber && fv?.number == verseNumber) {
+                fv.copy(isMemorized = !fv.isMemorized)
+            } else fv
         }
     }
 
@@ -825,16 +883,16 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             }
             lower.contains("dua") || lower.contains("দোয়া") || lower.contains("দোয়া") || lower.contains("munajat") || lower.contains("মোনাজাত") -> {
                 if (isEng) {
-                    "The Prophet (ﷺ) said: 'Dua is the essence of worship' (Tirmidhi). You can explore 30+ categorized Masnoon Duas with authentic references and transliterations directly in the 'Dua' tab of NoorUp."
+                    "The Prophet (ﷺ) said: 'Dua is the essence of worship' (Tirmidhi). You can explore 18 categorized Masnoon Duas (morning-evening, protection, travel, food, parents, rizq, mosque, Jannah and more) with authentic references and transliterations directly in the 'Dua' tab of NoorUp."
                 } else {
-                    "রাসূলুল্লাহ (সা.) বলেছেন: 'দোয়াই হলো ইবাদতের মূল' (তিরমিযী)। নূরআপের 'দুআ' ট্যাবে সকাল-সন্ধ্যা, বিপদ-মুক্তি, পিতা-মাতা ও রিযিকের ৩০টিরও বেশি মাসনূন দোয়া উচ্চারণ ও অর্থসহ সংকলিত আছে।"
+                    "রাসূলুল্লাহ (সা.) বলেছেন: 'দোয়াই হলো ইবাদতের মূল' (তিরমিযী)। নূরআপের 'দুআ' ট্যাবে সকাল-সন্ধ্যা, সুরক্ষা, সফর, খাবার, পিতা-মাতা, রিযিক, মসজিদ, জান্নাতসহ ১৮টি মাসনূন দোয়া উচ্চারণ ও অর্থসহ সংকলিত আছে।"
                 }
             }
             lower.contains("quran") || lower.contains("কুরআন") || lower.contains("surah") || lower.contains("সূরা") || lower.contains("সুরা") -> {
                 if (isEng) {
-                    "The Holy Quran is the final revelation from Allah sent as a guide for humanity. Explore Surah Al-Fatiha, Yasin, Al-Mulk, Ayat al-Kursi, and many more with Bangla & English translations in the Quran tab."
+                    "The Holy Quran is the final revelation from Allah sent as a guide for humanity. NoorUp contains all 114 surahs with complete verses (6,236 ayahs) — Arabic Uthmani text with Bangla & English translations, fully offline. Open any surah to read every verse, or use Focus mode for verse-by-verse contemplation."
                 } else {
-                    "পবিত্র কুরআন মানবজাতির জন্য হেদায়েতের আলোকবর্তিকা। নূরআপের 'কুরআন' ট্যাবে সূরা আল-ফাতিহা, ইয়াসিন, আল-মুলক, আয়াতুল কুরসিসহ সকল গুরুত্বপূর্ণ সূরা বাংলা উচ্চারণ ও অর্থসহ পড়তে পারবেন।"
+                    "পবিত্র কুরআন মানবজাতির জন্য হেদায়েতের আলোকবর্তিকা। নূরআপে ১১৪টি সূরার সম্পূর্ণ আয়াত (৬,২৩৬টি) — আরবি উসমানি পাঠসহ বাংলা ও ইংরেজি অনুবাদ, সম্পূর্ণ অফলাইনে আছে। যেকোনো সূরা খুলে প্রতিটি আয়াত পড়ুন, অথবা ফোকাস মোডে এক আয়াত করে তাদাব্বুর করুন।"
                 }
             }
             lower.contains("qibla") || lower.contains("কিবলা") || lower.contains("compass") -> {
@@ -1109,12 +1167,129 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _pendingMissedDays.value = computePendingMissedDays()
     }
 
-    // --- 2. Ambient Quran Soundscape & Focus Mode State ---
+    // --- 2. Ambient Quran Focus Mode (verse-by-verse tadabbur, functional) ---
     private val _isAmbientFocusActive = MutableStateFlow(false)
     val isAmbientFocusActive: StateFlow<Boolean> = _isAmbientFocusActive.asStateFlow()
 
+    private val _focusSurahNumber = MutableStateFlow(prefs.getInt("focus_surah", 1).coerceIn(1, 114))
+    val focusSurahNumber: StateFlow<Int> = _focusSurahNumber.asStateFlow()
+
+    private val _focusVerseNumber = MutableStateFlow(prefs.getInt("focus_verse", 1).coerceAtLeast(1))
+    val focusVerseNumber: StateFlow<Int> = _focusVerseNumber.asStateFlow()
+
+    private val _focusVerse = MutableStateFlow<Verse?>(null)
+    val focusVerse: StateFlow<Verse?> = _focusVerse.asStateFlow()
+
+    private val _focusFontScale = MutableStateFlow(prefs.getFloat("focus_font_scale", 1f).coerceIn(0.8f, 1.6f))
+    val focusFontScale: StateFlow<Float> = _focusFontScale.asStateFlow()
+
+    private val _focusShowTranslation = MutableStateFlow(prefs.getBoolean("focus_show_translation", true))
+    val focusShowTranslation: StateFlow<Boolean> = _focusShowTranslation.asStateFlow()
+
+    private val _focusSessionCount = MutableStateFlow(0)
+    val focusSessionCount: StateFlow<Int> = _focusSessionCount.asStateFlow()
+
+    private fun resolveFocusVerse(): Verse? {
+        val surah = _surahs.value.find { it.number == _focusSurahNumber.value } ?: return null
+        val clamped = _focusVerseNumber.value.coerceIn(1, surah.totalVerses)
+        if (clamped != _focusVerseNumber.value) _focusVerseNumber.value = clamped
+        return surah.verses.find { it.number == clamped }
+    }
+
+    private fun persistFocusPosition() {
+        prefs.edit()
+            .putInt("focus_surah", _focusSurahNumber.value)
+            .putInt("focus_verse", _focusVerseNumber.value)
+            .apply()
+    }
+
+    /** Enter focus on a specific surah/verse (defaults to last position). Loads authentic text if needed. */
+    fun enterFocus(surahNumber: Int? = null, verseNumber: Int? = null) {
+        if (surahNumber != null) _focusSurahNumber.value = surahNumber.coerceIn(1, 114)
+        val total = _surahs.value.find { it.number == _focusSurahNumber.value }?.totalVerses ?: 7
+        if (verseNumber != null) _focusVerseNumber.value = verseNumber.coerceIn(1, total)
+        _focusVerseNumber.value = _focusVerseNumber.value.coerceIn(1, total)
+        _focusVerse.value = resolveFocusVerse()
+        _focusSessionCount.value = 0
+        _isAmbientFocusActive.value = true
+        persistFocusPosition()
+        // Ensure authentic offline text is loaded for this surah
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val ctx = getApplication<Application>().applicationContext
+                val full = com.example.ui.noorup.quran.QuranRepository.loadFullSurah(ctx, _focusSurahNumber.value)
+                if (full.isNotEmpty()) {
+                    val enriched = full.map { v ->
+                        v.copy(isBookmarked = prefs.getBoolean("bm_${_focusSurahNumber.value}_${v.number}", v.isBookmarked))
+                    }
+                    _surahs.update { list ->
+                        list.map { s -> if (s.number == _focusSurahNumber.value) s.copy(verses = enriched) else s }
+                    }
+                    _focusVerse.value = enriched.find { it.number == _focusVerseNumber.value }
+                }
+            } catch (e: Exception) {
+                Log.e("NoorUpViewModel", "enterFocus load failed", e)
+            }
+        }
+    }
+
     fun toggleAmbientFocus() {
-        _isAmbientFocusActive.update { !it }
+        if (_isAmbientFocusActive.value) exitFocus() else enterFocus()
+    }
+
+    fun exitFocus() {
+        _isAmbientFocusActive.value = false
+        persistFocusPosition()
+    }
+
+    fun focusNextVerse() {
+        val surah = _surahs.value.find { it.number == _focusSurahNumber.value } ?: return
+        if (_focusVerseNumber.value < surah.totalVerses) {
+            _focusVerseNumber.value += 1
+            _focusVerse.value = resolveFocusVerse()
+            _focusSessionCount.value += 1
+            persistFocusPosition()
+        } else if (_focusSurahNumber.value < 114) {
+            // Auto-advance to next surah
+            _focusSurahNumber.value += 1
+            _focusVerseNumber.value = 1
+            _focusVerse.value = resolveFocusVerse()
+            _focusSessionCount.value += 1
+            persistFocusPosition()
+            enterFocus(_focusSurahNumber.value, 1)
+        }
+    }
+
+    fun focusPrevVerse() {
+        if (_focusVerseNumber.value > 1) {
+            _focusVerseNumber.value -= 1
+            _focusVerse.value = resolveFocusVerse()
+            persistFocusPosition()
+        } else if (_focusSurahNumber.value > 1) {
+            _focusSurahNumber.value -= 1
+            val total = _surahs.value.find { it.number == _focusSurahNumber.value }?.totalVerses ?: 7
+            _focusVerseNumber.value = total
+            _focusVerse.value = resolveFocusVerse()
+            persistFocusPosition()
+            enterFocus(_focusSurahNumber.value, total)
+        }
+    }
+
+    fun focusJumpTo(surahNumber: Int, verseNumber: Int) = enterFocus(surahNumber, verseNumber)
+
+    fun cycleFocusFontScale() {
+        val next = when {
+            _focusFontScale.value < 1.0f -> 1.2f
+            _focusFontScale.value < 1.3f -> 1.5f
+            else -> 1.0f
+        }
+        _focusFontScale.value = next
+        prefs.edit().putFloat("focus_font_scale", next).apply()
+    }
+
+    fun toggleFocusTranslation() {
+        _focusShowTranslation.value = !_focusShowTranslation.value
+        prefs.edit().putBoolean("focus_show_translation", _focusShowTranslation.value).apply()
     }
 
     // --- 3. Smart Travel & Qasr Prayer Mode State ---

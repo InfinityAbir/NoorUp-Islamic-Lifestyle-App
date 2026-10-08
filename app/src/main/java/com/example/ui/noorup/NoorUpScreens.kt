@@ -1939,9 +1939,291 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
 
 // --- Feature 2: Ambient Quran Soundscape & Focus Mode & Full Surah List ---
 @Composable
+fun FocusModeView(viewModel: NoorUpViewModel) {
+    val isEnglish by viewModel.isEnglish.collectAsState()
+    val surahs by viewModel.surahs.collectAsState()
+    val focusSurahNumber by viewModel.focusSurahNumber.collectAsState()
+    val focusVerseNumber by viewModel.focusVerseNumber.collectAsState()
+    val focusVerse by viewModel.focusVerse.collectAsState()
+    val fontScale by viewModel.focusFontScale.collectAsState()
+    val showTranslation by viewModel.focusShowTranslation.collectAsState()
+    val sessionCount by viewModel.focusSessionCount.collectAsState()
+    var sessionSeconds by remember { mutableStateOf(0) }
+    var showJumpDialog by remember { mutableStateOf(false) }
+
+    val surah = surahs.find { it.number == focusSurahNumber }
+    val total = surah?.totalVerses ?: 7
+    val progress = if (total > 0) focusVerseNumber.toFloat() / total.toFloat() else 0f
+
+    LaunchedEffect(isEnglish) { /* re-compose translations */ }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000)
+            sessionSeconds += 1
+        }
+    }
+
+    fun fmtTime(s: Int): String {
+        val m = s / 60
+        val r = s % 60
+        val base = "%d:%02d".format(m, r)
+        return if (isEnglish) base else base.toBanglaDigits()
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.radialGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.22f), MaterialTheme.colorScheme.background)))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            GlassCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            if (isEnglish) "Ambient Focus Mode" else "অ্যাম্বিয়েন্ট ফোকাস মোড",
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            if (isEnglish) "${surah?.nameEnglish ?: ""} • Verse $focusVerseNumber of $total" else "${surah?.nameBangla ?: ""} • ${focusVerseNumber.toBanglaDigits()} / ${total.toBanglaDigits()} আয়াত",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            if (isEnglish) "⏱ $sessionCount read • ${fmtTime(sessionSeconds)} in focus" else "⏱ ${sessionCount.toBanglaDigits()} পঠিত • ফোকাসে ${fmtTime(sessionSeconds)}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 11.sp
+                        )
+                    }
+                    IconButton(onClick = { viewModel.exitFocus() }) {
+                        Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
+
+        item {
+            GlassCard {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Surah jump
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = {
+                            if (focusSurahNumber > 1) viewModel.focusJumpTo(focusSurahNumber - 1, 1)
+                        }) {
+                            Text(if (isEnglish) "‹ Prev Surah" else "‹ পূর্ববর্তী সূরা", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                        }
+                        TextButton(onClick = { showJumpDialog = true }) {
+                            Text(
+                                if (isEnglish) "${surah?.nameEnglish ?: ""} (${surah?.number ?: ""})" else "${surah?.nameBangla ?: ""} (${(surah?.number ?: 0).toBanglaDigits()})",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                        TextButton(onClick = {
+                            if (focusSurahNumber < 114) viewModel.focusJumpTo(focusSurahNumber + 1, 1)
+                        }) {
+                            Text(if (isEnglish) "Next Surah ›" else "পরবর্তী সূরা ›", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    val v = focusVerse
+                    if (v == null) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            if (isEnglish) "Loading verse…" else "আয়াত লোড হচ্ছে…",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                if (isEnglish) "Verse ${v.number}" else "আয়াত ${v.number.toBanglaDigits()}",
+                                color = MaterialTheme.colorScheme.secondary, fontSize = 13.sp, fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            v.arabicText,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = (26 * fontScale).sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            lineHeight = (40 * fontScale).sp
+                        )
+                        if (showTranslation) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                if (isEnglish) v.englishTranslation else v.banglaTranslation,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = (15 * fontScale).sp,
+                                textAlign = TextAlign.Center,
+                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { viewModel.toggleBookmark(focusSurahNumber, v.number) }) {
+                                Icon(
+                                    if (v.isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                    contentDescription = null,
+                                    tint = if (v.isBookmarked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            IconButton(onClick = { viewModel.toggleMemorized(focusSurahNumber, v.number) }) {
+                                Icon(
+                                    if (v.isMemorized) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = null,
+                                    tint = if (v.isMemorized) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            IconButton(onClick = { viewModel.cycleFocusFontScale() }) {
+                                Icon(Icons.Default.FormatSize, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                            }
+                            IconButton(onClick = { viewModel.toggleFocusTranslation() }) {
+                                Icon(
+                                    if (showTranslation) Icons.Default.Translate else Icons.Default.GTranslate,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = { viewModel.focusPrevVerse() },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(if (isEnglish) "Prev" else "পূর্ববর্তী", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = { viewModel.focusNextVerse() },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(if (isEnglish) "Next" else "পরবর্তী", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(Icons.Default.ArrowForward, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
+
+        item {
+            GlassCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.SelfImprovement, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        if (isEnglish) "Distraction-free tadabbur: one verse at a time. Use ◀ ▶ to contemplate sequentially."
+                        else "বিভ্রান্তিমুক্ত তাদাব্বুর: একবারে একটি আয়াত। ধারাবাহিকভাবে চিন্তা করতে ◀ ▶ ব্যবহার করুন।",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 12.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { viewModel.exitFocus() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(if (isEnglish) "Exit Focus Mode" else "ফোকাস মোড সমাপ্ত করুন", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+
+    if (showJumpDialog) {
+        AlertDialog(
+            onDismissRequest = { showJumpDialog = false },
+            title = { Text(if (isEnglish) "Jump to verse" else "আয়াতে যান", fontWeight = FontWeight.Bold) },
+            text = {
+                var surahInput by remember { mutableStateOf(focusSurahNumber.toString()) }
+                var verseInput by remember { mutableStateOf(focusVerseNumber.toString()) }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = surahInput,
+                        onValueChange = { surahInput = it.filter { c -> c.isDigit() }.take(3) },
+                        label = { Text(if (isEnglish) "Surah (1-114)" else "সূরা (১-১১৪)") },
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = verseInput,
+                        onValueChange = { verseInput = it.filter { c -> c.isDigit() }.take(3) },
+                        label = { Text(if (isEnglish) "Verse" else "আয়াত") },
+                        singleLine = true
+                    )
+                    Button(
+                        onClick = {
+                            val s = surahInput.toIntOrNull()?.coerceIn(1, 114) ?: focusSurahNumber
+                            val maxV = surahs.find { it.number == s }?.totalVerses ?: 7
+                            val vv = verseInput.toIntOrNull()?.coerceIn(1, maxV) ?: 1
+                            viewModel.focusJumpTo(s, vv)
+                            showJumpDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (isEnglish) "Go" else "যান")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showJumpDialog = false }) { Text(if (isEnglish) "Close" else "বন্ধ") }
+            }
+        )
+    }
+}
+
+@Composable
 fun QuranScreen(viewModel: NoorUpViewModel) {
     val surahs by viewModel.surahs.collectAsState()
-    var selectedSurahNumber by remember { mutableStateOf<Int?>(null) }
+    val selectedSurahNumber by viewModel.selectedSurahNumber.collectAsState()
+    val selectedVerses by viewModel.selectedSurahVerses.collectAsState()
+    val isQuranLoading by viewModel.isQuranLoading.collectAsState()
     val selectedSurah = selectedSurahNumber?.let { num -> surahs.find { it.number == num } }
     var showBookmarksOnly by remember { mutableStateOf(false) }
     val isAmbientFocus by viewModel.isAmbientFocusActive.collectAsState()
@@ -1949,64 +2231,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
     var searchQuery by remember { mutableStateOf("") }
 
     if (isAmbientFocus) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Brush.radialGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.25f), MaterialTheme.colorScheme.background)))
-                .padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            GlassCard {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            if (isEnglish) "Ambient Focus Mode" else "অ্যাম্বিয়েন্ট ফোকাস মোড",
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        IconButton(onClick = { viewModel.toggleAmbientFocus() }) {
-                            Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", color = MaterialTheme.colorScheme.onSurface, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        if (isEnglish) "In the name of Allah, the Entirely Merciful, the Especially Merciful." else "শুরু করছি আল্লাহর নামে যিনি পরম দয়ালু, অত্যন্ত মেহেরবান।",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                    )
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.SelfImprovement, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            if (isEnglish) "Distraction-Free Contemplation & Reflection" else "মনোযোগ সহকারে কুরআন পাঠ ও তাদাব্বুর",
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = 12.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = { viewModel.toggleAmbientFocus() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(if (isEnglish) "Exit Focus Mode" else "ফোকাস মোড সমাপ্ত করুন", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
+        FocusModeView(viewModel)
     } else {
         LazyColumn(
             modifier = Modifier
@@ -2149,7 +2374,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                 }
                 items(filteredSurahs) { surah ->
                     GlassCard(
-                        modifier = Modifier.clickable { selectedSurahNumber = surah.number }
+                        modifier = Modifier.clickable { viewModel.openSurah(surah.number) }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -2188,7 +2413,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedSurahNumber = null }
+                            .clickable { viewModel.closeSurah() }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -2205,18 +2430,55 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                     GlassCard {
                         val sName = if (isEnglish) selectedSurah!!.nameEnglish else selectedSurah!!.nameBangla
                         val revType = if (isEnglish) selectedSurah!!.revelationTypeEnglish else selectedSurah!!.revelationTypeBangla
-                        Text(sName, color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text(selectedSurah!!.nameArabic, color = MaterialTheme.colorScheme.secondary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text(
-                            if (isEnglish) "Revelation: $revType | Total Verses: ${selectedSurah!!.totalVerses}" else "অবতরণ: $revType | মোট আয়াত: ${selectedSurah!!.totalVerses.toBanglaDigits()}",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 13.sp
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(sName, color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(selectedSurah!!.nameArabic, color = MaterialTheme.colorScheme.secondary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    if (isEnglish) "Revelation: $revType | Total Verses: ${selectedSurah!!.totalVerses} | Showing: ${selectedVerses.size}" else "অবতরণ: $revType | মোট আয়াত: ${selectedSurah!!.totalVerses.toBanglaDigits()} | প্রদর্শিত: ${selectedVerses.size.toBanglaDigits()}",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 13.sp
+                                )
+                            }
+                            Button(
+                                onClick = { viewModel.enterFocus(selectedSurah!!.number, 1) },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                                shape = RoundedCornerShape(16.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Icon(Icons.Default.SelfImprovement, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(if (isEnglish) "Focus" else "ফোকাস", color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                    if (isQuranLoading) {
+                        GlassCard {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    if (isEnglish) "Loading complete ${selectedSurah!!.totalVerses} verses offline…" else "সম্পূর্ণ ${selectedSurah!!.totalVerses.toBanglaDigits()} আয়াত অফলাইনে লোড হচ্ছে…",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
 
-                items(selectedSurah!!.verses) { verse ->
+                items(selectedVerses) { verse ->
                     GlassCard {
                         Row(
                             modifier = Modifier.fillMaxWidth(),

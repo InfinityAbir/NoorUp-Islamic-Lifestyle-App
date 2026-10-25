@@ -46,13 +46,22 @@ object WidgetUpdateScheduler {
         val juristic = JuristicMethod.entries.find { it.name == juristicStr } ?: JuristicMethod.HANAFI
 
         val cal = Calendar.getInstance().apply { timeInMillis = nowMillis }
-        val tzOffset = cal.timeZone.getOffset(cal.timeInMillis) / 3600000.0
+        // Prayer math follows the selected city's timezone (blank = device zone).
+        val cityZoneId = prefs.getString("selected_city_zone_id", "") ?: ""
+        val cityTimeZone = try {
+            if (cityZoneId.isBlank()) cal.timeZone
+            else java.util.TimeZone.getTimeZone(cityZoneId)
+        } catch (_: Exception) {
+            cal.timeZone
+        }
 
         val transitionTimestamps = mutableListOf<Long>()
 
-        // Collect transitions for today and tomorrow
+        // Collect transitions for today and tomorrow, each with its own UTC offset
+        // so a DST midnight boundary cannot shift the far day's times.
         for (dayOffset in 0..1) {
             val targetCal = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, dayOffset) }
+            val tzOffset = cityTimeZone.getOffset(targetCal.timeInMillis) / 3600000.0
             val times = SolarPrayerEngine.calculateTimes(
                 latitude = latitude,
                 longitude = longitude,
@@ -64,7 +73,8 @@ object WidgetUpdateScheduler {
 
             val fajrMins = NoorUpWidgetProvider.parseTimeToMins(times.fajrStart)
             val sunriseMins = NoorUpWidgetProvider.parseTimeToMins(times.sunrise)
-            val sunriseMakruhEndMins = sunriseMins + 15
+            // Align with the engine/app (+16), not +15: widget and app must agree.
+            val sunriseMakruhEndMins = NoorUpWidgetProvider.parseTimeToMins(times.makruhSunriseEnd)
             val zawalStartMins = NoorUpWidgetProvider.parseTimeToMins(times.makruhZawalStart)
             val dhuhrMins = NoorUpWidgetProvider.parseTimeToMins(times.dhuhrStart)
             val asrMins = NoorUpWidgetProvider.parseTimeToMins(times.asrStart)
@@ -108,8 +118,15 @@ object WidgetUpdateScheduler {
      * Schedules the next exact widget update using AlarmManager.setExactAndAllowWhileIdle(),
      * with WorkManager periodic background safety net.
      */
-    fun scheduleNextWidgetUpdate(context: Context) {
+    fun scheduleNextWidgetUpdate(context: Context, force: Boolean = false) {
         try {
+            // Battery fix: no widget installed = no alarm chain, no WorkManager churn.
+            // Callers (Application, MainActivity, receivers) run every launch/fire;
+            // without this gate they kept 96 wake-ups/day alive forever.
+            if (!force && !hasActiveWidgets(context)) {
+                try { cancelWidgetUpdates(context) } catch (_: Exception) { }
+                return
+            }
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
             val now = System.currentTimeMillis()
 
@@ -135,6 +152,7 @@ object WidgetUpdateScheduler {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                    android.util.Log.w("WidgetScheduler", "Exact-alarm permission revoked; widget alarm downgraded to inexact")
                     alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
                 } else {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)

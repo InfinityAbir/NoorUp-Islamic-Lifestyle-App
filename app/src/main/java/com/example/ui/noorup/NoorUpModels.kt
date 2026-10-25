@@ -24,6 +24,26 @@ fun String.toBanglaDigits(): String {
 fun Int.toBanglaDigits(): String = this.toString().toBanglaDigits()
 fun Long.toBanglaDigits(): String = this.toString().toBanglaDigits()
 
+// --- Extension Helpers for Arabic-Indic Digits (Ayat-end markers) ---
+fun String.toArabicDigits(): String = this.map { char ->
+    when (char) {
+        '0' -> '٠'
+        '1' -> '١'
+        '2' -> '٢'
+        '3' -> '٣'
+        '4' -> '٤'
+        '5' -> '٥'
+        '6' -> '٦'
+        '7' -> '٧'
+        '8' -> '٨'
+        '9' -> '٩'
+        else -> char
+    }
+}.joinToString("")
+
+fun Int.toArabicDigits(): String = this.toString().toArabicDigits()
+fun Long.toArabicDigits(): String = this.toString().toArabicDigits()
+
 data class PrayerTime(
     val nameBn: String,
     val nameEn: String,
@@ -42,6 +62,11 @@ data class CityLocation(
     val nameEn: String,
     val latitude: Double,
     val longitude: Double,
+    /**
+     * IANA timezone ID used for prayer-time math (e.g. "Asia/Dhaka").
+     * Blank = fall back to the device timezone (used for live GPS positions).
+     */
+    val zoneId: String = "",
     val fajrStart: String,
     val fajrEnd: String,
     val makruhSunriseStart: String,
@@ -91,7 +116,13 @@ data class Verse(
     val banglaTranslation: String,
     val englishTranslation: String,
     val isBookmarked: Boolean = false,
-    val isMemorized: Boolean = false
+    val isMemorized: Boolean = false,
+    /**
+     * Bengali-script pronunciation from the bundled, MIT-licensed source.
+     * Null means the source has no entry for this ayah (or the bundle failed
+     * validation); the UI must say so explicitly rather than invent text.
+     */
+    val banglaTransliteration: String? = null
 ) {
     val arabic: String get() = arabicText
     val bangla: String get() = banglaTranslation
@@ -100,26 +131,6 @@ data class Verse(
 
 typealias SurahInfo = Surah
 typealias VerseInfo = Verse
-
-// --- Family Sync Models ---
-data class FamilyMember(
-    val name: String,
-    val count: Int,
-    val relation: String,
-    val pairingCode: String = "",
-    val isLiveSyncing: Boolean = true,
-    val lastSyncTime: String = "",
-    val lastZikrPhrase: String = ""
-)
-
-data class FamilyLiveEvent(
-    val memberName: String,
-    val relation: String,
-    val pairingCode: String,
-    val phrase: String,
-    val increment: Int,
-    val timeLabel: String
-)
 
 // --- Masnoon Dua Model ---
 data class DuaItem(
@@ -133,11 +144,17 @@ data class DuaItem(
     val phoneticBangla: String,
     val phoneticEnglish: String = "",
     val meaningBangla: String,
-    val meaningEnglish: String
+    val meaningEnglish: String,
+    /**
+     * Extra searchable terms (synonyms, common misspellings, related needs).
+     * Display text is never changed by search; these only widen matching.
+     */
+    val searchTags: List<String> = emptyList()
 )
 
 // --- Habit Analytics Models ---
 data class DailyRecord(
+    val dateKey: String = "",
     val dayLabel: String,
     val completedCount: Int,
     val totalCount: Int,
@@ -146,7 +163,7 @@ data class DailyRecord(
 )
 
 data class MissedDayRecord(
-    val dateKey: String,
+    val dateKey: String = "",
     val daysAgo: Int,
     val dayLabel: String,
     val missedPrayersBn: List<String>,

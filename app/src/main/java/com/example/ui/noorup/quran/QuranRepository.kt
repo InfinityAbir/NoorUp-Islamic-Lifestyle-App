@@ -4,11 +4,8 @@ import android.content.Context
 import com.example.ui.noorup.Surah
 import com.example.ui.noorup.Verse
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
 
 object QuranRepository {
 
@@ -275,15 +272,19 @@ object QuranRepository {
         val verses: List<AssetVerse> = emptyList()
     )
 
-    private val fullSurahCache = mutableMapOf<Int, List<Verse>>()
+    private val fullSurahCache: MutableMap<Int, List<Verse>> =
+        java.util.Collections.synchronizedMap(LinkedHashMap<Int, List<Verse>>())
     private val gson = Gson()
 
     fun getSurahMeta(surahNumber: Int): Surah? = all114Surahs.find { it.number == surahNumber }
 
     /**
-     * Returns the COMPLETE verse list for a surah (size always == totalVerses).
-     * Priority: 1) offline asset file 2) curated embedded verses merged + filled 3) full placeholder.
-     * This guarantees no missing ayat numbers (fixes Baqarah 286 showing only 5).
+     * Returns the authentic verse list for a surah from the bundled offline asset.
+     * Returns an EMPTY list when the asset is missing, partial, or fails validation —
+     * callers must render loading/error states instead of fabricating verses.
+     * Previously this filled gaps with synthetic placeholder text; that behavior
+     * was removed (v1.2.0 release-blocker fix) because placeholders could render
+     * as genuine Quranic text.
      */
     suspend fun loadFullSurah(context: Context, surahNumber: Int): List<Verse> = withContext(Dispatchers.IO) {
         fullSurahCache[surahNumber]?.let { return@withContext it }
@@ -292,7 +293,7 @@ object QuranRepository {
         val total = meta?.totalVerses ?: 0
         if (total <= 0) return@withContext emptyList<Verse>()
 
-        // 1) Try offline asset
+        // Only source: the bundled offline asset file. No synthetic fallback.
         try {
             val fileName = "quran/surah_%03d.json".format(surahNumber)
             context.assets.open(fileName).bufferedReader(Charsets.UTF_8).use { reader ->
@@ -306,54 +307,39 @@ object QuranRepository {
                             englishTranslation = av.english
                         )
                     }
-                    // Only accept if the asset covers the full surah
-                    if (mapped.size >= total && mapped.first().number == 1 && mapped.last().number == total) {
-                        fullSurahCache[surahNumber] = mapped
-                        return@withContext mapped
-                    }
-                    // Partial asset: merge with fill below
-                    if (mapped.isNotEmpty()) {
-                        val merged = buildCompleteList(meta!!, mapped.associateBy { it.number })
-                        fullSurahCache[surahNumber] = merged
-                        return@withContext merged
+                    // Accept only a complete, gap-free, non-blank surah.
+                    if (isAuthenticVerseList(mapped, total)) {
+                        // Pronunciation is optional and must never invalidate the
+                        // Arabic text. Missing/misaligned data becomes null.
+                        val withPronunciation = QuranTransliterationRepository.attach(
+                            verses = mapped,
+                            surahNumber = surahNumber,
+                            bundle = QuranTransliterationRepository.load(context)
+                        )
+                        fullSurahCache[surahNumber] = withPronunciation
+                        return@withContext withPronunciation
                     }
                 }
             }
         } catch (_: Exception) {
-            // fall through to curated/placeholder
+            // fall through to empty — never fabricate verses on failure
         }
 
-        // 2) Curated embedded verses merged into a complete 1..total list
-        val curatedByNumber = meta?.verses?.associateBy { it.number } ?: emptyMap()
-        val complete = buildCompleteList(meta!!, curatedByNumber)
-        fullSurahCache[surahNumber] = complete
-        complete
+        emptyList()
     }
 
-    /** Builds a gap-free 1..totalVerses list, preferring authentic verses when available. */
-    private fun buildCompleteList(meta: Surah, authenticByNumber: Map<Int, Verse>): List<Verse> {
-        val out = ArrayList<Verse>(meta.totalVerses)
-        for (i in 1..meta.totalVerses) {
-            val authentic = authenticByNumber[i]
-            if (authentic != null) {
-                out.add(authentic)
-            } else {
-                out.add(
-                    Verse(
-                        number = i,
-                        arabicText = "آيَةٌ كَرِيمَةٌ مِنْ سُورَةِ ${meta.nameArabic} ($i)",
-                        banglaTranslation = "সূরা ${meta.nameBangla} - আয়াত $i: পবিত্র কুরআনের নূর ও হিদায়াতপূর্ণ ঐশী বাণী। (অফলাইন সম্পূর্ণ পাঠ লোড হচ্ছে)",
-                        englishTranslation = "Surah ${meta.nameEnglish} - Verse $i: Divine guidance and wisdom from the Holy Quran."
-                    )
-                )
-            }
+    /**
+     * Authenticity gate for a loaded verse list: exact size, sequential
+     * numbering 1..total, and non-blank Arabic + Bangla + English text.
+     * Used by the ViewModel before publishing verses and by regression tests.
+     */
+    fun isAuthenticVerseList(verses: List<Verse>, total: Int): Boolean {
+        if (total <= 0 || verses.size != total) return false
+        return verses.withIndex().all { (index, v) ->
+            v.number == index + 1 &&
+                v.arabicText.isNotBlank() &&
+                v.banglaTranslation.isNotBlank() &&
+                v.englishTranslation.isNotBlank()
         }
-        return out
-    }
-
-    /** Legacy entry point kept for compatibility — now always returns the COMPLETE list. */
-    suspend fun getSurahVerses(surahNumber: Int): List<Verse> = withContext(Dispatchers.IO) {
-        val meta = getSurahMeta(surahNumber) ?: return@withContext emptyList()
-        buildCompleteList(meta, meta.verses.associateBy { it.number })
     }
 }

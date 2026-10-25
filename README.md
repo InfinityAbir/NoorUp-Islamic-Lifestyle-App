@@ -43,7 +43,7 @@ Most existing Islamic apps are either English/Arabic-only, overloaded with ads, 
 
 Built with **Kotlin + Jetpack Compose (Material 3)**, with a custom **Solar Prayer Engine**, **WorkManager-based notifications**, and **Firebase AI (Gemini)** for guidance.
 
-Package: `com.aistudio.noorup.azxy99` • Min SDK 24 • Target SDK 36
+Package: `com.aistudio.noorup.qzmxlw` • Min SDK 26 • Target SDK 37
 
 ---
 
@@ -66,7 +66,7 @@ This is also my exploration of production-grade Android: Compose navigation, Roo
 - **Bengali-speaking practicing Muslims** in Bangladesh and West Bengal who want daily prayer, Quran, and Dua guidance in Bangla.
 - **Elders and new learners** who prefer large, simple Bangla UI with phonetics and references, without complex settings.
 - **Students and professionals** who want Sehri/Iftar times, prayer alerts, Qibla, and a home-screen widget for at-a-glance tracking.
-- **Families** doing collective Dhikr (Family Zikr counter, Noor Garden motivation system).
+- **Families** building daily habits together (Noor Garden streaks and shared prayer tracking).
 - **Travelers** who need Qasr (shortened prayer) guidance and GPS-based time recalculation.
 - **Anyone calculating Zakat** in Vori/Taka who wants a simple Nisab-based calculator in Bangla.
 
@@ -93,7 +93,7 @@ The app is fully bilingual (বাংলা / English toggle) so it also works f
 - Current / passed states, countdown, start–end dual timestamps
 - Sehri Ends & Iftar Starts quick status bar
 - Date + solar calibration card (calendar picker, next/previous day, calculation & juristic methods)
-- Travel Qasr mode card, Family Zikr card, Noor Garden streak card
+- Travel Qasr mode card, Noor Garden streak card
 
 ### 2. Quran
 - All 114 Surahs with Bangla / English / Arabic names, verse counts, Makki/Madani tags
@@ -120,10 +120,9 @@ The app is fully bilingual (বাংলা / English toggle) so it also works f
 - **Zakat & Sadaqah Calculator:** gold (vori), silver, cash, business assets, investments, liabilities → 2.5% net Zakat with Nisab logic
 - **Home-Screen Widget:** 4x2 glassmorphic prayer widget with 1-tap pin (`NoorUpWidgetProvider`)
 
-### 6. AI Companion (Gemini)
-- Islamic Q&A assistant powered by Firebase AI (Gemini), bilingual
+### 6. AI Companion (100% offline)
+- Islamic Q&A assistant, bilingual — built-in knowledge engine, no API keys, no network calls, works airplane-mode.
 - Quick prompts: Assalamu Alaikum, Fajr & Prayer Rules, Tahajjud Virtue, Masnoon Duas, Zakat help
-- Local Islamic fallback responses when API key/offline is unavailable
 
 ### 7. Stats — Consistency & Qada Analytics
 - Daily completion %, streak counter, 7-day consistency timeline
@@ -132,29 +131,26 @@ The app is fully bilingual (বাংলা / English toggle) so it also works f
 
 ### Cross-cutting
 - Bangla/English toggle everywhere, Bengali digits, dark/light Material 3 theme
-- GPS location + city presets, offline-first Room caching, WorkManager rescheduling, BootReceiver
+- GPS location + city presets, offline-first SharedPreferences + assets caching, AlarmManager + WorkManager rescheduling, BootReceiver
 
 ---
 
 ## Tech Stack
 
 **Language & UI:**
-- Kotlin 2.2.10, Jetpack Compose (BOM 2024.09.00), Material 3, Navigation Compose, Coil (optional)
+- Kotlin 2.4.21, Jetpack Compose (BOM 2026.09.00), Material 3
 
 **Android Jetpack:**
-- Lifecycle + ViewModel, Room 2.7.0 (KSP), WorkManager 2.10.0, DataStore (ready), Activity Compose
+- Lifecycle + ViewModel 2.11.0, WorkManager 2.12.0, Activity Compose 1.13.0
 
-**Networking & Data:**
-- Retrofit 2.12.0, OkHttp + Logging Interceptor, Moshi + Codegen (KSP), Gson 2.11.0
-
-**Firebase:**
-- Firebase BOM 34.17.0, Firebase AI (Gemini), App Check (Recaptcha + Debug)
+**Data:**
+- Gson 2.14.0 and bundled offline data (no Retrofit/OkHttp/Moshi/Room/DataStore/Firebase — see `gradle/libs.versions.toml`)
 
 **System:**
-- AlarmManager exact alarms, Notification Channels, AppWidget (Glance-style custom provider), Geocoder + Location
+- AlarmManager exact alarms, Notification Channels, AppWidget (custom RemoteViews provider), Geocoder + Location
 
 **Build & Quality:**
-- AGP 9.1.1, Secrets Gradle Plugin 2.0.1 (`.env`), KSP, Robolectric, Roborazzi screenshot tests, Espresso + Compose UI tests
+- Gradle 9.8.2, Android Gradle Plugin 9.4.1, Java 17, Robolectric unit tests, Espresso + Compose UI tests
 
 See `gradle/libs.versions.toml` and `app/build.gradle.kts` for full versions.
 
@@ -170,7 +166,7 @@ Single-module Compose app with MVVM:
 - `ui/noorup/NoorUpScreens.kt` (~3900 lines) — all feature screens + GlassCard design system
 - `ui/noorup/SolarPrayerEngine.kt` — solar math for Fajr/Sunrise/Dhuhr/Asr/Maghrib/Isha + Makruh windows
 - `ui/noorup/hadith/` — `HadithModels.kt`, `HadithRepository.kt`, normalizer + deserializer
-- Workers/Receivers: `PrayerNotificationWorker`, `PrayerRescheduleWorker`, `NoorGardenReminderWorker`, `PrayerAlarmReceiver`, `BootReceiver`, `PrayerNotificationScheduler`, `PrayerNotificationHelper`
+- Workers/Receivers: `PrayerRescheduleWorker` (boot/update/force-stop re-arm), `WidgetUpdateWorker`, `PrayerAlarmReceiver`, `WidgetUpdateReceiver`, `BootReceiver`, `PrayerNotificationScheduler`, `PrayerNotificationHelper`, `WidgetUpdateScheduler`
 - Widget: `NoorUpWidgetProvider.kt` + `PrayerOrbitDashboardWidget.kt`
 
 ---
@@ -179,9 +175,9 @@ Single-module Compose app with MVVM:
 
 ### Prerequisites
 
-- [Android Studio](https://developer.android.com/studio) (Ladybug or newer recommended)
-- JDK 11+, Android SDK 36
-- A Gemini API key (only for AI Companion — app runs without it in local-fallback mode)
+- [Android Studio](https://developer.android.com/studio) (current stable release recommended)
+- Android Studio's bundled JDK 17 and Android SDK Platform 37
+- No API keys needed — the app is fully offline by design.
 
 ### Run Locally
 
@@ -189,15 +185,28 @@ Single-module Compose app with MVVM:
    ```bash
    git clone https://github.com/InfinityAbir/NoorUp-Islamic-Lifestyle-App.git
    ```
-2. Open the folder in Android Studio and let it sync Gradle.
-3. Create a `.env` file in the project root (see `.env.example`):
-   ```env
-   GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
-   ```
-4. Run on an emulator or physical device (Min SDK 24):
-   - `Run > Run 'app'`
+2. Open the folder in Android Studio and let it sync Gradle. In **Settings > Build, Execution, Deployment > Build Tools > Gradle**, select **GRADLE JDK: jbr-17** (the bundled JDK). Do not use JDK 11: this project targets Java 17.
+3. (Optional, release builds only) add your upload-keystore entries to `local.properties` — see "Signing a release" below. Debug builds need nothing.
+4. Run on an emulator or physical device (Min SDK 26):
+    - `Run > Run 'app'`
 
-> Note: The template `signingConfig = signingConfigs.getByName("debugConfig")` line is for local debug builds. For your own Play release, configure your own `KEYSTORE_PATH`, `STORE_PASSWORD`, `KEY_PASSWORD` env vars (see `app/build.gradle.kts`) and [reset your upload key](https://support.google.com/googleplay/android-developer/answer/9842756) if needed.
+### Signing a release (Play upload)
+
+1. Generate an upload keystore once (keep the file + passwords private):
+    ```bash
+    keytool -genkeypair -v -keystore noorup-upload.jks -alias noorup -keyalg RSA -keysize 2048 -validity 10000
+    ```
+2. Add to `local.properties` (same gitignored file as above):
+    ```properties
+    NOORUP_KEYSTORE_FILE=noorup-upload.jks
+    NOORUP_KEYSTORE_PASSWORD=.....
+    NOORUP_KEY_ALIAS=noorup
+    NOORUP_KEY_PASSWORD=.....
+    ```
+3. Build the signed bundle: `./gradlew :app:bundleRelease` → `app/build/outputs/bundle/release/app-release.aab`.
+4. Without those four keys the release build stays **unsigned** (good for local testing, rejected by Play). The old debug-key release signing is gone on purpose — never upload a debug-signed artifact.
+
+> If you ever lose the keystore, [reset your upload key](https://support.google.com/googleplay/android-developer/answer/9842756).
 
 ---
 
@@ -218,9 +227,9 @@ Single-module Compose app with MVVM:
 |---|---|
 | `POST_NOTIFICATIONS` | Prayer / Sehri / Iftar high-priority alerts |
 | `ACCESS_FINE_LOCATION` / `COARSE` | GPS-based prayer-time calibration (optional) |
-| `SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM` | Exact prayer-time alarms |
+| `SCHEDULE_EXACT_ALARM` | Exact prayer-time alarms |
 | `RECEIVE_BOOT_COMPLETED` | Reschedule notifications after reboot |
-| `VIBRATE`, `WAKE_LOCK` | Alert reliability |
+| `VIBRATE` | Alert vibration |
 
 No ads SDKs. No unnecessary data collection in codebase.
 

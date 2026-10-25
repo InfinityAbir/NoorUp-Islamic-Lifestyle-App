@@ -1,0 +1,1240 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/C:/Users/Lenovo/.gradle/wrapper/dists/gradle-9.8.2-bin/8wepis63pzuhrlfaiy04bagwu/gradle-9.8.2/lib/native-platform-0.22-milestone-29.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:processDebugResources
+
+> Task :app:compileDebugKotlin
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:3:16 Unresolved reference 'Manifest'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:5:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:6:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:34:1 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:36:51 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:37:13 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:37:19 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:37:37 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:37:43 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:38:30 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:40:13 Unresolved reference 'Manifest'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:41:14 Unresolved reference 'PackageManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:44:5 'onCreate' overrides nothing. Potential signatures for overriding:
+fun onCreate(savedInstanceState: Bundle?): Unit
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:44:47 Unresolved reference 'Bundle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:45:15 Cannot access class 'android.os.Bundle'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:45:15 Cannot access 'android.app.Activity' which is a supertype of 'androidx.activity.ComponentActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:46:9 Cannot access 'android.app.Activity' which is a supertype of 'androidx.activity.ComponentActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:52:22 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:57:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:62:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:66:9 Cannot access 'android.app.Activity' which is a supertype of 'androidx.activity.ComponentActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:71:27 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:71:40 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:77:32 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:77:53 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:21 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:27 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:46 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:52 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:79 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:82:100 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:89:39 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:89:60 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:94:35 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:95:47 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:104:57 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:110:55 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:113:17 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:113:73 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:113:73 Unresolved reference 'intent' on receiver of type 'MainActivity'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:253:53 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:253:59 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:253:78 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:253:84 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:254:79 Unresolved reference 'Manifest'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:290:88 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:291:21 Unresolved reference 'getBooleanExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:292:29 Unresolved reference 'getIntExtra' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:297:5 'onNewIntent' overrides nothing. Potential signatures for overriding:
+fun onNewIntent(intent: Intent): Unit
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:297:46 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:298:15 Cannot access class 'android.content.Intent'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:298:15 Cannot access 'android.app.Activity' which is a supertype of 'androidx.activity.ComponentActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:299:9 Unresolved reference 'setIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:303:13 Cannot access 'android.app.Activity' which is a supertype of 'com.example.MainActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:305:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:309:5 'onResume' overrides nothing.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:310:15 Cannot access 'android.app.Activity' which is a supertype of 'androidx.activity.ComponentActivity'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:310:15 Unresolved reference 'onResume' on receiver of type 'ComponentActivity'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:311:22 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:316:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:321:73 Unresolved reference 'MODE_PRIVATE'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:8:27 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:10:9 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:10:15 Unresolved reference 'onCreate'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:17:25 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:17:62 Unresolved reference 'MODE_PRIVATE'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:24:17 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:27:17 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:30:29 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:34:26 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:39:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:44:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:49:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpApplication.kt:54:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:4:16 Unresolved reference 'appwidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:5:16 Unresolved reference 'appwidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:6:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:7:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:8:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:9:16 Unresolved reference 'graphics'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:10:16 Unresolved reference 'widget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:18:30 Unresolved reference 'AppWidgetProvider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:20:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:21:9 Unresolved reference 'AppWidgetProvider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:21:15 Unresolved reference 'onEnabled'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:29:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:33:38 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:34:9 Unresolved reference 'AppWidgetProvider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:34:15 Unresolved reference 'onDisabled'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:38:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:43:18 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:44:27 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:54:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:59:18 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:60:27 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:62:29 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:64:9 Unresolved reference 'AppWidgetProvider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:64:15 Unresolved reference 'onAppWidgetOptionsChanged'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:70:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:74:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:74:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:75:9 Unresolved reference 'AppWidgetProvider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:75:15 Unresolved reference 'onReceive'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:78:20 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:78:30 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:80:36 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:81:33 Unresolved reference 'ComponentName'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:83:54 Unresolved reference 'isNotEmpty' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:84:63 Argument type mismatch: actual type is 'Any', but 'IntArray' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:88:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:112:46 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:114:34 Unresolved reference 'getAppWidgetOptions'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:115:30 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:120:39 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:122:40 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:123:37 Unresolved reference 'ComponentName'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:125:58 Unresolved reference 'isNotEmpty' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:126:67 Argument type mismatch: actual type is 'Any', but 'IntArray' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:130:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:135:49 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:135:76 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:147:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:228:35 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:228:62 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:231:29 Unresolved reference 'RemoteViews'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:231:49 Unresolved reference 'packageName'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:234:37 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:234:74 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:460:33 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:461:36 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:462:39 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:463:40 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:464:39 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:465:38 Unresolved reference 'Color'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:561:33 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:561:69 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:562:33 Unresolved reference 'text'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:562:74 Unresolved reference 'text'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:565:33 Unresolved reference 'text'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:573:30 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:573:72 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:573:78 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:574:21 Unresolved reference 'flags'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:574:29 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:574:62 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:576:37 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:580:21 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:580:58 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:585:34 Unresolved reference 'updateAppWidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/NoorUpWidgetProvider.kt:587:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:8:22 Unresolved reference 'BroadcastReceiver'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:9:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:9:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:10:20 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:10:30 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:11:20 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:12:20 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:12:30 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:17:43 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:17:63 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/BootReceiver.kt:24:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:3:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:231:13 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:231:38 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:249:28 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:249:53 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:251:38 Unresolved reference 'icu'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:253:22 Assignment type mismatch: actual type is 'MatchGroup?', but 'Int' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:253:43 Unresolved reference 'icu'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:254:45 Unresolved reference 'icu'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:254:77 Unresolved reference 'plus' for operator '+' on receiver of type 'MatchGroup?'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:255:23 Assignment type mismatch: actual type is 'MatchGroup?', but 'Int' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/HijriDateCalculator.kt:255:44 Unresolved reference 'icu'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:6:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:7:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:8:16 Unresolved reference 'location'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:9:16 Unresolved reference 'location'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:10:16 Unresolved reference 'widget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:95:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:95:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:101:33 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:188:71 Unresolved reference 'Manifest'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:530:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:530:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:605:29 @Composable invocations can only happen from the context of a @Composable function
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:605:29 No value passed for parameter 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:606:33 Argument type mismatch: actual type is 'android.content.Context', but '() -> Unit' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:606:33 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:607:33 Argument type mismatch: actual type is 'ComposableFunction4<??? (Unknown type for value parameter <unused var>), ??? (Unknown type for value parameter year), ??? (Unknown type for value parameter month), ??? (Unknown type for value parameter dayOfMonth), Unit>', but 'ComposableFunction0<Unit>' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:607:35 Cannot infer type for implicit value parameter 'it'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:607:38 Cannot infer type for value parameter 'year'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:607:44 Cannot infer type for value parameter 'month'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:607:51 Cannot infer type for value parameter 'dayOfMonth'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:610:33 Argument type mismatch: actual type is 'Int', but 'Modifier' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:611:33 Argument type mismatch: actual type is 'Int', but 'ComposableFunction0<Unit>?' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:612:33 Argument type mismatch: actual type is 'Int', but 'Shape' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:613:31 Unresolved reference 'show' on receiver of type 'Unit'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:1950:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:1950:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:2819:37 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:2820:41 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:2823:41 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3000:57 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3000:65 Unresolved reference 'getSystemService' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3000:82 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3000:112 Unresolved reference 'ClipboardManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3011:52 Unresolved reference 'ClipData'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3012:51 Unresolved reference 'setPrimaryClip'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3013:41 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3013:56 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3013:139 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3023:59 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3023:66 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3023:86 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3023:92 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3024:45 Unresolved reference 'type'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3025:45 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3025:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3029:45 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3030:49 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3042:41 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3042:49 Unresolved reference 'startActivity' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3042:63 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3251:57 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3251:65 Unresolved reference 'getSystemService' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3251:82 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3251:112 Unresolved reference 'ClipboardManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3273:52 Unresolved reference 'ClipData'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3274:51 Unresolved reference 'setPrimaryClip'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3275:41 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3275:56 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3275:132 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3284:59 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3284:66 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3284:86 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3284:92 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3285:45 Unresolved reference 'type'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3286:45 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3286:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3287:45 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3288:49 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3314:41 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3314:49 Unresolved reference 'startActivity' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3314:63 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3332:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3332:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3341:68 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3347:77 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3351:20 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3351:28 Unresolved reference 'applicationContext' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3351:59 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3354:42 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3355:61 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3356:95 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3358:94 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3361:55 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3361:80 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3362:55 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3363:54 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3364:55 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3365:65 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3365:90 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3366:57 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3368:18 Unresolved reference 'registerActivityLifecycleCallbacks' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3369:30 Unresolved reference 'unregisterActivityLifecycleCallbacks' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3442:60 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3510:52 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3533:54 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3564:57 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3588:57 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3657:62 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3657:85 Unresolved reference 'provider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3657:103 Unresolved reference 'ACTION_APP_NOTIFICATION_SETTINGS' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3657:137 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3657:143 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3658:45 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3658:62 Unresolved reference 'provider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3658:80 Unresolved reference 'EXTRA_APP_PACKAGE' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3658:99 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3658:107 Unresolved reference 'packageName' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3660:41 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3660:49 Unresolved reference 'startActivity' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3672:53 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3672:62 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3672:89 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3672:98 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3673:66 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3673:89 Unresolved reference 'provider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3673:107 Unresolved reference 'ACTION_REQUEST_SCHEDULE_EXACT_ALARM' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3673:144 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3673:150 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3674:49 Unresolved reference 'data'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3674:64 Unresolved reference 'net'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3674:89 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3674:97 Unresolved reference 'packageName' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3676:45 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3676:53 Unresolved reference 'startActivity' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3728:77 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3832:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3832:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3981:17 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3982:21 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:3984:21 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4689:44 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4689:63 Unresolved reference 'appwidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4689:102 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4690:42 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4690:61 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4690:83 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4692:37 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4692:46 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4692:73 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4692:82 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4693:46 Unresolved reference 'isRequestPinAppWidgetSupported'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4702:45 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4702:54 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4702:81 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4702:90 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4704:58 Unresolved reference 'requestPinAppWidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4705:41 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4706:45 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4708:45 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4711:41 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4712:45 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4714:45 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4809:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4809:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4810:34 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:4810:76 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5890:42 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5892:39 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5892:56 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5892:85 Unresolved reference 'LocationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5893:50 Unresolved reference 'isProviderEnabled'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5893:68 Unresolved reference 'LocationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5894:54 Unresolved reference 'isProviderEnabled'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5894:72 Unresolved reference 'LocationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5902:29 Unresolved reference 'getLastKnownLocation'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5902:50 Unresolved reference 'LocationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5903:36 Unresolved reference 'getLastKnownLocation'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5903:57 Unresolved reference 'LocationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5910:32 Unresolved reference 'latitude' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5911:32 Unresolved reference 'longitude' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5918:36 Unresolved reference 'Geocoder'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5921:25 Cannot access 'fun WideNavigationRailValue.not(): WideNavigationRailValue': it is internal in file.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5921:25 Condition type mismatch: inferred type is 'WideNavigationRailValue' but 'Boolean' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5922:36 Cannot infer type for type parameter 'V'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5923:39 Unresolved reference 'locality'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5923:56 Unresolved reference 'subAdminArea'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5923:77 Unresolved reference 'adminArea'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5924:39 Unresolved reference 'locality'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5924:56 Unresolved reference 'subAdminArea'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5931:29 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpScreens.kt:5931:48 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:5:16 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:27:36 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:29:37 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:29:74 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:36:65 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:70:30 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:75:9 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:79:35 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:79:42 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:79:44 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:82:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:86:20 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:86:27 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:86:29 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:87:65 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:88:41 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:88:56 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:93:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:103:31 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:107:21 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:107:28 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:107:30 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:108:68 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:244:35 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:257:57 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:261:56 Cannot infer type for type parameter 'T2'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:261:56 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:265:15 Cannot infer type for type parameter 'T2'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:286:54 Cannot infer type for type parameter 'T2'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:286:54 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:290:15 Cannot infer type for type parameter 'T2'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:322:58 Cannot infer type for type parameter 'T3'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:322:58 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:327:22 Cannot infer type for type parameter 'T3'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:399:34 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:482:67 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:488:66 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:502:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:538:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:579:42 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:579:42 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:579:46 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:582:28 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:582:28 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:582:34 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:592:33 Unresolved reference 'stages'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:595:13 Cannot infer type for type parameter 'V'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:595:20 Unresolved reference 'stages'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:595:39 Unresolved reference 'target'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:600:62 Unresolved reference 'stages'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:643:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:691:42 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:921:42 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:921:57 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:945:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:968:76 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:995:76 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1110:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1148:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1156:50 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1156:76 Unresolved reference 'it'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1166:96 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1801:37 Unresolved reference 'keys'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1802:25 Method 'iterator()' is ambiguous for this expression. Applicable candidates:
+fun <T> Enumeration<T>.iterator(): Iterator<T>
+fun <T> Iterator<T>.iterator(): Iterator<T>
+fun <K, V> Map<out K, V>.iterator(): Iterator<Map.Entry<K, V>>
+fun <K, V> MutableMap<K, V>.iterator(): MutableIterator<MutableMap.MutableEntry<K, V>>
+fun CharSequence.iterator(): CharIterator
+fun BufferedInputStream.iterator(): ByteIterator
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1804:28 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1804:28 'fun <T> MutableList<T>.remove(index: Int): T' is deprecated. Use removeAt(index) instead.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1808:20 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:1993:85 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2004:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2012:51 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2014:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2050:68 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2054:75 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2074:41 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2091:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2114:42 Unresolved reference 'Application'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2114:57 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2137:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2206:57 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2210:39 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2211:88 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2215:32 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2219:20 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2221:55 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2235:36 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2244:60 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2247:63 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2254:42 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2268:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2269:65 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2274:56 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2276:74 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2282:78 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2289:46 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2293:13 Unresolved reference 'not' for operator '!'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2295:34 Unresolved reference 'applicationContext'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2309:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2314:39 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2318:41 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2322:36 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2326:44 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2330:44 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2337:33 Unresolved reference 'keys'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2355:25 Method 'iterator()' is ambiguous for this expression. Applicable candidates:
+fun <T> Enumeration<T>.iterator(): Iterator<T>
+fun <T> Iterator<T>.iterator(): Iterator<T>
+fun <K, V> Map<out K, V>.iterator(): Iterator<Map.Entry<K, V>>
+fun <K, V> MutableMap<K, V>.iterator(): MutableIterator<MutableMap.MutableEntry<K, V>>
+fun CharSequence.iterator(): CharIterator
+fun BufferedInputStream.iterator(): ByteIterator
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2361:32 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2361:32 'fun <T> MutableList<T>.remove(index: Int): T' is deprecated. Use removeAt(index) instead.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/NoorUpViewModel.kt:2367:37 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:6:16 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:13:29 Unresolved reference 'BroadcastReceiver'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:15:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:15:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:18:20 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:25:31 Unresolved reference 'getBooleanExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:28:33 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:28:70 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:47:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:52:41 Unresolved reference 'getStringExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:54:38 Unresolved reference 'getStringExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:66:85 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:74:31 Unresolved reference 'getBooleanExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:76:33 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:76:70 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:100:90 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:109:29 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:109:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:113:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:117:33 Unresolved reference 'getStringExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:118:30 Unresolved reference 'getStringExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:119:32 Unresolved reference 'getStringExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:122:37 Unresolved reference 'getIntExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:124:9 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:136:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:142:23 Unresolved reference 'goAsync'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerAlarmReceiver.kt:149:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:4:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:5:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:6:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:7:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:8:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:9:16 Unresolved reference 'media'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:10:16 Unresolved reference 'media'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:11:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:23:38 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:23:62 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:25:14 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:31:42 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:33:25 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:33:61 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:34:61 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:36:35 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:36:52 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:36:93 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:37:21 Unresolved reference 'areNotificationsEnabled'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:44:45 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:46:13 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:46:38 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:47:35 Unresolved reference 'RingtoneManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:47:65 Unresolved reference 'RingtoneManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:48:35 Unresolved reference 'AudioAttributes'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:49:33 Unresolved reference 'AudioAttributes'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:50:27 Unresolved reference 'AudioAttributes'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:53:33 Unresolved reference 'NotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:56:17 Unresolved reference 'NotificationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:57:15 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:57:21 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:58:17 Unresolved reference 'description'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:59:17 Unresolved reference 'enableVibration'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:60:17 Unresolved reference 'vibrationPattern'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:61:17 Unresolved reference 'enableLights'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:62:17 Unresolved reference 'lockscreenVisibility'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:62:40 Unresolved reference 'Notification'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:63:17 Unresolved reference 'setSound'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:66:33 Unresolved reference 'NotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:69:17 Unresolved reference 'NotificationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:70:15 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:70:21 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:71:17 Unresolved reference 'description'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:72:17 Unresolved reference 'enableVibration'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:73:17 Unresolved reference 'enableLights'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:74:17 Unresolved reference 'lockscreenVisibility'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:74:40 Unresolved reference 'Notification'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:77:33 Unresolved reference 'NotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:80:17 Unresolved reference 'NotificationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:81:15 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:81:21 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:82:17 Unresolved reference 'description'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:83:17 Unresolved reference 'enableVibration'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:84:17 Unresolved reference 'enableLights'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:85:17 Unresolved reference 'lockscreenVisibility'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:85:40 Unresolved reference 'Notification'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:88:35 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:88:52 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:88:85 Unresolved reference 'NotificationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:89:21 Unresolved reference 'createNotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:90:21 Unresolved reference 'createNotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:91:21 Unresolved reference 'createNotificationChannel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:108:18 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:116:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:121:21 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:121:58 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:125:40 Unresolved reference 'getLong' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:127:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:134:22 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:134:64 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:134:70 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:135:13 Unresolved reference 'flags'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:135:21 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:135:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:136:64 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:138:29 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:142:13 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:142:50 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:145:28 Unresolved reference 'RingtoneManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:145:58 Unresolved reference 'RingtoneManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:147:42 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:156:14 Cannot access class 'android.net.Uri'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:158:14 Cannot access class 'android.app.PendingIntent'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:163:31 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:163:48 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:163:81 Unresolved reference 'NotificationManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:165:21 Unresolved reference 'notify'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:165:52 Cannot access class 'android.app.Notification'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:167:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:171:20 Unresolved reference 'edit' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:171:71 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:174:43 Unresolved reference 'getInt' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:176:35 Unresolved reference 'cancel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:178:24 Unresolved reference 'edit' on receiver of type 'Nothing'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationHelper.kt:178:79 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:4:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:6:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:7:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:8:16 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:41:18 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:42:23 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:44:24 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:46:26 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:46:68 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:46:74 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:47:13 Unresolved reference 'flags'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:47:21 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:47:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:49:33 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:53:13 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:53:50 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:58:28 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:58:53 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:59:32 Unresolved reference 'canScheduleExactAlarms'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:63:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:65:30 Unresolved reference 'setAndAllowWhileIdle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:65:51 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:67:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:73:17 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:73:42 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:74:38 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:75:30 Unresolved reference 'setAlarmClock'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:76:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:80:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:84:17 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:84:42 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:85:21 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:85:46 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:85:85 Unresolved reference 'canScheduleExactAlarms'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:86:21 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:87:34 Unresolved reference 'setAndAllowWhileIdle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:87:55 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:89:34 Unresolved reference 'setExactAndAllowWhileIdle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:89:60 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:92:34 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:92:59 Argument type mismatch: actual type is 'Long', but 'Char' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:92:74 Too many arguments for 'fun StringBuilder.set(index: Int, value: Char): Unit'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:95:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:127:43 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:128:36 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:128:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:128:80 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:130:29 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:130:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:133:22 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:133:71 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:133:77 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:134:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:135:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:136:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:137:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:141:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:148:29 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:152:13 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:152:50 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:156:9 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:159:48 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:160:36 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:160:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:160:80 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:163:22 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:163:71 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:163:77 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:164:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:165:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:166:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:169:29 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:173:13 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:173:50 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:177:9 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:180:47 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:182:43 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:186:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:190:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:195:48 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:196:20 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:196:45 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:197:40 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:197:57 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:197:84 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:198:27 Unresolved reference 'canScheduleExactAlarms'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:207:42 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:208:29 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:208:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:236:32 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:237:15 Unresolved reference 'getString'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:238:22 Unresolved reference 'getFloat'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:241:32 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:242:15 Unresolved reference 'getString'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:243:22 Unresolved reference 'getFloat'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:246:38 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:247:15 Unresolved reference 'edit'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:252:14 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:256:40 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:257:22 Unresolved reference 'getBoolean'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:267:18 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:275:36 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:275:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:275:80 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:276:29 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:276:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:345:40 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:346:36 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:348:25 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:348:57 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:351:38 Unresolved reference 'cancel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:352:34 Unresolved reference 'cancel' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:367:26 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:367:75 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:367:81 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:368:17 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:369:17 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:370:17 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:371:17 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:378:33 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:382:17 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:382:54 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:386:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:390:40 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:391:36 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:391:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:391:80 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:396:26 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:397:33 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:401:17 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:401:49 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:404:30 Unresolved reference 'cancel'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:405:31 Unresolved reference 'cancel' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:410:46 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:420:50 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:421:36 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:421:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:421:80 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:425:22 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:425:71 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:425:77 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:426:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:427:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:428:13 Unresolved reference 'putExtra'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:431:29 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:435:13 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:435:50 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:441:53 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:452:50 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerNotificationScheduler.kt:493:13 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerRescheduleWorker.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerRescheduleWorker.kt:8:26 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerRescheduleWorker.kt:27:39 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerRescheduleWorker.kt:37:43 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/PrayerRescheduleWorker.kt:43:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:4:16 Unresolved reference 'hardware'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:5:16 Unresolved reference 'hardware'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:6:16 Unresolved reference 'hardware'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:7:16 Unresolved reference 'hardware'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:8:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:9:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:10:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:11:16 Unresolved reference 'view'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:49:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:49:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:50:16 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:50:26 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:63:33 Unresolved reference 'hardware'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:79:56 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:85:29 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:85:37 Unresolved reference 'getSystemService' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:85:54 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:85:82 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:89:54 Unresolved reference 'getDefaultSensor' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:89:71 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:90:47 Unresolved reference 'getDefaultSensor' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:90:64 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:91:46 Unresolved reference 'getDefaultSensor' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:91:63 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:92:51 Unresolved reference 'getDefaultSensor' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:92:68 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:101:48 Unresolved reference 'SensorEventListener'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:102:53 Unresolved reference 'SensorEvent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:105:33 Unresolved reference 'sensor' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:106:25 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:107:29 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:107:93 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:108:29 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:121:25 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:122:52 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:122:91 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:128:25 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:129:52 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:129:90 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:135:25 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:136:39 Cannot infer type for type parameter 'V'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:136:45 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:139:40 Cannot infer type for type parameter 'V'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:139:46 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:140:39 Cannot infer type for type parameter 'V'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:140:45 Unresolved reference 'values' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:152:35 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:154:25 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:164:56 Unresolved reference 'Sensor'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:170:44 Unresolved reference 'registerListener' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:170:104 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:172:40 Unresolved reference 'registerListener' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:172:93 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:173:40 Unresolved reference 'registerListener' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:173:92 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:176:44 Unresolved reference 'registerListener' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:176:101 Unresolved reference 'SensorManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:184:31 Unresolved reference 'unregisterListener' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:227:21 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:227:27 Unresolved reference 'VERSION' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:227:46 Candidate 'val Icons.Filled.Build: ImageVector' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:227:52 Unresolved reference 'VERSION_CODES' on receiver of type 'ImageVector'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:228:36 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:228:44 Unresolved reference 'getSystemService' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:228:61 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:228:91 Unresolved reference 'Vibrator'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:229:31 Unresolved reference 'vibrate'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:229:39 Unresolved reference 'VibrationEffect'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:229:73 Unresolved reference 'VibrationEffect'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:231:21 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:231:26 Unresolved reference 'performHapticFeedback' on receiver of type 'android.view.View'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/QiblaCompassView.kt:231:48 Unresolved reference 'HapticFeedbackConstants'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/SolarPrayerEngine.kt:12:23 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:4:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:5:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:6:16 Unresolved reference 'provider'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:19:34 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:20:9 Unresolved reference 'Settings'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:21:21 Unresolved reference 'contentResolver'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:22:13 Unresolved reference 'Settings'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:27:40 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:28:9 Unresolved reference 'Settings'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:29:21 Unresolved reference 'contentResolver'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:30:13 Unresolved reference 'Settings'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:35:36 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:37:24 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:38:21 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:38:38 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:38:68 Unresolved reference 'Vibrator'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:40:23 Unresolved reference 'hasVibrator'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:41:9 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:43:22 Unresolved reference 'vibrate'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihFeedback.kt:44:17 Unresolved reference 'VibrationEffect'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:224:27 Unresolved reference 'SharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:225:25 Unresolved reference 'getString'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:256:27 Unresolved reference 'SharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:258:15 Unresolved reference 'edit'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/TasbihRepository.kt:258:62 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:8:30 Unresolved reference 'BroadcastReceiver'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:10:37 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:10:54 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:14:40 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:14:50 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:15:24 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:15:34 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:16:24 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateReceiver.kt:30:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:4:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:5:16 Unresolved reference 'appwidget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:6:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:7:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:8:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:9:16 Unresolved reference 'os'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:24:35 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:26:36 Unresolved reference 'AppWidgetManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:27:33 Unresolved reference 'ComponentName'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:29:50 Unresolved reference 'isNotEmpty' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:38:42 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:39:29 Unresolved reference 'getSharedPreferences'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:39:66 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:121:43 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:130:40 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:130:57 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:130:84 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:143:26 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:143:76 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:143:82 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:144:17 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:146:33 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:150:17 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:150:54 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:153:17 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:153:42 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:154:21 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:154:46 Unresolved reference 'Build'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:154:85 Unresolved reference 'canScheduleExactAlarms'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:155:29 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:156:34 Unresolved reference 'setAndAllowWhileIdle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:156:55 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:158:34 Unresolved reference 'setExactAndAllowWhileIdle'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:158:60 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:161:34 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:161:59 Argument type mismatch: actual type is 'Long', but 'Char' was expected.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:161:72 Too many arguments for 'fun StringBuilder.set(index: Int, value: Char): Unit'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:167:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:174:54 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:176:43 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:186:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:193:38 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:195:40 Unresolved reference 'getSystemService'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:195:57 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:195:84 Unresolved reference 'AlarmManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:196:26 Unresolved reference 'Intent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:196:76 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:196:82 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:197:17 Unresolved reference 'action'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:199:33 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:203:17 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:203:49 Unresolved reference 'PendingIntent'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:206:30 Unresolved reference 'cancel' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:207:31 Unresolved reference 'cancel' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:210:43 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateScheduler.kt:213:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateWorker.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateWorker.kt:9:26 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/WidgetUpdateWorker.kt:20:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:4:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:5:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:6:16 Unresolved reference 'widget'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:146:19 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:146:32 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:434:49 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:434:57 Unresolved reference 'getSystemService' on receiver of type 'android.content.Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:434:74 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:434:104 Unresolved reference 'ClipboardManager'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:435:43 Unresolved reference 'setPrimaryClip'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:435:58 Unresolved reference 'ClipData'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:436:33 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:436:48 Cannot access class 'android.content.Context'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/ZakatCalculatorView.kt:436:140 Unresolved reference 'Toast'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:11:45 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:230:25 Unresolved reference 'assets'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:230:57 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:230:57 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:230:63 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:243:49 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:263:61 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:282:25 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/hadith/HadithRepository.kt:303:21 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:289:40 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:299:21 Unresolved reference 'assets'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:299:74 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:299:74 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:299:74 Candidate 'fun <T : Closeable?, R> T.use(block: (T) -> R): R' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:299:80 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:301:44 Unresolved reference 'verses' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:302:40 Unresolved reference 'verses' on receiver of type 'Any'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:302:58 Unresolved reference 'it'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:302:76 Cannot infer type for value parameter 'av'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:304:41 Unresolved reference 'number'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:305:45 Unresolved reference 'arabic'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:306:52 Unresolved reference 'bangla'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranRepository.kt:307:53 Unresolved reference 'english'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:3:16 Unresolved reference 'content'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:4:16 Unresolved reference 'util'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:56:23 Unresolved reference 'Context'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:64:25 Unresolved reference 'assets'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:64:80 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:64:80 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:64:80 Candidate 'fun <T : Closeable?, R> T.use(block: (T) -> R): R' is inapplicable because of a receiver type mismatch.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:64:86 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:68:17 Unresolved reference 'Log'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/noorup/quran/QuranTransliterationRepository.kt:69:17 Null cannot be a value of a non-null type 'uninferred K (of fun <K> TRY_CALL)'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:3:16 Unresolved reference 'app'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:52:16 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:52:26 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:53:10 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:53:15 Unresolved reference 'isInEditMode' on receiver of type 'android.view.View'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:55:27 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:55:32 Unresolved reference 'context' on receiver of type 'android.view.View'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:55:43 Unresolved reference 'Activity'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:55:53 Unresolved reference 'window'.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:59:26 Cannot access class 'android.view.Window'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:59:26 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+e: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/ui/theme/Theme.kt:59:54 Cannot access class 'android.view.View'. Check your module classpath for missing or conflicting dependencies.
+
+> Task :app:compileDebugKotlin FAILED
+
+[Incubating] Problems report is available at: file:///E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Kotlin compiler: UNRESOLVED_IMPORT
+       Kotlin compiler error
+         Unresolved reference 'Manifest'.
+         Location: E:/Temp/Project/NoorUp-Islamic-Lifestyle-App/app/src/main/java/com/example/MainActivity.kt:3
+
+* Try:
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+* Exception is:
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.lambda$doExecute$1(DefaultTaskNodeExecutor.java:367)
+	at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:288)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:365)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeTrackingTaskIdentity(DefaultTaskNodeExecutor.java:332)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeFinalizingProperties(DefaultTaskNodeExecutor.java:318)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingWithNoActions(DefaultTaskNodeExecutor.java:289)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeSkippingOnlyIf(DefaultTaskNodeExecutor.java:272)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeCatchingFailures(DefaultTaskNodeExecutor.java:228)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithFallbackOperationId(DefaultTaskNodeExecutor.java:197)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.executeWithLifecycle(DefaultTaskNodeExecutor.java:171)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.access$000(DefaultTaskNodeExecutor.java:67)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor$1.run(DefaultTaskNodeExecutor.java:136)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.execute(DefaultTaskNodeExecutor.java:133)
+	at org.gradle.execution.plan.LocalTaskNode.execute(LocalTaskNode.java:229)
+	at org.gradle.execution.DefaultBuildWorkExecutor.lambda$executePlan$0(DefaultBuildWorkExecutor.java:153)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.lambda$execute$0(DefaultPlanExecutor.java:476)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:475)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:392)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+	at org.gradle.workers.internal.DefaultWorkerExecutor$WorkItemExecution.waitForCompletion(DefaultWorkerExecutor.java:273)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.lambda$waitForItemsAndGatherFailures$2(DefaultAsyncWorkTracker.java:132)
+	at org.gradle.internal.Factories$1.create(Factories.java:30)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.lambda$withoutLocksBlocking$0(DefaultWorkerLeaseService.java:406)
+	at org.gradle.internal.work.ResourceLockStatistics$1.measure(ResourceLockStatistics.java:43)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.withoutLocksBlocking(DefaultWorkerLeaseService.java:401)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.blocking(DefaultWorkerLeaseService.java:261)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.blocking(DefaultWorkerLeaseService.java:243)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.lambda$waitForItemsAndGatherFailures$1(DefaultAsyncWorkTracker.java:128)
+	at org.gradle.internal.Factories$1.create(Factories.java:30)
+	at org.gradle.internal.resources.AbstractResourceLockRegistry.whileDisallowingLockChanges(AbstractResourceLockRegistry.java:51)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.whileDisallowingProjectLockChanges(DefaultWorkerLeaseService.java:266)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.waitForItemsAndGatherFailures(DefaultAsyncWorkTracker.java:127)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.waitForItemsAndGatherFailures(DefaultAsyncWorkTracker.java:93)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.waitForAll(DefaultAsyncWorkTracker.java:79)
+	at org.gradle.internal.work.DefaultAsyncWorkTracker.waitForCompletion(DefaultAsyncWorkTracker.java:67)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:276)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:253)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:236)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:219)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:185)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:167)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:47)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:137)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:134)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:134)
+	at org.gradle.internal.execution.steps.ExecuteStep$Mutable.execute(ExecuteStep.java:80)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:51)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:29)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:67)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:39)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:42)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:24)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:28)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:76)
+	at org.gradle.internal.Either$Right.fold(Either.java:176)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:74)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:49)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.executeMutable(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:70)
+	at org.gradle.internal.execution.steps.ResolveMutableCachingStateStep.executeDelegate(ResolveMutableCachingStateStep.java:32)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:69)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:37)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:63)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:34)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:79)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.executeDelegate(ValidateStep.java:65)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:105)
+	at org.gradle.internal.execution.steps.ValidateStep$Mutable.execute(ValidateStep.java:65)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.executeMutable(CaptureMutableStateBeforeExecutionStep.java:86)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:65)
+	at org.gradle.internal.execution.steps.CaptureMutableStateBeforeExecutionStep.execute(CaptureMutableStateBeforeExecutionStep.java:45)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeWithNonEmptySources(SkipEmptyMutableWorkStep.java:210)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:90)
+	at org.gradle.internal.execution.steps.SkipEmptyMutableWorkStep.executeMutable(SkipEmptyMutableWorkStep.java:53)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.executeMutable(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:77)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:43)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$executeMutable$0(AssignMutableWorkspaceStep.java:34)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:314)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:30)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.executeMutable(AssignMutableWorkspaceStep.java:21)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:26)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:56)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:38)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:68)
+	at org.gradle.api.internal.tasks.execution.DefaultTaskNodeExecutor.doExecute(DefaultTaskNodeExecutor.java:364)
+	... 25 more
+Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Unresolved reference 'Manifest'.
+	at org.jetbrains.kotlin.gradle.plugin.diagnostics.DefaultCompilerDiagnosticsProblemsReporter.reportCompilerMessage(CompilerDiagnosticsProblemsReporter.kt:63)
+	at org.jetbrains.kotlin.compilerRunner.btapi.ProblemsApiCompilerMessageRenderer.replayTo(ProblemsApiCompilerMessageRenderer.kt:88)
+	at org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork.execute(BuildToolsApiCompilationWork.kt:251)
+	at org.gradle.workers.internal.DefaultWorkerServer.execute(DefaultWorkerServer.java:68)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:64)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:61)
+	at org.gradle.internal.classloader.ClassLoaderUtils.executeInClassloader(ClassLoaderUtils.java:103)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.lambda$execute$0(NoIsolationWorkerFactory.java:61)
+	at org.gradle.workers.internal.AbstractWorker$1.call(AbstractWorker.java:44)
+	at org.gradle.workers.internal.AbstractWorker$1.call(AbstractWorker.java:41)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.workers.internal.AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:58)
+	at org.gradle.workers.internal.DefaultWorkerExecutor.lambda$submitWork$1(DefaultWorkerExecutor.java:169)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:191)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.access$600(DefaultConditionalExecutionQueue.java:112)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:168)
+	at org.gradle.internal.Factories$1.create(Factories.java:30)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.lambda$runAndReleaseLocks$0(DefaultWorkerLeaseService.java:296)
+	at org.gradle.internal.work.ResourceLockStatistics$1.measure(ResourceLockStatistics.java:43)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAndReleaseLocks(DefaultWorkerLeaseService.java:294)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocksAcquired(DefaultWorkerLeaseService.java:290)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:282)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:138)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:163)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:125)
+	... 2 more
+
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 11s
+18 actionable tasks: 2 executed, 16 up-to-date

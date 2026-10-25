@@ -6,6 +6,12 @@ import kotlin.math.*
 
 object SolarPrayerEngine {
 
+    private fun safeLog(msg: String) {
+        // Pure-math engine is unit-tested on JVM where android.util.Log throws
+        // "not mocked". Never let logging break math.
+        try { android.util.Log.w("SolarEngine", msg) } catch (_: Throwable) { }
+    }
+
     fun calculateTimes(
         latitude: Double,
         longitude: Double,
@@ -91,10 +97,10 @@ object SolarPrayerEngine {
         val maghribMins = (fixHour(maghribHours) * 60.0).roundToInt()
         val fajrNextMins = (fixHour(fajrHours) * 60.0).roundToInt() + 1440
         val nightDuration = fajrNextMins - maghribMins
-        val tahajjudStartMins = (maghribMins + (nightDuration * 2) / 3) % 1440
+        val tahajjudStartMins = (maghribMins + (nightDuration * 2.0 / 3.0).roundToInt()) % 1440
         val tahajjudStartStr = formatMinutes(tahajjudStartMins)
 
-        return CalculatedPrayerTimes(
+        val result = CalculatedPrayerTimes(
             date = calendar.clone() as Calendar,
             fajrStart = fajrStr,
             fajrEnd = fajrEndStr,
@@ -119,10 +125,40 @@ object SolarPrayerEngine {
             calculationMethod = method,
             juristicMethod = juristic
         )
+        // Ordering sanity: fajr < sunrise < dhuhr < asr < maghrib < isha (in minutes).
+        // High-latitude clamping can violate this — log so regressions are visible.
+        try {
+            val order = listOf(fajrHours, sunriseHours, dhuhrHours, asrHours, maghribHours, ishaHours)
+                .map { fixHour(it) }
+            val names = listOf("fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha")
+            for (i in 0 until order.size - 1) {
+                // Isha may wrap past midnight; allow isha < maghrib only when fixed-minutes method wraps.
+                if (order[i + 1] < order[i] && !(names[i + 1] == "isha" && method.isIshaFixedMinutes)) {
+                    safeLog("Ordering violated: ${names[i]}=${order[i]} > ${names[i+1]}=${order[i+1]} lat=$latitude")
+                    break
+                }
+            }
+        } catch (_: Exception) { }
+        return result
     }
 
     private fun calculateHourAngle(lat: Double, decl: Double, angle: Double): Double {
-        val cosHA = (-sin(dtr(angle)) - sin(dtr(lat)) * sin(dtr(decl))) / (cos(dtr(lat)) * cos(dtr(decl)))
+        val denom = cos(dtr(lat)) * cos(dtr(decl))
+        // Polar guard: lat ±90° → denom 0 → NaN. coerceIn doesn't trap NaN.
+        if (!denom.isFinite() || abs(denom) < 1e-9) {
+            safeLog("Polar latitude lat=$lat: hour-angle undefined, using 90° fallback")
+            return 90.0
+        }
+        val cosHA = (-sin(dtr(angle)) - sin(dtr(lat)) * sin(dtr(decl))) / denom
+        if (!cosHA.isFinite()) {
+            safeLog("Non-finite cosHA lat=$lat decl=$decl angle=$angle")
+            return 90.0
+        }
+        // High-latitude: sun never reaches angle (cosHA>1) or never sets (cosHA<-1).
+        // Old code silently collapsed Fajr/Isha onto Dhuhr. Log + clamp, caller validates ordering.
+        if (cosHA > 1.0 || cosHA < -1.0) {
+            safeLog("High-latitude unreachable angle: lat=$lat decl=$decl angle=$angle cosHA=$cosHA")
+        }
         val clampedCos = cosHA.coerceIn(-1.0, 1.0)
         return rtd(acos(clampedCos))
     }
@@ -143,7 +179,9 @@ object SolarPrayerEngine {
     }
 
     private fun formatMinutes(totalMins: Int): String {
-        val h24 = totalMins / 60
+        // Normalize first: rounding can yield 1440 (true midnight), which must render
+        // as 12:00 AM, not h24=24 -> "12:00 PM".
+        val h24 = (totalMins % 1440 + 1440) % 1440 / 60
         val m = totalMins % 60
         val isPm = h24 >= 12
         var h12 = h24 % 12

@@ -11,13 +11,15 @@ class WidgetUpdateWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        try {
+        return try {
             // Update widgets and calculate next exact schedule
             NoorUpWidgetProvider.updateAllWidgets(context)
             WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+            Result.success()
         } catch (e: Exception) {
             android.util.Log.e("WidgetUpdateWorker", "Error in background widget update worker", e)
+            // Let WorkManager retry with backoff instead of masking persistent failures.
+            Result.retry()
         }
-        return Result.success()
     }
 }

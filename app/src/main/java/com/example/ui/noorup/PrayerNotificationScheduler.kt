@@ -16,6 +16,10 @@ object PrayerNotificationScheduler {
     private const val TAG = "PrayerScheduler"
     private const val ALARM_REQ_BASE = 5000
     const val GARDEN_ALARM_REQ_CODE = 7001
+
+    /** Verification keys: "permission granted" is not "alarms scheduled". */
+    const val KEY_SCHEDULED_COUNT = "prayer_alarms_scheduled_count"
+    const val KEY_NEXT_TRIGGER_MS = "prayer_alarms_next_trigger_ms"
     const val GARDEN_NOTIFICATION_ID = 1001
     const val HADITH_ALARM_REQ_CODE = 7002
     const val HADITH_NOTIFICATION_ID = 1002
@@ -23,7 +27,10 @@ object PrayerNotificationScheduler {
     private fun toEnglishDigits(str: String): String {
         val bnToEn = mapOf(
             '০' to '0', '১' to '1', '২' to '2', '৩' to '3', '৪' to '4',
-            '৫' to '5', '৬' to '6', '৭' to '7', '৮' to '8', '৯' to '9'
+            '৫' to '5', '৬' to '6', '৭' to '7', '৮' to '8', '৯' to '9',
+            // Arabic-Indic digits (some devices/locales emit these)
+            '٠' to '0', '١' to '1', '٢' to '2', '٣' to '3', '٤' to '4',
+            '٥' to '5', '٦' to '6', '٧' to '7', '٨' to '8', '٩' to '9'
         )
         return str.map { bnToEn[it] ?: it }.joinToString("")
     }
@@ -50,6 +57,22 @@ object PrayerNotificationScheduler {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Permission first: on Android 12+ an exact call without permission throws
+        // SecurityException. Check before the first exact call (was after).
+        val canExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try { alarmManager.canScheduleExactAlarms() } catch (_: Exception) { false }
+        } else true
+
+        if (!canExact) {
+            Log.w(TAG, "Exact-alarm permission missing; using inexact at $triggerMillis")
+            try {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to schedule inexact alarm at $triggerMillis", e)
+            }
+            return
+        }
+
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerMillis, showPendingIntent)
@@ -64,6 +87,7 @@ object PrayerNotificationScheduler {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                    Log.w(TAG, "Exact-alarm permission revoked; downgrading to inexact alarm at $triggerMillis")
                     alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntent)
                 } else {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntent)
@@ -168,7 +192,6 @@ object PrayerNotificationScheduler {
     }
 
     fun scheduleDailyTasks(context: Context) {
-        cancelGardenWorkManagerIfAny(context)
         scheduleGardenExactAlarm(context)
         scheduleDailyHadithExactAlarm(context)
     }
@@ -193,13 +216,14 @@ object PrayerNotificationScheduler {
             return
         }
 
-        val latitude = prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
-        val longitude = prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
+        val latitude = readLat(prefs)
+        val longitude = readLng(prefs)
         val methodStr = prefs.getString("calculation_method", CalculationMethod.KARACHI.name)
         val method = CalculationMethod.entries.find { it.name == methodStr } ?: CalculationMethod.KARACHI
         val juristicStr = prefs.getString("juristic_method", JuristicMethod.HANAFI.name)
         val juristic = JuristicMethod.entries.find { it.name == juristicStr } ?: JuristicMethod.HANAFI
         val isEnglish = prefs.getBoolean("is_english", false)
+        val zoneId = prefs.getString("selected_city_zone_id", "") ?: ""
 
         scheduleAllPrayerAlerts(
             context = context,
@@ -207,8 +231,40 @@ object PrayerNotificationScheduler {
             longitude = longitude,
             method = method,
             juristic = juristic,
-            isEnglish = isEnglish
+            isEnglish = isEnglish,
+            zoneId = zoneId
         )
+    }
+
+    /** Double-precision lat/lng helpers: prefs historically stored Float (loses ~1m). */
+    fun readLat(prefs: android.content.SharedPreferences): Double {
+        prefs.getString("selected_city_lat_dbl", null)?.toDoubleOrNull()?.let { return it }
+        return prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
+    }
+
+    fun readLng(prefs: android.content.SharedPreferences): Double {
+        prefs.getString("selected_city_lng_dbl", null)?.toDoubleOrNull()?.let { return it }
+        return prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
+    }
+
+    fun persistLatLng(prefs: android.content.SharedPreferences, lat: Double, lng: Double) {
+        prefs.edit()
+            .putFloat("selected_city_lat", lat.toFloat())
+            .putFloat("selected_city_lng", lng.toFloat())
+            .putString("selected_city_lat_dbl", lat.toString())
+            .putString("selected_city_lng_dbl", lng.toString())
+            .apply()
+    }
+
+    /** Per-prayer keys: Fajr, Dhuhr, Asr, Maghrib, Isha (+ Sehri uses Fajr, Iftar uses Maghrib). */
+    fun isPrayerEnabled(prefs: android.content.SharedPreferences, key: String): Boolean {
+        return prefs.getBoolean("prayer_enabled_$key", true)
+    }
+
+    fun cityTimeZone(zoneId: String, fallback: java.util.TimeZone = java.util.TimeZone.getDefault()): java.util.TimeZone {
+        return try {
+            if (zoneId.isBlank()) fallback else java.util.TimeZone.getTimeZone(zoneId)
+        } catch (_: Exception) { fallback }
     }
 
     fun scheduleAllPrayerAlerts(
@@ -217,21 +273,44 @@ object PrayerNotificationScheduler {
         longitude: Double,
         method: CalculationMethod,
         juristic: JuristicMethod,
-        isEnglish: Boolean
+        isEnglish: Boolean,
+        zoneId: String = ""
     ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        val now = Calendar.getInstance()
-        val nowMillis = now.timeInMillis
-        val tzOffset = now.timeZone.getOffset(nowMillis) / 3600000.0
+        val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("prayer_notifications_enabled", true)) {
+            cancelAllPrayerAlerts(context)
+            return
+        }
+        // City-zone unify: alarms must fire in the selected city's wall-clock,
+        // not the device zone (fixes Makkah-selected-from-Dhaka drift).
+        val cityTz = cityTimeZone(zoneId.ifBlank { prefs.getString("selected_city_zone_id", "") ?: "" })
+        val now = Calendar.getInstance(cityTz)
+        val nowMillis = System.currentTimeMillis()
+        val tzOffset = cityTz.getOffset(nowMillis) / 3600000.0
+
+        // Clear the previous record first: a crashed/failed pass must never look
+        // like a verified schedule from an earlier pass.
+        prefs.edit()
+            .putInt(KEY_SCHEDULED_COUNT, 0)
+            .putLong(KEY_NEXT_TRIGGER_MS, 0L)
+            .apply()
+
+        var scheduledCount = 0
+        var nextTriggerMillis = Long.MAX_VALUE
 
         // Compute solar prayer times for TODAY and TOMORROW separately
         // to guarantee 100% astronomical accuracy for upcoming slots.
         val todayTimes = SolarPrayerEngine.calculateTimes(latitude, longitude, now, tzOffset, method, juristic)
         val tomorrowCal = (now.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) }
-        val tomorrowTimes = SolarPrayerEngine.calculateTimes(latitude, longitude, tomorrowCal, tzOffset, method, juristic)
+        // Tomorrow gets its own UTC offset so a DST/timezone midnight boundary
+        // cannot shift tomorrow's prayer times by the offset delta.
+        val tomorrowTzOffset = cityTz.getOffset(tomorrowCal.timeInMillis) / 3600000.0
+        val tomorrowTimes = SolarPrayerEngine.calculateTimes(latitude, longitude, tomorrowCal, tomorrowTzOffset, method, juristic)
 
         data class PrayerItem(
             val index: Int,
+            val key: String,
             val name: String,
             val todayStartStr: String,
             val todayEndStr: String,
@@ -241,31 +320,31 @@ object PrayerNotificationScheduler {
 
         val prayerItems = listOf(
             PrayerItem(
-                0,
+                0, "Fajr",
                 if (isEnglish) "Fajr Prayer" else "ফজর নামাজ",
                 todayTimes.fajrStart, todayTimes.fajrEnd,
                 tomorrowTimes.fajrStart, tomorrowTimes.fajrEnd
             ),
             PrayerItem(
-                1,
+                1, "Dhuhr",
                 if (isEnglish) "Dhuhr Prayer" else "যোহর নামাজ",
                 todayTimes.dhuhrStart, todayTimes.dhuhrEnd,
                 tomorrowTimes.dhuhrStart, tomorrowTimes.dhuhrEnd
             ),
             PrayerItem(
-                2,
+                2, "Asr",
                 if (isEnglish) "Asr Prayer" else "আসর নামাজ",
                 todayTimes.asrStart, todayTimes.asrEnd,
                 tomorrowTimes.asrStart, tomorrowTimes.asrEnd
             ),
             PrayerItem(
-                3,
+                3, "Maghrib",
                 if (isEnglish) "Maghrib Prayer" else "মাগরিব নামাজ",
                 todayTimes.maghribStart, todayTimes.maghribEnd,
                 tomorrowTimes.maghribStart, tomorrowTimes.maghribEnd
             ),
             PrayerItem(
-                4,
+                4, "Isha",
                 if (isEnglish) "Isha Prayer" else "এশা নামাজ",
                 todayTimes.ishaStart, todayTimes.ishaEnd,
                 tomorrowTimes.ishaStart, tomorrowTimes.ishaEnd
@@ -273,6 +352,22 @@ object PrayerNotificationScheduler {
         )
 
         for (item in prayerItems) {
+            // Per-prayer toggle: disabled prayers are cancelled (not re-armed),
+            // so the master list stays but individual slots stay silent.
+            if (!isPrayerEnabled(prefs, item.key)) {
+                try {
+                    val cancelIntent = Intent(context, PrayerAlarmReceiver::class.java)
+                    val existing = PendingIntent.getBroadcast(
+                        context, ALARM_REQ_BASE + item.index, cancelIntent,
+                        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                    )
+                    if (existing != null) {
+                        alarmManager.cancel(existing)
+                        existing.cancel()
+                    }
+                } catch (_: Exception) { }
+                continue
+            }
             val todayTargetCal = parseTimeToCalendar(item.todayStartStr, now)
             val isUpcomingToday = todayTargetCal.timeInMillis > (nowMillis + 2000L)
 
@@ -302,17 +397,50 @@ object PrayerNotificationScheduler {
             )
 
             scheduleExactAlarm(context, alarmManager, targetCal.timeInMillis, pendingIntent)
+            scheduledCount++
+            if (targetCal.timeInMillis < nextTriggerMillis) nextTriggerMillis = targetCal.timeInMillis
             Log.d(TAG, "Scheduled ${item.name} exact alarm for ${targetCal.time} (window: $timeWindow)")
         }
+
+        // Record what was actually armed so onboarding can verify success instead
+        // of treating a permission dialog result as "alarms are scheduled".
+        prefs.edit()
+            .putInt(KEY_SCHEDULED_COUNT, scheduledCount)
+            .putLong(KEY_NEXT_TRIGGER_MS, if (nextTriggerMillis == Long.MAX_VALUE) 0L else nextTriggerMillis)
+            .apply()
+    }
+
+    /** Number of prayer alarms armed by the last scheduling pass. */
+    fun scheduledPrayerAlarmCount(context: Context): Int {
+        return context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+            .getInt(KEY_SCHEDULED_COUNT, 0)
+    }
+
+    /** Wall-clock millis of the next armed prayer alarm, or 0 when none. */
+    fun nextPrayerAlarmTriggerMillis(context: Context): Long {
+        return context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+            .getLong(KEY_NEXT_TRIGGER_MS, 0L)
+    }
+
+    /**
+     * True only when the last scheduling pass armed at least one alarm whose
+     * trigger is still in the future. Used as the success signal for onboarding.
+     */
+    fun hasVerifiedScheduledAlarms(context: Context): Boolean {
+        return scheduledPrayerAlarmCount(context) > 0 &&
+            nextPrayerAlarmTriggerMillis(context) > System.currentTimeMillis()
     }
 
     fun cancelAllPrayerAlerts(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        for (i in 0..4) {
+        // Prayer slots plus garden/hadith/test alarms: disabling notifications must
+        // silence everything, otherwise garden/hadith keep firing with no cancel path.
+        val codes = (0..4).map { ALARM_REQ_BASE + it } + listOf(GARDEN_ALARM_REQ_CODE, HADITH_ALARM_REQ_CODE, 8888)
+        for (code in codes) {
             val intent = Intent(context, PrayerAlarmReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                ALARM_REQ_BASE + i,
+                code,
                 intent,
                 PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
             )
@@ -321,6 +449,10 @@ object PrayerNotificationScheduler {
                 pendingIntent.cancel()
             }
         }
+        context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE).edit()
+            .putInt(KEY_SCHEDULED_COUNT, 0)
+            .putLong(KEY_NEXT_TRIGGER_MS, 0L)
+            .apply()
     }
 
     fun sendInstantTestNotification(context: Context, isEnglish: Boolean) {
@@ -335,7 +467,8 @@ object PrayerNotificationScheduler {
 
     fun scheduleExactTestAlarmInSeconds(context: Context, seconds: Int, isEnglish: Boolean) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        val targetMillis = System.currentTimeMillis() + (seconds * 1000L)
+        // Guarded: a stale/negative delay must never fire immediately in the past.
+        val targetMillis = System.currentTimeMillis() + (seconds.coerceAtLeast(1) * 1000L)
 
         val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
             putExtra("prayer_name", if (isEnglish) "🕌 Test Adhan Alert" else "🕌 টেস্ট আজান অ্যালার্ট")
@@ -374,7 +507,8 @@ object PrayerNotificationScheduler {
             notificationId = HADITH_NOTIFICATION_ID,
             title = title,
             message = message,
-            channelId = "hadith_reminders_channel"
+            channelId = "hadith_reminders_channel",
+            deepLinkHadithId = hadith.id
         )
     }
 

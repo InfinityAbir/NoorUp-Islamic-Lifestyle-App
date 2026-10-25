@@ -15,11 +15,28 @@ data class Book(
     val descriptionBn: String,
     val descriptionEn: String,
     val totalChaptersBn: String,
-    val assetFileName: String = ""
+    val assetFileName: String = "",
+    // True when the bundled asset holds only a verified sample of the work,
+    // not the complete collection. The UI must label such books as partial
+    // and show only the actually available counts — never canonical totals.
+    val isPartialSample: Boolean = false
 ) {
     val titleBn: String get() = nameBn
     val titleEn: String get() = nameEn
-    val totalHadith: Int get() = totalHadithsBn.filter { it.isDigit() }.toIntOrNull() ?: 100
+    // Bengali digits are isDigit()==true but toIntOrNull() fails on them,
+    // so normalize to ASCII first (fixes always-100 bug).
+    val totalHadith: Int get() {
+        val ascii = totalHadithsBn.map { ch ->
+            when (ch) {
+                '০' -> '0'; '১' -> '1'; '২' -> '2'; '৩' -> '3'; '৪' -> '4'
+                '৫' -> '5'; '৬' -> '6'; '৭' -> '7'; '৮' -> '8'; '৯' -> '9'
+                '٠' -> '0'; '١' -> '1'; '٢' -> '2'; '٣' -> '3'; '٤' -> '4'
+                '٥' -> '5'; '٦' -> '6'; '٧' -> '7'; '٨' -> '8'; '٩' -> '9'
+                else -> ch
+            }
+        }.joinToString("").filter { it in '0'..'9' }
+        return ascii.toIntOrNull() ?: 100
+    }
 }
 
 typealias HadithBookInfo = Book

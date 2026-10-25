@@ -1,6 +1,1 @@
-{
-  "name": "NoorUp",
-  "description": "NoorUp Islamic Companion with Prayer Times, Qibla Compass, Hijri Calendar, and Noor Garden",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
+{"description":"NoorUp Islamic Companion with Prayer Times, Qibla Compass, Hijri Calendar, and Noor Garden","majorCapabilities":[],"name":"NoorUp","requestFramePermissions":[]}

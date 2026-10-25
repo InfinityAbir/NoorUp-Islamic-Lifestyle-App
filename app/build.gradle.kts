@@ -1,22 +1,52 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
+import java.util.Properties
+
 android {
     namespace = "com.example"
-    compileSdk = 36
+    compileSdk = 37
+    buildToolsVersion = "37.0.0"
+
+    // Local secrets live in gitignored local.properties (see README "Signing a
+    // release"). Only the release keystore uses it now — the app itself is
+    // fully offline and takes no API keys.
+    // NOTE: providers.gradleProperty does NOT see local.properties, so it is
+    // read from disk explicitly.
+    val localSecretsFile = rootProject.file("local.properties")
+    val localSecrets = Properties().apply {
+        if (localSecretsFile.exists()) {
+            try { localSecretsFile.inputStream().use { load(it) } } catch (_: Exception) { }
+        }
+    }
+    fun secret(name: String): String? =
+        (localSecrets.getProperty(name) ?: System.getenv(name))?.takeIf { it.isNotBlank() }
 
     defaultConfig {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 4
-        versionName = "1.1.1"
+        targetSdk = 37
+        versionCode = 12
+        versionName = "1.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "GEMINI_API_KEY", "\"\"")
+    }
+
+    signingConfigs {
+        create("release") {
+            // Values come from local.properties / env — never committed.
+            // If NOORUP_KEYSTORE_FILE is absent the config stays empty and the
+            // release block below skips signing (unsigned = local testing only).
+            val ks = secret("NOORUP_KEYSTORE_FILE")
+            if (!ks.isNullOrBlank()) {
+                storeFile = rootProject.file(ks)
+                storePassword = secret("NOORUP_KEYSTORE_PASSWORD")
+                keyAlias = secret("NOORUP_KEY_ALIAS")
+                keyPassword = secret("NOORUP_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -25,25 +55,25 @@ android {
         release {
             // R8 enabled: Play requires DEX obfuscation (threshold deadline Feb 2027).
             // Gson models are protected in proguard-rules.pro — verify Hadith/Quran
-            // screens + family Zikr after building before uploading.
+            // screens after building before uploading.
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Local testing only: signs release with debug keys so Run works.
-            // For Play upload, use Android Studio > Build > Generate Signed
-            // App Bundle with your own upload key — do NOT upload this debug-signed file.
-            signingConfig = signingConfigs.getByName("debug")
+            // Signed ONLY when the keystore is configured (see README "Signing a
+            // release"). Without it the build stays unsigned: fine for local
+            // testing, NOT uploadable to Play. The old debug-key signing is gone
+            // on purpose — debug-signed artifacts must never be uploaded.
+            if (!secret("NOORUP_KEYSTORE_FILE").isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -53,6 +83,12 @@ android {
         unitTests {
             isIncludeAndroidResources = true
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 

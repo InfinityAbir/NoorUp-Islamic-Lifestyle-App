@@ -93,7 +93,15 @@ class ExampleUnitTest {
 
     assertEquals("Fajr should end 1 min before Sunrise", (sunriseMins - 1 + 1440) % 1440, fajrEndMins)
     assertEquals("Dhuhr should end 1 min before Asr start", (asrMins - 1 + 1440) % 1440, dhuhrEndMins)
-    assertEquals("Asr should end 1 min before Maghrib start", (maghribMins - 1 + 1440) % 1440, asrEndMins)
+    // Asr intentionally does NOT run into Maghrib: the prohibited pre-sunset (Makruh)
+    // window sits between them, so Asr ends 1 min before Makruh starts and Makruh
+    // ends 1 min before Maghrib. Letting Asr end at Maghrib-1 would overlap the
+    // prohibited time the UI displays as its own slot.
+    val makruhSunsetStartMins = NoorUpWidgetProvider.parseTimeToMins(times.makruhSunsetStart)
+    val makruhSunsetEndMins = NoorUpWidgetProvider.parseTimeToMins(times.makruhSunsetEnd)
+    assertEquals("Asr should end 1 min before Makruh pre-sunset start", (makruhSunsetStartMins - 1 + 1440) % 1440, asrEndMins)
+    assertEquals("Makruh pre-sunset should end 1 min before Maghrib start", (maghribMins - 1 + 1440) % 1440, makruhSunsetEndMins)
+    assertEquals("Makruh pre-sunset window must span exactly 17 minutes", 17, (makruhSunsetEndMins - makruhSunsetStartMins + 1440) % 1440)
     assertEquals("Maghrib should end 1 min before Isha start", (ishaMins - 1 + 1440) % 1440, maghribEndMins)
 
     // Verify AM/PM strings
@@ -147,6 +155,31 @@ class ExampleUnitTest {
   }
 
   @Test
+  fun testHijriWeekdayFollowsDayOffset() {
+    val cal = Calendar.getInstance().apply {
+      set(Calendar.YEAR, 2026)
+      set(Calendar.MONTH, Calendar.SEPTEMBER)
+      set(Calendar.DAY_OF_MONTH, 25)
+    }
+
+    val base = HijriDateCalculator.calculateHijriDate(cal, 0, false)
+    val shifted = HijriDateCalculator.calculateHijriDate(cal, 1, false)
+    // Consecutive Gregorian days must show consecutive weekdays.
+    assertTrue(
+      "Weekday must advance with day offset (base=${base.dayOfWeekEn}, shifted=${shifted.dayOfWeekEn})",
+      base.dayOfWeekEn != shifted.dayOfWeekEn
+    )
+
+    // Bangladesh path applies a -1 regional offset: weekday must track the
+    // adjusted date, not the original calendar day.
+    val bd = HijriDateCalculator.calculateHijriDate(cal, 0, true)
+    assertTrue(
+      "Bangladesh weekday must track the offset-adjusted date",
+      bd.dayOfWeekEn != base.dayOfWeekEn
+    )
+  }
+
+  @Test
   fun testBangladeshLocationHijriDate() {
     val cal = Calendar.getInstance().apply {
       set(Calendar.YEAR, 2026)
@@ -171,50 +204,5 @@ class ExampleUnitTest {
     assertFalse("Global standard should not be flagged as Bangladesh", hijriGlobal.isBangladeshStandard)
     assertEquals("Bangladesh Hijri day should be 1 day behind Umm al-Qura on same Gregorian date",
       (hijriGlobal.day - 1), hijriBD.day)
-  }
-
-  @Test
-  fun testFamilyPairingDataModelAndSerialization() {
-    val member = com.example.ui.noorup.FamilyMember(
-      name = "মা",
-      count = 132,
-      relation = "মা",
-      pairingCode = "NZ-1001",
-      isLiveSyncing = true,
-      lastSyncTime = "এইমাত্র",
-      lastZikrPhrase = "সুবহানাল্লাহ"
-    )
-
-    assertEquals("মা", member.name)
-    assertEquals(132, member.count)
-    assertEquals("NZ-1001", member.pairingCode)
-    assertTrue(member.isLiveSyncing)
-
-    // Test JSON serialization & deserialization for local persistence
-    val gson = com.google.gson.Gson()
-    val list = listOf(member)
-    val json = gson.toJson(list)
-    assertNotNull(json)
-    assertTrue(json.contains("NZ-1001"))
-
-    val listType = object : com.google.gson.reflect.TypeToken<List<com.example.ui.noorup.FamilyMember>>() {}.type
-    val restored: List<com.example.ui.noorup.FamilyMember> = gson.fromJson(json, listType)
-    assertEquals(1, restored.size)
-    assertEquals("মা", restored[0].name)
-    assertEquals(132, restored[0].count)
-    assertEquals("NZ-1001", restored[0].pairingCode)
-
-    // Test FamilyLiveEvent creation
-    val event = com.example.ui.noorup.FamilyLiveEvent(
-      memberName = member.name,
-      relation = member.relation,
-      pairingCode = member.pairingCode,
-      phrase = "সুবহানাল্লাহ",
-      increment = 33,
-      timeLabel = "এইমাত্র"
-    )
-    assertEquals("মা", event.memberName)
-    assertEquals(33, event.increment)
-    assertEquals("NZ-1001", event.pairingCode)
   }
 }

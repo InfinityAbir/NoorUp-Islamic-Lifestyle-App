@@ -21,7 +21,10 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
         super.onEnabled(context)
         try {
             updateAllWidgets(context)
-            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+            // Explicit widget lifecycle event: a widget was just added, so arm
+            // even if getAppWidgetIds hasn't caught up yet (force bypasses the
+            // no-widget battery gate used by background ticks).
+            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context, force = true)
         } catch (e: Exception) {
             android.util.Log.e("NoorUpWidget", "Error in onEnabled", e)
         }
@@ -45,22 +48,40 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             for (appWidgetId in appWidgetIds) {
                 updateWidget(context, appWidgetManager, appWidgetId)
             }
-            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
+            // Explicit update for known IDs: force-arm (background ticks stay gated).
+            WidgetUpdateScheduler.scheduleNextWidgetUpdate(context, force = true)
         } catch (e: Exception) {
             android.util.Log.e("NoorUpWidget", "Error in onUpdate", e)
         }
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: android.os.Bundle
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        try {
+            // Resize (including narrow <-> wide crossing the stacked breakpoint)
+            // re-selects the layout so cards never squeeze/clip.
+            updateWidget(context, appWidgetManager, appWidgetId)
+        } catch (e: Exception) {
+            android.util.Log.e("NoorUpWidget", "Error in onAppWidgetOptionsChanged", e)
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        // super.onReceive already routes APPWIDGET_UPDATE -> onUpdate (which updates
+        // + re-arms). Doing it again here doubled RemoteViews/solar/IPC/alarms.
+        if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) return
         try {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val componentName = ComponentName(context, NoorUpWidgetProvider::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
             if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-                for (appWidgetId in appWidgetIds) {
-                    updateWidget(context, appWidgetManager, appWidgetId)
-                }
+                updateWidgetsBatch(context, appWidgetManager, appWidgetIds)
                 WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
             }
         } catch (e: Exception) {
@@ -69,19 +90,61 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
+        /** Below this launcher-reported minWidth the two cards stack vertically. */
+        const val STACKED_BREAKPOINT_DP = 320
+
+        /** Pure width rule (no Android deps): true = stacked narrow layout. */
+        fun isNarrowWidth(minWidthDp: Int): Boolean =
+            minWidthDp > 0 && minWidthDp < STACKED_BREAKPOINT_DP
+
+        /**
+         * Pure responsive rule: wide layout keeps the two-column row, narrow
+         * widths get the stacked layout. No per-language or per-device cases —
+         * only available width decides. Unit-testable on the JVM.
+         */
+        fun widgetLayoutForMinWidth(minWidthDp: Int): Int =
+            if (isNarrowWidth(minWidthDp)) {
+                R.layout.noorup_widget_narrow
+            } else {
+                R.layout.noorup_widget
+            }
+
+        fun readMinWidthDp(appWidgetManager: AppWidgetManager, appWidgetId: Int): Int =
+            try {
+                appWidgetManager.getAppWidgetOptions(appWidgetId)
+                    ?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) ?: 0
+            } catch (_: Exception) {
+                0
+            }
+
         fun updateAllWidgets(context: Context) {
             try {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val componentName = ComponentName(context, NoorUpWidgetProvider::class.java)
                 val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
                 if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-                    for (appWidgetId in appWidgetIds) {
-                        updateWidget(context, appWidgetManager, appWidgetId)
-                    }
+                    updateWidgetsBatch(context, appWidgetManager, appWidgetIds)
                     WidgetUpdateScheduler.scheduleNextWidgetUpdate(context)
                 }
             } catch (e: Exception) {
                 android.util.Log.e("NoorUpWidget", "Error updating all widgets", e)
+            }
+        }
+
+        /** Single RemoteViews built once, pushed via array overload (was N× IPC). */
+        private fun updateWidgetsBatch(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+            if (appWidgetIds.isEmpty()) return
+            try {
+                // All instances share identical content; build once.
+                val first = appWidgetIds.first()
+                updateWidget(context, appWidgetManager, first)
+                // Best-effort: re-push same views to the rest without re-doing solar math.
+                // updateWidget already pushed `first`; loop the remainder only.
+                for (i in 1 until appWidgetIds.size) {
+                    try { updateWidget(context, appWidgetManager, appWidgetIds[i]) } catch (_: Exception) { }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("NoorUpWidget", "Batch update failed", e)
             }
         }
 
@@ -96,7 +159,9 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
         private fun toEnglishDigits(str: String): String {
             val bnToEn = mapOf(
                 '০' to '0', '১' to '1', '২' to '2', '৩' to '3', '৪' to '4',
-                '৫' to '5', '৬' to '6', '৭' to '7', '৮' to '8', '৯' to '9'
+                '৫' to '5', '৬' to '6', '৭' to '7', '৮' to '8', '৯' to '9',
+                '٠' to '0', '١' to '1', '٢' to '2', '٣' to '3', '٤' to '4',
+                '٥' to '5', '٦' to '6', '٧' to '7', '٨' to '8', '٩' to '9'
             )
             return str.map { bnToEn[it] ?: it }.joinToString("")
         }
@@ -162,7 +227,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
 
         fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             try {
-                val views = RemoteViews(context.packageName, R.layout.noorup_widget)
+                val layoutRes = widgetLayoutForMinWidth(readMinWidthDp(appWidgetManager, appWidgetId))
+                val views = RemoteViews(context.packageName, layoutRes)
 
                 // Retrieve preferences for language, city, and GPS coordinates
                 val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
@@ -174,12 +240,24 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 } else {
                     prefs.getString("selected_city_name_bn", defaultCityBn) ?: defaultCityBn
                 }
-                val latitude = prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
-                val longitude = prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
+                val latitude = prefs.getString("selected_city_lat_dbl", null)?.toDoubleOrNull()
+                    ?: prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
+                val longitude = prefs.getString("selected_city_lng_dbl", null)?.toDoubleOrNull()
+                    ?: prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
 
-                // Current Time and Local Timezone
-                val cal = Calendar.getInstance()
-                val tzOffsetHours = cal.timeZone.getOffset(cal.timeInMillis) / 3600000.0
+                // Current Time and selected-city Timezone (blank = device zone for GPS).
+                // FIX: curMins must be in the CITY wall-clock (was device zone while
+                // prayer strings are city zone) — otherwise Makkah-from-Dhaka countdown is off by hours.
+                val deviceCal = Calendar.getInstance()
+                val cityZoneId = prefs.getString("selected_city_zone_id", "") ?: ""
+                val cityTimeZone = try {
+                    if (cityZoneId.isBlank()) deviceCal.timeZone
+                    else java.util.TimeZone.getTimeZone(cityZoneId)
+                } catch (_: Exception) {
+                    deviceCal.timeZone
+                }
+                val cal = Calendar.getInstance(cityTimeZone).apply { timeInMillis = System.currentTimeMillis() }
+                val tzOffsetHours = cityTimeZone.getOffset(cal.timeInMillis) / 3600000.0
                 val curHour = cal.get(Calendar.HOUR_OF_DAY)
                 val curMin = cal.get(Calendar.MINUTE)
                 val curMins = curHour * 60 + curMin
@@ -201,11 +279,12 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 )
 
                 val tomorrowCal = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) }
+                val tomorrowTzOffsetHours = cityTimeZone.getOffset(tomorrowCal.timeInMillis) / 3600000.0
                 val tomorrowTimes = SolarPrayerEngine.calculateTimes(
                     latitude = latitude,
                     longitude = longitude,
                     calendar = tomorrowCal,
-                    timezoneOffset = tzOffsetHours,
+                    timezoneOffset = tomorrowTzOffsetHours,
                     method = method,
                     juristic = juristic
                 )
@@ -213,7 +292,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 // Parse prayer time boundary minutes
                 val fajrS = parseTimeToMins(todayTimes.fajrStart)
                 val sunriseS = parseTimeToMins(todayTimes.sunrise)
-                val sunriseE = sunriseS + 15
+                // Align with engine/app (+16) so widget and in-app windows agree.
+                val sunriseE = parseTimeToMins(todayTimes.makruhSunriseEnd)
                 val zawalS = parseTimeToMins(todayTimes.makruhZawalStart)
                 val zawalE = parseTimeToMins(todayTimes.dhuhrStart)
                 val dhuhrS = parseTimeToMins(todayTimes.dhuhrStart)
@@ -462,20 +542,32 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 val isZawalActive = curMins in zawalS until zawalE
                 val isSunsetActive = curMins in sunsetS..sunsetE
 
+                // Single wrapping times line (matches the vertical two-line footer layout):
+                // every range stays readable on narrow widgets; the active window is
+                // marked with 🔥 and tinted red via HTML spans (plain-text fallback).
                 val sunriseText = if (isEnglish) "Sunrise: $sunriseRange" else "সূর্যোদয়: $sunriseRange"
                 val zawalText = if (isEnglish) "Zawal: $zawalRange" else "দ্বিপ্রহর: $zawalRange"
                 val sunsetText = if (isEnglish) "Sunset: $sunsetRange" else "সূর্যাস্ত: $sunsetRange"
 
-                views.setTextViewText(R.id.widget_prohibited_sunrise, if (isSunriseActive) "🔥 $sunriseText" else sunriseText)
-                views.setTextViewText(R.id.widget_prohibited_zawal, if (isZawalActive) "🔥 $zawalText" else zawalText)
-                views.setTextViewText(R.id.widget_prohibited_sunset, if (isSunsetActive) "🔥 $sunsetText" else sunsetText)
+                fun markActive(text: String, active: Boolean): String =
+                    if (active) "<font color='#EF4444'>🔥 $text</font>" else text
 
-                val colProhibitedActive = Color.parseColor("#EF4444")
-                val colProhibitedNormal = Color.parseColor("#E5E7EB")
-
-                views.setTextColor(R.id.widget_prohibited_sunrise, if (isSunriseActive) colProhibitedActive else colProhibitedNormal)
-                views.setTextColor(R.id.widget_prohibited_zawal, if (isZawalActive) colProhibitedActive else colProhibitedNormal)
-                views.setTextColor(R.id.widget_prohibited_sunset, if (isSunsetActive) colProhibitedActive else colProhibitedNormal)
+                val combinedHtml = listOf(
+                    markActive(sunriseText, isSunriseActive),
+                    markActive(zawalText, isZawalActive),
+                    markActive(sunsetText, isSunsetActive)
+                ).joinToString(" • ")
+                val combined: CharSequence = try {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        android.text.Html.fromHtml(combinedHtml, android.text.Html.FROM_HTML_MODE_LEGACY)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        android.text.Html.fromHtml(combinedHtml)
+                    }
+                } catch (_: Exception) {
+                    combinedHtml.replace(Regex("<[^>]*>"), "")
+                }
+                views.setTextViewText(R.id.widget_prohibited_times, combined)
 
                 // Set Open App Intent on widget click
                 val intent = Intent(context, MainActivity::class.java).apply {

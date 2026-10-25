@@ -2,30 +2,13 @@ package com.example.ui.noorup
 
 object NoorUpRepository {
 
-    val prayerTimes = listOf(
-        PrayerTime("ফজর", "Fajr", "الفجر", "04:48 AM", "05:58 AM", false, true, false),
-        PrayerTime("সূর্যোদয়", "Sunrise", "الشروق", "05:59 AM", "06:15 AM", false, true, true, "সূর্য ওঠার সময় নামাজ নিষিদ্ধ", "Prohibited during sunrise"),
-        PrayerTime("যোহর", "Dhuhr", "الظهر", "12:05 PM", "04:21 PM", true, false, false),
-        PrayerTime("আসর", "Asr", "العصر", "04:22 PM", "06:17 PM", false, false, false),
-        PrayerTime("মাগরিব", "Maghrib", "المغرب", "06:18 PM", "07:32 PM", false, false, false),
-        PrayerTime("এশা", "Isha", "العشاء", "07:33 PM", "04:47 AM", false, false, false),
-        PrayerTime("তাহাজ্জুদ", "Tahajjud", "التهجد", "03:00 AM", "04:27 AM", false, false, false)
-    )
-
-    val defaultHabits = listOf(
-        DailyHabitItem("habit_fajr", "ফজর নামাজ আদায়", "Fajr Prayer Performed", "নামাজ", false, "🕌"),
-        DailyHabitItem("habit_dhuhr", "যোহর নামাজ আদায়", "Dhuhr Prayer Performed", "নামাজ", false, "🕌"),
-        DailyHabitItem("habit_asr", "আসর নামাজ আদায়", "Asr Prayer Performed", "নামাজ", false, "🕌"),
-        DailyHabitItem("habit_maghrib", "মাগরিব নামাজ আদায়", "Maghrib Prayer Performed", "নামাজ", false, "🕌"),
-        DailyHabitItem("habit_isha", "এশা নামাজ আদায়", "Isha Prayer Performed", "নামাজ", false, "🕌"),
-        DailyHabitItem("habit_quran", "দৈনিক কুরআন তিলাওয়াত", "Daily Quran Recitation", "ইবাদত", false, "📖"),
-        DailyHabitItem("habit_dhikr", "সকাল-সন্ধ্যার জিকির ও তাসবীহ", "Morning/Evening Dhikr", "জিকির", false, "📿"),
-        DailyHabitItem("habit_sadaqah", "দান ও সদকা প্রদান", "Given Charity (Sadaqah)", "সদকা", false, "🌱")
-    )
+    // NOTE: stale static prayer-time/habit snapshots were removed — all live data
+    // comes from SolarPrayerEngine via NoorUpViewModel. Do not reintroduce
+    // hardcoded time tables here.
 
     val surahs: List<Surah> get() = com.example.ui.noorup.quran.QuranRepository.all114Surahs
 
-    val duas: List<DuaItem> = listOf(
+    private val baseDuas: List<DuaItem> = listOf(
         DuaItem(
             id = "dua_anxiety",
             titleBangla = "চিন্তা ও ঋণমুক্তির দুআ",
@@ -261,4 +244,34 @@ object NoorUpRepository {
             meaningEnglish = "O Turner of hearts, make my heart firm upon Your religion."
         )
     )
+
+    /**
+     * Search-only synonyms. These never replace the displayed title, meaning,
+     * pronunciation or reference; they only help users find a dua using words
+     * that are not already present in the text.
+     */
+    private val duaSearchTags: Map<String, List<String>> = mapOf(
+        "dua_anxiety" to listOf("চিন্তা", "দুশ্চিন্তা", "ঋণ", "পেরেশানি", "anxiety", "stress", "worry", "debt", "sadness"),
+        "dua_forgiveness" to listOf("ক্ষমা", "তওবা", "ইস্তিগফার", "গুনাহ", "forgiveness", "repentance", "istighfar", "sin"),
+        "dua_parents" to listOf("পিতা", "মাতা", "মা", "বাবা", "পিতা-মাতা", "parents", "mother", "father", "family"),
+        "dua_knowledge" to listOf("জ্ঞান", "ইলম", "পড়াশোনা", "পরীক্ষা", "knowledge", "study", "exam", "ilm"),
+        "dua_home_exit" to listOf("ঘর", "বের", "বাইরে", "নিরাপত্তা", "home", "leave", "outside", "safety"),
+        "dua_dunya_akhirah" to listOf("দুনিয়া", "আখিরাত", "কল্যাণ", "ভালো", "world", "hereafter", "good", "success"),
+        "dua_morning" to listOf("সকাল", "ফজর", "ভোর", "morning", "fajr", "dawn"),
+        "dua_evening" to listOf("সন্ধ্যা", "মাগরিব", "বিকেল", "evening", "maghrib", "sunset"),
+        "dua_protection_evil" to listOf("সুরক্ষা", "অনিষ্ট", "নজর", "শত্রু", "protection", "evil", "harm", "enemy"),
+        "dua_travel" to listOf("সফর", "যাত্রা", "গাড়ি", "বাস", "travel", "journey", "car", "bus", "trip"),
+        "dua_before_food" to listOf("খাবার", "খাওয়া", "ভাত", "food", "eating", "meal", "before"),
+        "dua_after_food" to listOf("খাবার", "শেষ", "খাওয়া", "food", "after", "meal", "gratitude"),
+        "dua_rizq" to listOf("রিযিক", "বরকত", "উপার্জন", "চাকরি", "sustenance", "provision", "blessing", "job", "income"),
+        "dua_family_peace" to listOf("পরিবার", "স্ত্রী", "স্বামী", "সন্তান", "family", "wife", "husband", "children", "peace"),
+        "dua_mosque_entry" to listOf("মসজিদ", "মসজিদে", "ইবাদত", "mosque", "masjid", "worship"),
+        "dua_jannah" to listOf("জান্নাত", "আখিরাত", "জাহান্নাম", "paradise", "jannah", "hereafter", "fire"),
+        "dua_distress" to listOf("ইউনুস", "বিপদ", "উদ্বেগ", "মুসিবত", "distress", "yunus", "calamity", "hardship"),
+        "dua_iman" to listOf("ঈমান", "দ্বীন", "হৃদয়", "faith", "iman", "heart", "religion", "steadfast")
+    )
+
+    val duas: List<DuaItem> = baseDuas.map { dua ->
+        dua.copy(searchTags = duaSearchTags[dua.id].orEmpty())
+    }
 }

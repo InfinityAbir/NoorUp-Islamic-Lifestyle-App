@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NoorUp</string>
     <string name="widget_name">NoorUp Prayer Timeline</string>
+    <string name="widget_desc">Today\'s 5 prayer times, countdown, streak and Makruh windows at a glance</string>
 </resources>

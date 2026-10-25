@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.EmeraldGlow
@@ -110,12 +111,17 @@ fun HijriCalendarHubView(
                 .padding(18.dp)
         ) {
             Column {
+                // Responsive: left info flexes (weight) so the offset pill keeps
+                // intrinsic size and is never squeezed on narrow viewports.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(34.dp)
@@ -129,22 +135,27 @@ fun HijriCalendarHubView(
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
                                 text = if (isEnglish) "TODAY'S HIJRI DATE" else "আজকের হিজরি তারিখ",
                                 color = if (isDark) Color(0xFFA7F3D0) else Color(0xFF047857),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.6.sp
+                                letterSpacing = 0.6.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Text(
                                 text = if (isEnglish) currentHijri.dayOfWeekEn else currentHijri.dayOfWeekBn,
                                 color = if (isDark) Color(0xFFE2E8F0) else Color(0xFF1E293B),
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Moon Sighting Adjustment Pill Button
                     Box(
@@ -172,7 +183,9 @@ fun HijriCalendarHubView(
                                 text = if (isEnglish) "Offset: $offsetText d" else "সমন্বয়: ${if (hijriOffset > 0) "+${hijriOffset.toBanglaDigits()}" else hijriOffset.toBanglaDigits()} দিন",
                                 color = MaterialTheme.colorScheme.primary,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -246,7 +259,10 @@ fun HijriCalendarHubView(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(
                                 text = currentMoonPhase.moonEmoji,
                                 fontSize = 16.sp
@@ -256,14 +272,20 @@ fun HijriCalendarHubView(
                                 text = if (isEnglish) currentMoonPhase.phaseNameEn else currentMoonPhase.phaseNameBn,
                                 color = if (isDark) Color(0xFF6EE7B7) else Color(0xFF047857),
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
                             )
                         }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = if (isEnglish) "${currentMoonPhase.illuminationPercent}% Illuminated" else "${currentMoonPhase.illuminationPercent.toBanglaDigits()}% আলোকিত",
                             color = if (isDark) Color(0xFFFDE68A) else Color(0xFFB45309),
                             fontSize = 11.5.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -286,6 +308,8 @@ fun HijriCalendarHubView(
         ) {
             Column {
                 // Month Navigation Header
+                // Responsive: center takes weight so long month names ellipsize
+                // instead of pushing the nav arrows off-screen on narrow devices.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -293,7 +317,7 @@ fun HijriCalendarHubView(
                 ) {
                     IconButton(
                         onClick = { viewModel.prevBrowsingHijriMonth() },
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
                             Icons.Default.ChevronLeft,
@@ -305,26 +329,37 @@ fun HijriCalendarHubView(
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.clickable { viewModel.resetBrowsingHijriToCurrent() }
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.resetBrowsingHijriToCurrent() }
+                            .padding(horizontal = 4.dp)
                     ) {
                         Text(
                             text = "$browsingMonthName $browsingYearStr",
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         if (browsingMonth != currentHijri.month || browsingYear != currentHijri.year) {
                             Text(
                                 text = if (isEnglish) "(Tap to return to today)" else "(আজকের মাসে ফিরতে চাপুন)",
                                 color = MaterialTheme.colorScheme.primary,
-                                fontSize = 10.sp
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
 
                     IconButton(
                         onClick = { viewModel.nextBrowsingHijriMonth() },
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
                             Icons.Default.ChevronRight,
@@ -343,7 +378,10 @@ fun HijriCalendarHubView(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(8.dp)
@@ -354,9 +392,13 @@ fun HijriCalendarHubView(
                         Text(
                             text = if (isEnglish) "Ayyam al-Beed (13, 14, 15 Sunnah Fast)" else "আইয়ামে বীজ (১৩, ১৪, ১৫ সুন্নাত রোজা)",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 10.5.sp
+                            fontSize = 10.5.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -440,7 +482,7 @@ fun HijriCalendarHubView(
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
-                                                .height(52.dp)
+                                                .heightIn(min = 52.dp)
                                                 .clip(RoundedCornerShape(10.dp))
                                                 .background(cellBg)
                                                 .border(if (dayItem.isToday || isSelected) 1.5.dp else 1.dp, cellBorder, RoundedCornerShape(10.dp))
@@ -479,7 +521,7 @@ fun HijriCalendarHubView(
                                         }
                                     } else {
                                         // Empty Slot
-                                        Spacer(modifier = Modifier.weight(1f).height(52.dp))
+                                        Spacer(modifier = Modifier.weight(1f).heightIn(min = 52.dp))
                                     }
                                 }
                             }
@@ -504,9 +546,10 @@ fun HijriCalendarHubView(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        val hMonthName = if (isEnglish) HijriDateCalculator.hijriMonthsEn[day.hijriMonth - 1] else HijriDateCalculator.hijriMonthsBn[day.hijriMonth - 1]
-                        val gMonthName = if (isEnglish) HijriDateCalculator.gregorianMonthsEn[day.gregorianMonth - 1] else HijriDateCalculator.gregorianMonthsBn[day.gregorianMonth - 1]
+                    Column(modifier = Modifier.weight(1f)) {
+                        // getOrElse: a corrupt month index degrades to "" instead of crashing.
+                        val hMonthName = if (isEnglish) HijriDateCalculator.hijriMonthsEn.getOrElse(day.hijriMonth - 1) { "" } else HijriDateCalculator.hijriMonthsBn.getOrElse(day.hijriMonth - 1) { "" }
+                        val gMonthName = if (isEnglish) HijriDateCalculator.gregorianMonthsEn.getOrElse(day.gregorianMonth - 1) { "" } else HijriDateCalculator.gregorianMonthsBn.getOrElse(day.gregorianMonth - 1) { "" }
 
                         Text(
                             text = if (isEnglish) "${day.hijriDay} $hMonthName ${day.hijriYear} AH" else "${day.hijriDay.toBanglaDigits()} $hMonthName ${day.hijriYear.toBanglaDigits()} হিজরি",

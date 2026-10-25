@@ -192,8 +192,19 @@ object HijriDateCalculator {
                 lowerName.contains("dhanmondi") || lowerName.contains("ধানমন্ডি") ||
                 lowerName.contains("gulshan") || lowerName.contains("গুলশান") ||
                 lowerName.contains("banani") || lowerName.contains("বনানী") ||
-                lowerName.contains("bd")
+                Regex("(^|[\\s,(\\-])bd([\\s,).\\-]|$)").containsMatchIn(lowerName)
         return inCoordinates || nameMatch
+    }
+
+    /** Umm al-Qura month length (tabular leap pattern): 30/29 alternate, Dhu al-Hijjah 30 in leap years. */
+    fun ummAlQuraMonthLength(year: Int, month: Int): Int {
+        val m = month.coerceIn(1, 12)
+        if (m == 12) {
+            val cycleYear = ((year - 1) % 30 + 30) % 30 + 1
+            val leap = cycleYear in setOf(2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29)
+            return if (leap) 30 else 29
+        }
+        return if (m % 2 == 1) 30 else 29
     }
 
     /**
@@ -260,21 +271,26 @@ object HijriDateCalculator {
             hYear = y
         }
 
-        // Bound month to valid range (1..12)
+        // Bound month to valid range (1..12) AND day to the real month length.
+        // Old code clamped month but not day → Feb-30 style invalid dates rendered.
         val safeMonth = hMonth.coerceIn(1, 12)
+        val maxDay = ummAlQuraMonthLength(hYear, safeMonth)
+        val safeDay = hDay.coerceIn(1, maxDay)
         val safeMonthIdx = safeMonth - 1
         val monthBn = hijriMonthsBn[safeMonthIdx]
         val monthEn = hijriMonthsEn[safeMonthIdx]
 
-        val dayOfWeekIdx = (cal.get(Calendar.DAY_OF_WEEK) - 1).coerceIn(0, 6)
+        // Weekday must come from the offset-adjusted calendar, otherwise the label
+        // disagrees with the displayed date whenever an offset applies (always -1 in BD).
+        val dayOfWeekIdx = (adjustedCal.get(Calendar.DAY_OF_WEEK) - 1).coerceIn(0, 6)
         val dowBn = daysOfWeekBn[dayOfWeekIdx]
         val dowEn = daysOfWeekEn[dayOfWeekIdx]
 
-        val dayStrBn = toBanglaDigits(hDay.toString())
+        val dayStrBn = toBanglaDigits(safeDay.toString())
         val yearStrBn = toBanglaDigits(hYear.toString())
         val fullDateBn = "$dayStrBn $monthBn $yearStrBn হিজরি"
 
-        val dayStrEn = hDay.toString()
+        val dayStrEn = safeDay.toString()
         val yearStrEn = hYear.toString()
         val fullDateEn = "$dayStrEn $monthEn $yearStrEn AH"
 
@@ -285,7 +301,7 @@ object HijriDateCalculator {
         val standardLabelEn = if (isBangladesh) "🇧🇩 Islamic Foundation Bangladesh Standard" else "🌐 Umm al-Qura Standard"
 
         return HijriDateResult(
-            day = hDay,
+            day = safeDay,
             month = safeMonth,
             year = hYear,
             dayStrBn = dayStrBn,
@@ -366,8 +382,11 @@ object HijriDateCalculator {
         if (leapYears.contains(yearInCycle + 1)) {
             monthLengths[11] = 30
         }
+        // Clamp into the real year length: without this, an over-long dayOfYear falls
+        // through the loop and returns an invalid (leftover-day, month 1) date.
+        val yearLength = monthLengths.sum()
         var dayOfYear = (remainingDaysInCycle - (yearInCycle * 354.366).toInt()).toInt()
-        if (dayOfYear <= 0) dayOfYear = 1
+            .coerceIn(1, yearLength)
         var hMonth = 1
         var d = dayOfYear
         for (i in 0 until 12) {
@@ -377,11 +396,13 @@ object HijriDateCalculator {
             }
             d -= monthLengths[i]
         }
-        val hDay = d.coerceAtLeast(1)
+        val hDay = d.coerceIn(1, monthLengths[(hMonth - 1).coerceIn(0, 11)])
         return Triple(hDay, hMonth, hYear)
     }
 
     fun getMoonPhase(cal: Calendar, dayOffset: Int = 0, isBangladesh: Boolean = false): MoonPhaseInfo {
+        // Approximate only (±0.5 day): fine for emoji/illumination, NOT authoritative
+        // moon-sighting. Do not use for Ramadan/Eid declarations.
         val regionalOffset = if (isBangladesh) -1 else 0
         val totalOffset = regionalOffset + dayOffset
 
@@ -414,12 +435,32 @@ object HijriDateCalculator {
         }
     }
 
+    // Memoized month grids: getHijriMonthGrid does up to ~90 HijrahDate conversions
+    // per build; cache by (year, month, offset, BD) to avoid recomputing on every recomposition.
+    private val gridCache = java.util.Collections.synchronizedMap(
+        object : LinkedHashMap<String, List<HijriMonthDay>>(32, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<HijriMonthDay>>): Boolean {
+                return size > 24
+            }
+        }
+    )
+
     fun getHijriMonthGrid(hijriYear: Int, hijriMonth: Int, dayOffset: Int = 0, isBangladesh: Boolean = false): List<HijriMonthDay> {
+        val safeMonth = hijriMonth.coerceIn(1, 12)
+        val cacheKey = "$hijriYear-$safeMonth-$dayOffset-$isBangladesh"
+        synchronized(gridCache) { gridCache[cacheKey]?.let { return it } }
+        val result = buildHijriMonthGrid(hijriYear, safeMonth, dayOffset, isBangladesh)
+        synchronized(gridCache) { gridCache[cacheKey] = result }
+        return result
+    }
+
+    private fun buildHijriMonthGrid(hijriYear: Int, hijriMonth: Int, dayOffset: Int = 0, isBangladesh: Boolean = false): List<HijriMonthDay> {
         val todayCal = Calendar.getInstance()
         val todayHijri = calculateHijriDate(todayCal, dayOffset, isBangladesh)
 
         val daysList = mutableListOf<HijriMonthDay>()
-        val maxDays = if (hijriMonth % 2 == 1 || (hijriMonth == 12 && hijriYear % 30 in listOf(2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29))) 30 else 29
+        // NOTE: month length is discovered from real calculated dates in the loop
+        // below (parity alternation is unreliable for actual 29/30-day months).
 
         val searchCal = (todayCal.clone() as Calendar).apply {
             val monthDiff = (hijriYear - todayHijri.year) * 12 + (hijriMonth - todayHijri.month)
@@ -440,11 +481,20 @@ object HijriDateCalculator {
             guard++
         }
 
-        for (d in 1..maxDays) {
+        // Iterate a full 30-day window but only emit days that truly belong to the
+        // requested month: parity-based maxDays is wrong for real 29/30-day months,
+        // and without this guard spilled neighbor-month days render as current month.
+        var daysEmitted = 0
+        for (d in 1..30) {
             val currentCal = (searchCal.clone() as Calendar).apply {
                 add(Calendar.DAY_OF_MONTH, d - 1)
             }
             val currentHijri = calculateHijriDate(currentCal, dayOffset, isBangladesh)
+            if (currentHijri.year != hijriYear || currentHijri.month != hijriMonth) {
+                if (daysEmitted > 0) break
+                else continue
+            }
+            daysEmitted++
 
             val isToday = (currentHijri.year == todayHijri.year && currentHijri.month == todayHijri.month && currentHijri.day == todayHijri.day)
             val isAyyamAlBeed = currentHijri.day in listOf(13, 14, 15)

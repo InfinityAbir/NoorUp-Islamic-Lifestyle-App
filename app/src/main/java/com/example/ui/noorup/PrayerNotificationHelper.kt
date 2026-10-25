@@ -15,7 +15,36 @@ import com.example.R
 
 object PrayerNotificationHelper {
 
-    fun createNotificationChannels(context: Context) {
+    /** Tap-action contract for the daily-hadith notification (read by MainActivity). */
+    const val EXTRA_OPEN_DAILY_HADITH = "open_daily_hadith"
+    const val EXTRA_DAILY_HADITH_ID = "daily_hadith_id"
+    /** Prayer and Garden notification taps always return to the Home dashboard. */
+    const val EXTRA_OPEN_HOME = "open_home"
+
+    /** Attaches the "open this hadith in the app" deep link to a tap intent. */
+    fun putDailyHadithExtras(intent: Intent, hadithId: Int): Intent =
+        intent
+            .putExtra(EXTRA_OPEN_DAILY_HADITH, true)
+            .putExtra(EXTRA_DAILY_HADITH_ID, hadithId)
+
+    @Volatile
+    private var channelsCreated = false
+
+    fun areNotificationsEnabled(context: Context): Boolean {
+        return try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+            } else {
+                val mgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                mgr.areNotificationsEnabled()
+            }
+        } catch (_: Exception) {
+            true
+        }
+    }
+
+    fun createNotificationChannels(context: Context, force: Boolean = false) {
+        if (channelsCreated && !force) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val audioAttributes = AudioAttributes.Builder()
@@ -62,18 +91,55 @@ object PrayerNotificationHelper {
             manager.createNotificationChannel(prayerChannel)
             manager.createNotificationChannel(gardenChannel)
             manager.createNotificationChannel(hadithChannel)
+            channelsCreated = true
+        } else {
+            channelsCreated = true
         }
     }
 
+    /**
+     * Returns false when POST_NOTIFICATIONS is denied (Android 13+): callers must
+     * not claim "Active" in that case. Never throws.
+     *
+     * Duplicate safety: real prayer alerts (IDs 2000–2004) can never fire twice
+     * within a minute legitimately, so a repost inside [DEDUP_WINDOW_MS] is
+     * dropped (protects against system/OEM double-delivery). Posting a new
+     * prayer also clears the previous wakt's alert, so the shade never piles up.
+     */
     fun showPrayerAlert(
         context: Context,
         notificationId: Int,
         title: String,
         message: String,
-        channelId: String = "prayer_reminders_channel"
-    ) {
+        channelId: String = "prayer_reminders_channel",
+        deepLinkHadithId: Int? = null
+    ): Boolean {
+        if (!areNotificationsEnabled(context)) {
+            android.util.Log.w("PrayerNotify", "Suppressed notify #$notificationId: POST_NOTIFICATIONS denied")
+            return false
+        }
+        val isRealPrayerAlert = notificationId in 2000..2004
+        val prefs = try {
+            context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
+        } catch (_: Exception) { null }
+        val now = System.currentTimeMillis()
+        if (isRealPrayerAlert && prefs != null) {
+            val lastPost = try { prefs.getLong("last_post_$notificationId", 0L) } catch (_: Exception) { 0L }
+            if (now - lastPost < DEDUP_WINDOW_MS) {
+                android.util.Log.w("PrayerNotify", "Dropped duplicate post #$notificationId within dedup window")
+                return false
+            }
+        }
+        // Idempotent: guarantees the channel exists so a call on a fresh path
+        // is never silently dropped on Android O+ (cached after first creation).
+        createNotificationChannels(context)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            if (deepLinkHadithId != null) {
+                putDailyHadithExtras(this, deepLinkHadithId)
+            } else {
+                putExtra(EXTRA_OPEN_HOME, true)
+            }
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -101,6 +167,26 @@ object PrayerNotificationHelper {
             .setWhen(System.currentTimeMillis())
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(notificationId, builder.build())
+        try {
+            manager.notify(notificationId, builder.build())
+        } catch (e: SecurityException) {
+            android.util.Log.w("PrayerNotify", "notify() denied (permission revoked?)", e)
+            return false
+        }
+        try {
+            prefs?.edit()?.putLong("last_post_$notificationId", now)?.apply()
+            if (isRealPrayerAlert) {
+                // Only the latest wakt stays visible: clear the previous prayer alert.
+                val lastPrayerId = prefs?.getInt("last_prayer_post_id", -1) ?: -1
+                if (lastPrayerId != -1 && lastPrayerId != notificationId) {
+                    try { manager.cancel(lastPrayerId) } catch (_: Exception) { }
+                }
+                prefs?.edit()?.putInt("last_prayer_post_id", notificationId)?.apply()
+            }
+        } catch (_: Exception) { }
+        return true
     }
+
+    /** Same real-prayer alert reposted inside this window is a duplicate. */
+    const val DEDUP_WINDOW_MS = 60_000L
 }

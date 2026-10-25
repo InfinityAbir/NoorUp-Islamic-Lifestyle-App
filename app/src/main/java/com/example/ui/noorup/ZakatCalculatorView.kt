@@ -167,8 +167,17 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
     var shortTermDebtsStr by remember { mutableStateOf("") }
     var pendingBillsExpensesStr by remember { mutableStateOf("") }
 
-    val goldRate = parseNumberSafe(goldRatePerVoriStr).coerceAtLeast(1000.0)
-    val silverRate = parseNumberSafe(silverRatePerVoriStr).coerceAtLeast(100.0)
+    // Blank/cleared rate fields fall back to the editable defaults (never a magic
+    // floor); garbage input is flagged by the warning banner below instead.
+    val goldRateRaw = parseNumberSafe(goldRatePerVoriStr)
+    val silverRateRaw = parseNumberSafe(silverRatePerVoriStr)
+    val goldRate = if (goldRateRaw > 0) goldRateRaw else 130000.0
+    val silverRate = if (silverRateRaw > 0) silverRateRaw else 2000.0
+    val hasInvalidInput = listOf(
+        goldRatePerVoriStr, silverRatePerVoriStr, goldAmountStr, silverAmountStr,
+        cashInHandStr, bankSavingsStr, businessStockStr, investmentsSharesStr,
+        loanReceivablesStr, shortTermDebtsStr, pendingBillsExpensesStr
+    ).any { !isNumberInputValid(it) }
 
     val goldInput = parseNumberSafe(goldAmountStr)
     val silverInput = parseNumberSafe(silverAmountStr)
@@ -210,6 +219,24 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
     val monthlyInstallment = zakatDue / 12.0
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        // Honesty banner: invalid fields are computed as zero — say so loudly.
+        if (hasInvalidInput) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFB45309).copy(alpha = 0.15f),
+                border = BorderStroke(1.dp, Color(0xFFB45309).copy(alpha = 0.5f))
+            ) {
+                Text(
+                    text = if (isEnglish) "⚠️ Some fields are not valid numbers — they are counted as ৳0. Please check your inputs."
+                    else "⚠️ কিছু ঘরে সঠিক সংখ্যা নেই — সেগুলো ৳০ ধরা হয়েছে। অনুগ্রহ করে যাচাই করুন।",
+                    color = if (isDark) Color(0xFFFCD34D) else Color(0xFFB45309),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,7 +269,8 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Box(
                             modifier = Modifier
@@ -301,7 +329,7 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                             focusManager.clearFocus()
                         },
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .background(if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9))
                     ) {
@@ -323,7 +351,7 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (isEnglish) "Total Zakat Payable (2.5%)" else "মোট প্রদেয় যাকাত (২.৫%)",
                             fontSize = 12.sp,
@@ -350,6 +378,16 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                         }
                     )
                 }
+
+                // Hawl condition: nisab wealth must be held a full lunar year before
+                // zakat becomes obligatory — the calculator snapshots value only.
+                Text(
+                    text = if (isEnglish) "Condition: nisab wealth must be held for one full lunar year (hawl). Rates are editable estimates — please verify current market prices."
+                    else "শর্ত: নিসাব পরিমাণ সম্পদ পূর্ণ এক চন্দ্রবছর (হাওল) স্থায়ী থাকতে হবে। দর অনুমানভিত্তিক ও পরিবর্তনযোগ্য — বর্তমান বাজারদর যাচাই করুন।",
+                    color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp
+                )
 
                 if (grossAssets > 0) {
                     Column(
@@ -428,17 +466,21 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (isEnglish) "Nisab Benchmark Standard" else "নিসাব ভিত্তি মান ও বাজারদর",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A)
+                            color = if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = if (isEnglish) "Silver threshold recommended for mixed wealth" else "নগদ টাকা ও মিশ্র সম্পদের জন্য রৌপ্য মান সতর্কতামূলক",
                             fontSize = 11.sp,
-                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
@@ -587,7 +629,7 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                             color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
                             border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1)),
                             modifier = Modifier
-                                .height(52.dp)
+                                .heightIn(min = 52.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable {
                                     goldUnit = if (goldUnit == WeightUnit.VORI) WeightUnit.GRAM else WeightUnit.VORI
@@ -637,7 +679,7 @@ private fun ZakatCalculatorCoreTab(isEnglish: Boolean) {
                             color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
                             border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1)),
                             modifier = Modifier
-                                .height(52.dp)
+                                .heightIn(min = 52.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable {
                                     silverUnit = if (silverUnit == WeightUnit.VORI) WeightUnit.GRAM else WeightUnit.VORI
@@ -798,7 +840,10 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
     var monthlyIncomeStr by remember { mutableStateOf("") }
     var sadaqahPercentage by remember { mutableFloatStateOf(2.5f) }
 
-    val members = parseNumberSafe(familyMembersStr).toInt().coerceAtLeast(1)
+    // Explicit 0 stays 0 (no one to pay for); garbage is caught by the shared
+    // invalid-input banner pattern via isNumberInputValid below.
+    val members = parseNumberSafe(familyMembersStr).toInt().coerceIn(0, 100)
+    val hasInvalidMembersInput = !isNumberInputValid(familyMembersStr)
     val totalFitrah = members * selectedCommodity.ratePerPerson
 
     val monthlyIncome = parseNumberSafe(monthlyIncomeStr)
@@ -886,10 +931,11 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.weight(1f)
                                 ) {
                                     Text(commodity.iconEmoji, fontSize = 18.sp)
-                                    Column {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = if (isEnglish) commodity.nameEn else commodity.nameBn,
                                             fontSize = 13.sp,
@@ -898,16 +944,21 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
                                                 if (isDark) EmeraldLight else Color(0xFF047857)
                                             } else {
                                                 if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A)
-                                            }
+                                            },
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             text = if (isEnglish) commodity.measureEn else commodity.measureBn,
                                             fontSize = 11.sp,
-                                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }
 
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "৳ ${commodity.ratePerPerson.toInt()} /জন",
                                     fontSize = 13.5.sp,
@@ -916,7 +967,9 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
                                         if (isDark) EmeraldGlow else Color(0xFF047857)
                                     } else {
                                         if (isDark) Color(0xFFCBD5E1) else Color(0xFF334155)
-                                    }
+                                    },
+                                    maxLines = 1,
+                                    softWrap = false
                                 )
                             }
                         }
@@ -934,7 +987,7 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = if (isEnglish) "Total Fitrah Due ($members persons)" else "মোট প্রদেয় ফিতরা ($members জনের জন্য)",
                                 fontSize = 12.sp,
@@ -952,7 +1005,17 @@ private fun FitrahAndSadaqahTab(isEnglish: Boolean) {
                             text = "৳ ${formatCurrency(totalFitrah)}",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = if (isDark) EmeraldGlow else Color(0xFF047857)
+                            color = if (isDark) EmeraldGlow else Color(0xFF047857),
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                    if (hasInvalidMembersInput) {
+                        Text(
+                            text = if (isEnglish) "⚠️ Invalid member count — counted as 0" else "⚠️ সদস্য সংখ্যা সঠিক নয় — ০ ধরা হয়েছে",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isDark) Color(0xFFFCD34D) else Color(0xFFB45309)
                         )
                     }
                 }
@@ -1294,7 +1357,9 @@ private fun NisabOptionCard(
                         if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A)
                     },
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
                 if (isRecommended) {
                     Box(
@@ -1418,9 +1483,8 @@ private fun ProfessionalSummaryRow(
     }
 }
 
-private fun parseNumberSafe(input: String): Double {
-    if (input.isBlank()) return 0.0
-    val normalized = input.trim()
+private fun normalizeNumberInput(input: String): String {
+    return input.trim()
         .replace('০', '0')
         .replace('১', '1')
         .replace('২', '2')
@@ -1432,12 +1496,23 @@ private fun parseNumberSafe(input: String): Double {
         .replace('৮', '8')
         .replace('৯', '9')
         .replace(",", "")
-    return normalized.toDoubleOrNull() ?: 0.0
+}
+
+private fun parseNumberSafe(input: String): Double {
+    if (input.isBlank()) return 0.0
+    return normalizeNumberInput(input).toDoubleOrNull() ?: 0.0
+}
+
+/** Blank counts as zero (field untouched); non-blank must parse fully. */
+private fun isNumberInputValid(input: String): Boolean {
+    if (input.isBlank()) return true
+    return normalizeNumberInput(input).toDoubleOrNull() != null
 }
 
 private fun formatCurrency(amount: Double): String {
     return try {
-        val formatter = NumberFormat.getNumberInstance(Locale.US)
+        // Indian/Bangladeshi digit grouping (lakh/crore: 1,30,000), not US (130,000).
+        val formatter = NumberFormat.getNumberInstance(Locale("en", "IN"))
         formatter.maximumFractionDigits = 2
         formatter.minimumFractionDigits = 0
         formatter.format(amount)

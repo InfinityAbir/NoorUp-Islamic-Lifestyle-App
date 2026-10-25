@@ -1,14 +1,61 @@
 package com.example.ui.noorup.hadith
 
 import android.content.Context
+import com.example.ui.noorup.DuaSearch
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.InputStreamReader
+import java.util.Collections
 
 class HadithRepository(private val context: Context) {
 
     private val gson = Gson()
+
+    /** A topic is an internal ID with translated labels, never a UI label. */
+    data class Topic(
+        val id: String,
+        val bangla: String,
+        val english: String,
+        val aliases: Set<String> = emptySet(),
+        /** Verified keywords used to classify source chapter labels that predate the UI taxonomy. */
+        val searchTerms: Set<String> = emptySet()
+    )
+
+    val topics = listOf(
+        Topic("all", "সকল বিষয়", "All Topics"),
+        Topic("intentions", "নিয়ত ও ইখলাস", "Intentions & Sincerity", setOf("নিয়ত ও ইখলাস"), setOf("intention", "niyyah", "নিয়ত", "নিয়ত", "ইখলাস")),
+        Topic("faith", "ঈমান ও তাওহীদ", "Faith & Brotherhood", searchTerms = setOf("faith", "belief", "tawheed", "ঈমান", "তাওহীদ")),
+        Topic("prayer", "সালাত ও তাহারাত", "Purification & Prayer", searchTerms = setOf("prayer", "salat", "salah", "wudu", "তাহারাত", "সালাত", "নামাজ")),
+        Topic("character", "আখলাক ও উত্তম চরিত্র", "Good Character", searchTerms = setOf("character", "manners", "conduct", "আখলাক", "চরিত্র")),
+        Topic("family", "পিতা-মাতা ও আত্মীয়তা", "Parents & Family", setOf("পিতা-মাতা ও আত্মীয়তা"), setOf("parent", "mother", "father", "family", "পিতা", "মাতা", "পরিবার")),
+        Topic("remembrance", "দোয়া ও যিকির", "Remembrance & Dua", searchTerms = setOf("dua", "supplication", "remembrance", "dhikr", "দোয়া", "দুয়া", "যিকির")),
+        Topic("knowledge", "ইলম ও দ্বীন শিক্ষা", "Knowledge & Quran", searchTerms = setOf("knowledge", "quran", "qur'an", "ইলম", "জ্ঞান", "কুরআন")),
+        Topic("charity", "দান-সদকা ও রিযিক", "Charity & Sustenance", setOf("Charity & Provision"), setOf("charity", "provision", "sustenance", "সদকা", "রিযিক")),
+        Topic("repentance", "তাওবা ও ক্ষমা", "Repentance & Mercy", setOf("Repentance"), setOf("repent", "forgive", "forgiveness", "তাওবা", "ক্ষমা", "ইস্তিগফার")),
+        Topic("patience", "ধৈর্য ও শোকর", "Patience in Adversity", setOf("Patience & Gratitude"), setOf("patience", "gratitude", "ধৈর্য", "শোকর")),
+        Topic("afterlife", "জান্নাত ও আখিরাত", "Jannah & Salvation", searchTerms = setOf("jannah", "paradise", "hereafter", "afterlife", "জান্নাত", "আখিরাত"))
+    )
+
+    private fun normalized(value: String): String = DuaSearch.foldForSearch(value)
+
+    /** Accept legacy/localized labels at the boundary and return one stable key. */
+    fun canonicalTopicId(value: String): String {
+        val candidate = normalized(value)
+        if (candidate.isBlank()) return "all"
+        return topics.firstOrNull { topic ->
+            candidate == normalized(topic.id) ||
+                candidate == normalized(topic.bangla) ||
+                candidate == normalized(topic.english) ||
+                topic.aliases.any { candidate == normalized(it) }
+        }?.id ?: candidate
+    }
+
+    fun topicLabel(topicId: String, isEnglish: Boolean): String {
+        val topic = topics.firstOrNull { it.id == canonicalTopicId(topicId) }
+        return if (isEnglish) topic?.english ?: topicId else topic?.bangla ?: topicId
+    }
 
     val defaultCanonicalBooks: List<Book> = listOf(
         Book(
@@ -110,11 +157,15 @@ class HadithRepository(private val context: Context) {
             authorEn = "Imam Malik ibn Anas",
             authenticGradeBn = "প্রাথমিক প্রামাণ্য ফিকহ (Sahih)",
             authenticGradeEn = "Earliest Legal Code",
-            totalHadithsBn = "১,৮৫৮ হাদিস",
+            // Partial sample: the bundled asset holds 3 hadiths / 2 chapters
+            // (verified), not the full 1,858-hadith work. Never restore the
+            // canonical total here without bundling the complete dataset.
+            totalHadithsBn = "৩টি হাদিস (আংশিক নমুনা)",
             descriptionBn = "মদিনার আলেমগণের আমল ও প্রাচীনতম নির্ভরযোগ্য হাদিস গ্রন্থ।",
             descriptionEn = "The earliest codified legal text of the Living Sunnah of Madinah.",
-            totalChaptersBn = "৬১ অধ্যায়",
-            assetFileName = "hadith/muwatta.json"
+            totalChaptersBn = "২টি অধ্যায় (নমুনা)",
+            assetFileName = "hadith/muwatta.json",
+            isPartialSample = true
         ),
         Book(
             id = "riyadussalihin",
@@ -125,11 +176,15 @@ class HadithRepository(private val context: Context) {
             authorEn = "Imam Yahya an-Nawawi",
             authenticGradeBn = "আমল ও আত্মশুদ্ধি (Sahih)",
             authenticGradeEn = "Virtues & Conduct",
-            totalHadithsBn = "১,৮৯৬ হাদিস",
+            // Partial sample: the bundled asset holds 3 hadiths / 3 chapters
+            // (verified), not the full 1,896-hadith work. Never restore the
+            // canonical total here without bundling the complete dataset.
+            totalHadithsBn = "৩টি হাদিস (আংশিক নমুনা)",
             descriptionBn = "প্রতিদিনের আধ্যাত্মিক উন্নয়ন, আখলাক ও আত্মশুদ্ধির সেরা সংকলন।",
             descriptionEn = "The quintessential handbook for moral cultivation and daily piety.",
-            totalChaptersBn = "৩৭১ অধ্যায়",
-            assetFileName = "hadith/riyadussalihin.json"
+            totalChaptersBn = "৩টি অধ্যায় (নমুনা)",
+            assetFileName = "hadith/riyadussalihin.json",
+            isPartialSample = true
         )
     )
 
@@ -137,7 +192,18 @@ class HadithRepository(private val context: Context) {
 
     fun getCanonicalBooks(): List<Book> = defaultCanonicalBooks
 
-    private val cachedHadiths = mutableMapOf<String, List<Hadith>>()
+    // Bounded LRU (max 2 books) + synchronized: fixes unbounded growth and
+    // concurrent HashMap corruption from multiple Dispatchers.IO loaders.
+    private val cachedHadiths: MutableMap<String, List<Hadith>> =
+        Collections.synchronizedMap(object : LinkedHashMap<String, List<Hadith>>(4, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<Hadith>>): Boolean {
+                return size > 2
+            }
+        })
+
+    fun clearCache() {
+        synchronized(cachedHadiths) { cachedHadiths.clear() }
+    }
 
     fun isBookLoaded(bookId: String): Boolean = cachedHadiths.containsKey(bookId)
 
@@ -157,88 +223,151 @@ class HadithRepository(private val context: Context) {
         return converted.toIntOrNull() ?: defaultId
     }
 
+    private fun mapRaw(raw: HadithRawJson, index: Int, bookId: String, book: Book): Hadith {
+        val parsedId = index + 1
+        val numberVal = parseHadithNumber(raw.hadithNumber, parsedId)
+        val base = when (bookId) {
+            "bukhari" -> 100000
+            "muslim" -> 200000
+            "tirmidhi" -> 300000
+            "abudawud" -> 400000
+            "nasai" -> 500000
+            "ibnmajah" -> 600000
+            "muwatta" -> 700000
+            "riyadussalihin" -> 800000
+            else -> 900000
+        }
+        val finalId = base + parsedId
+        return Hadith(
+            id = finalId,
+            bookId = bookId,
+            collection = raw.collection ?: book.nameBn,
+            isMuttafaqunAlayh = raw.isMuttafaqunAlayh ?: false,
+            chapterId = raw.chapterId ?: 1,
+            chapterBn = raw.chapterBn ?: "নামাজ ও দৈনন্দিন আমল",
+            chapterEn = raw.chapterEn ?: "Prayer & Daily Conduct",
+            topicBn = raw.topicBn ?: "নামাজ ও আমল",
+            topicEn = raw.topicEn ?: "Prayer & Piety",
+            hadithNumber = numberVal,
+            narrator = raw.narrator ?: raw.narratorBn ?: "",
+            arabicText = raw.arabicText ?: "",
+            translationBangla = raw.translationBangla ?: "",
+            translationEnglish = raw.translationEnglish ?: "",
+            grade = raw.gradeBn ?: "সহীহ (Sahih)",
+            reference = raw.reference ?: "${book.nameBn} #$numberVal",
+            bookNameBn = raw.bookNameBn ?: book.nameBn,
+            bookNameEn = raw.bookNameEn ?: book.nameEn,
+            explanationBn = raw.explanationBn ?: "",
+            explanationEn = raw.explanationEn ?: "",
+            isBookmarked = false
+        )
+    }
+
     suspend fun getHadithsForBook(bookId: String): List<Hadith> = withContext(Dispatchers.IO) {
-        cachedHadiths[bookId]?.let { return@withContext it }
+        synchronized(cachedHadiths) { cachedHadiths[bookId]?.let { return@withContext it } }
 
         val book = defaultCanonicalBooks.find { it.id == bookId }
         val loadedList = mutableListOf<Hadith>()
 
         if (book != null && book.assetFileName.isNotBlank()) {
             try {
-                val jsonString = context.assets.open(book.assetFileName).bufferedReader().use { it.readText() }.trim()
-                if (jsonString.isNotEmpty()) {
-                    var rawList: List<HadithRawJson>? = null
-                    
-                    // Try parsing as structured object: { "metadata": ..., "chapters": ..., "hadiths": [...] }
-                    if (jsonString.startsWith("{")) {
-                        try {
-                            val bookObj = gson.fromJson(jsonString, HadithBookFileJson::class.java)
-                            rawList = bookObj.hadiths
-                        } catch (_: Exception) { }
-                    }
-
-                    // If not parsed as object, try parsing as direct list: [ { ... }, { ... } ]
-                    if (rawList == null && jsonString.startsWith("[")) {
-                        try {
-                            val listType = object : TypeToken<List<HadithRawJson>>() {}.type
-                            rawList = gson.fromJson(jsonString, listType)
-                        } catch (_: Exception) { }
-                    }
-
-                    if (!rawList.isNullOrEmpty()) {
-                        val items = rawList.mapIndexed { index, raw ->
-                            val parsedId = raw.id ?: (index + 1)
-                            val numberVal = parseHadithNumber(raw.hadithNumber, parsedId)
-                            val finalId = when (bookId) {
-                                "bukhari" -> 10000 + parsedId
-                                "muslim" -> 20000 + parsedId
-                                "tirmidhi" -> 30000 + parsedId
-                                "abudawud" -> 40000 + parsedId
-                                "nasai" -> 50000 + parsedId
-                                "ibnmajah" -> 60000 + parsedId
-                                "muwatta" -> 70000 + parsedId
-                                "riyadussalihin" -> 80000 + parsedId
-                                else -> 90000 + parsedId
+                // Streaming parse: never materializes the 10-31MB file as one String.
+                // Handles both shapes: [ {...}, ... ] and { "hadiths": [...] }.
+                context.assets.open(book.assetFileName).use { stream ->
+                    InputStreamReader(stream, Charsets.UTF_8).use { isr ->
+                        JsonReader(isr).use { reader ->
+                            reader.isLenient = true
+                            val token = reader.peek()
+                            if (token == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
+                                var index = 0
+                                reader.beginArray()
+                                while (reader.hasNext()) {
+                                    try {
+                                        val raw = gson.fromJson<HadithRawJson>(reader, HadithRawJson::class.java)
+                                        loadedList.add(mapRaw(raw, index, bookId, book))
+                                    } catch (e: Exception) {
+                                        android.util.Log.w("HadithRepo", "Skipping corrupt entry #$index in ${book.assetFileName}", e)
+                                        try { reader.skipValue() } catch (_: Exception) { break }
+                                    }
+                                    index++
+                                }
+                                try { reader.endArray() } catch (_: Exception) { }
+                            } else if (token == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
+                                reader.beginObject()
+                                while (reader.hasNext()) {
+                                    val name = try { reader.nextName() } catch (_: Exception) { break }
+                                    if (name == "hadiths") {
+                                        val arrToken = try { reader.peek() } catch (_: Exception) { null }
+                                        if (arrToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
+                                            var index = 0
+                                            reader.beginArray()
+                                            while (reader.hasNext()) {
+                                                try {
+                                                    val raw = gson.fromJson<HadithRawJson>(reader, HadithRawJson::class.java)
+                                                    loadedList.add(mapRaw(raw, index, bookId, book))
+                                                } catch (e: Exception) {
+                                                    android.util.Log.w("HadithRepo", "Skipping corrupt entry #$index", e)
+                                                    try { reader.skipValue() } catch (_: Exception) { break }
+                                                }
+                                                index++
+                                            }
+                                            try { reader.endArray() } catch (_: Exception) { }
+                                        } else {
+                                            try { reader.skipValue() } catch (_: Exception) { break }
+                                        }
+                                    } else {
+                                        try { reader.skipValue() } catch (_: Exception) { break }
+                                    }
+                                }
+                                try { reader.endObject() } catch (_: Exception) { }
                             }
-                            Hadith(
-                                id = finalId,
-                                bookId = bookId,
-                                collection = raw.collection ?: book.nameBn,
-                                isMuttafaqunAlayh = raw.isMuttafaqunAlayh ?: false,
-                                chapterId = raw.chapterId ?: 1,
-                                chapterBn = raw.chapterBn ?: "নামাজ ও দৈনন্দিন আমল",
-                                chapterEn = raw.chapterEn ?: "Prayer & Daily Conduct",
-                                topicBn = raw.topicBn ?: "নামাজ ও আমল",
-                                topicEn = raw.topicEn ?: "Prayer & Piety",
-                                hadithNumber = numberVal,
-                                narrator = raw.narrator ?: raw.narratorBn ?: "",
-                                arabicText = raw.arabicText ?: "",
-                                translationBangla = raw.translationBangla ?: "",
-                                translationEnglish = raw.translationEnglish ?: "",
-                                grade = raw.gradeBn ?: "সহীহ (Sahih)",
-                                reference = raw.reference ?: "${book.nameBn} #$numberVal",
-                                bookNameBn = raw.bookNameBn ?: book.nameBn,
-                                bookNameEn = raw.bookNameEn ?: book.nameEn,
-                                explanationBn = raw.explanationBn ?: "",
-                                explanationEn = raw.explanationEn ?: "",
-                                isBookmarked = false
-                            )
                         }
-                        loadedList.addAll(items)
                     }
                 }
             } catch (e: Exception) {
-                android.util.Log.e("HadithRepo", "Error reading asset ${book.assetFileName}", e)
+                android.util.Log.e("HadithRepo", "Error streaming asset ${book.assetFileName}", e)
             }
         }
 
+        // Remove hadith entries where all display-text fields are blank,
+        // since callers (e.g. HadithFilteringTest) require every returned hadith
+        // to have at least one of arabicText / translationBangla / translationEnglish.
+        val filteredList = filterBlankTextEntries(loadedList)
+
         // If no items loaded from asset (e.g. empty file or not found), provide core authentic foundation hadiths
-        if (loadedList.isEmpty()) {
+        if (filteredList.isEmpty()) {
             loadedList.addAll(getCoreCuratedHadithsForBook(bookId, book?.nameBn ?: "হাদিস", book?.nameEn ?: "Hadith"))
+        } else if (filteredList.size < 8) {
+            // Thin asset (e.g. muwatta/riyadussalihin ship only a handful): top up with
+            // curated authentic entries so the book never presents a stub as complete.
+            val haveIds = filteredList.map { it.id }.toSet()
+            loadedList.addAll(
+                getCoreCuratedHadithsForBook(bookId, book?.nameBn ?: "হাদিস", book?.nameEn ?: "Hadith")
+                    .filterNot { haveIds.contains(it.id) }
+            )
+        } else {
+            loadedList.clear()
+            loadedList.addAll(filteredList)
         }
 
-        cachedHadiths[bookId] = loadedList
+        // Visibility for schema drift: fields that fell back to defaults indicate an
+        // asset/model mismatch an update should fix (never fail the load over it).
+        val emptyArabic = loadedList.count { it.arabicText.isBlank() || it.translationBangla.isBlank() }
+        if (emptyArabic > 0) {
+            android.util.Log.w("HadithRepo", "Book $bookId has $emptyArabic/${loadedList.size} items with blank text (schema drift?)")
+        }
+
+        synchronized(cachedHadiths) { cachedHadiths[bookId] = loadedList }
         loadedList
+    }
+
+    /** Remove hadith entries where all display-text fields are blank. */
+    private fun filterBlankTextEntries(hadiths: List<Hadith>): List<Hadith> {
+        return hadiths.filter { h ->
+            h.arabicText.isNotBlank() ||
+                h.translationBangla.isNotBlank() ||
+                h.translationEnglish.isNotBlank()
+        }
     }
 
     private fun getCoreCuratedHadithsForBook(bookId: String, nameBn: String, nameEn: String): List<Hadith> {
@@ -492,8 +621,11 @@ class HadithRepository(private val context: Context) {
     }
 
     suspend fun getRandomDailyHadith(): Hadith? = withContext(Dispatchers.IO) {
-        val bukhariHadiths = getHadithsForBook("bukhari")
-        if (bukhariHadiths.isNotEmpty()) bukhariHadiths.random() else null
+        // Draw from the whole loaded corpus (all books), not Bukhari alone.
+        val pool = getAllCachedHadiths().ifEmpty {
+            getHadithsForBook("bukhari").ifEmpty { getAllCuratedHadiths() }
+        }
+        if (pool.isNotEmpty()) pool.random() else null
     }
 
     fun filterHadiths(
@@ -503,17 +635,40 @@ class HadithRepository(private val context: Context) {
         topic: String,
         chapterId: Int
     ): List<Hadith> {
+        val selectedTopic = canonicalTopicId(topic)
+        val queryTokens = normalized(query).split(' ').filter { it.isNotBlank() }
+        val topicDefinition = topics.firstOrNull { it.id == selectedTopic }
         return all.filter { hadith ->
             val matchBook = (bookId == "all" || hadith.bookId == bookId)
-            val matchTopic = (topic == "সকল বিষয়" || topic == "All Topics" || hadith.topicBn.contains(topic) || hadith.topicEn.contains(topic, true))
             val matchChapter = (chapterId == 0 || hadith.chapterId == chapterId)
-            val matchQuery = if (query.isBlank()) true else {
-                hadith.translationBangla.contains(query, true) ||
-                hadith.translationEnglish.contains(query, true) ||
-                hadith.arabicText.contains(query) ||
-                hadith.narrator.contains(query, true) ||
-                hadith.hadithNumber.toString().contains(query) ||
-                hadith.collection.contains(query, true)
+            // The default all-books/all-topics/empty-query state is the common
+            // path. Do not normalize every long translated Hadith there.
+            val directTopicMatch = selectedTopic == "all" ||
+                canonicalTopicId(hadith.topicBn) == selectedTopic ||
+                canonicalTopicId(hadith.topicEn) == selectedTopic
+            val matchTopic = directTopicMatch || run {
+                val topicHaystack = normalized("${hadith.topicBn} ${hadith.topicEn} ${hadith.chapterBn} ${hadith.chapterEn} ${hadith.translationBangla} ${hadith.translationEnglish}")
+                topicDefinition?.searchTerms?.asSequence()?.map(::normalized)?.any(topicHaystack::contains) == true
+            }
+            // Search is display-language independent: every stored searchable
+            // field contributes, and Arabic comparison is diacritic tolerant.
+            val matchQuery = queryTokens.isEmpty() || run {
+                val haystack = normalized(buildString {
+                    append(hadith.arabicText).append(' ')
+                    append(hadith.translationBangla).append(' ')
+                    append(hadith.translationEnglish).append(' ')
+                    append(hadith.narrator).append(' ')
+                    append(hadith.collection).append(' ')
+                    append(hadith.bookNameBn).append(' ')
+                    append(hadith.bookNameEn).append(' ')
+                    append(hadith.chapterBn).append(' ')
+                    append(hadith.chapterEn).append(' ')
+                    append(hadith.topicBn).append(' ')
+                    append(hadith.topicEn).append(' ')
+                    append(hadith.reference).append(' ')
+                    append(hadith.hadithNumber)
+                })
+                queryTokens.all { haystack.contains(it) }
             }
             matchBook && matchTopic && matchChapter && matchQuery
         }

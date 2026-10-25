@@ -19,6 +19,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Calendar
@@ -881,7 +883,9 @@ private fun ProhibitedItemChip(
                         else -> if (isDarkMode) Color(0xFFE2E8F0) else Color(0xFF334155)
                     },
                     fontSize = 10.sp,
-                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold
+                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (isActive) {
                     Spacer(modifier = Modifier.width(3.dp))
@@ -899,8 +903,19 @@ private fun ProhibitedItemChip(
                     isActive -> if (isDarkMode) Color(0xFFFDE68A) else Color(0xFFB45309)
                     else -> if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)
                 },
-                fontSize = 8.5.sp,
-                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
+                fontSize = 9.5.sp,
+                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+                // Responsive: allow the range to wrap onto a second centered line
+                // inside the chip (was maxLines=1 + softWrap=false, which
+                // ellipsized/clipped on narrow widths and larger font scaling).
+                // The chip height is wrap-content so it stays compact on one line
+                // and grows only when wrapping is needed. Ranges use " - "
+                // separators handled by the caller; keep line height readable.
+                maxLines = 2,
+                softWrap = true,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                lineHeight = 12.sp
             )
         }
     }
@@ -957,10 +972,12 @@ private fun PrayerOrbitArcCanvas(
     val hPadding = 6.dp
     val archHeight = 20.dp
 
+    // Responsive: minimum height only — the arch grows instead of clipping labels
+    // and times under larger font/display scaling.
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(135.dp),
+            .heightIn(min = 135.dp),
         contentAlignment = Alignment.TopCenter
     ) {
         // Celestial Arc Track Canvas drawn cleanly behind the icon waypoints with matched padding
@@ -1115,7 +1132,9 @@ private fun PrayerOrbitArcCanvas(
                         color = if (isActive) highlightColor else (if (isDarkMode) Color(0xFFE2E8F0) else Color(0xFF1E293B)),
                         fontSize = 10.5.sp,
                         fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
                     )
 
                     val cleanStart = startTime.replace(" AM", "").replace(" PM", "")
@@ -1125,14 +1144,22 @@ private fun PrayerOrbitArcCanvas(
                         text = cleanStart,
                         color = if (isActive) (if (isDarkMode) (if (stage.isMakruh) Color(0xFFFDE68A) else Color(0xFFA7F3D0)) else (if (stage.isMakruh) Color(0xFFB45309) else Color(0xFF047857))) else (if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)),
                         fontSize = 9.sp,
-                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium
+                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
                     )
                     if (cleanEnd.isNotEmpty()) {
                         Text(
                             text = "– $cleanEnd",
                             color = if (isActive) (if (isDarkMode) Color(0xFFFDE68A).copy(alpha = 0.8f) else Color(0xFF047857)) else (if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)),
                             fontSize = 8.sp,
-                            fontWeight = FontWeight.Normal
+                            fontWeight = FontWeight.Normal,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

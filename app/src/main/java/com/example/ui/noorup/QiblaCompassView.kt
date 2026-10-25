@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.EmeraldGlow
@@ -53,6 +54,21 @@ fun QiblaCompassView(
     // Compute Qibla mathematical metrics for current location
     val qiblaInfo = remember(cityLocation.latitude, cityLocation.longitude) {
         SolarPrayerEngine.calculateQibla(cityLocation.latitude, cityLocation.longitude)
+    }
+
+    // Magnetic declination: calculateQibla is true-north, but magnetometer gives
+    // magnetic-north. Dhaka error is ~0.3° but 10°+ in US/EU — must correct.
+    val declinationDeg = remember(cityLocation.latitude, cityLocation.longitude) {
+        try {
+            val field = android.hardware.GeomagneticField(
+                cityLocation.latitude.toFloat(),
+                cityLocation.longitude.toFloat(),
+                0f,
+                System.currentTimeMillis()
+            )
+            val d = field.declination
+            if (d.isFinite()) d else 0f
+        } catch (_: Exception) { 0f }
     }
 
     // Live Sensor States
@@ -175,11 +191,15 @@ fun QiblaCompassView(
 
     // Smooth Azimuth calculation with angular interpolation
     var currentContinuousAzimuth by remember { mutableFloatStateOf(0f) }
-    val effectiveAzimuth = if (isManualMode || !isSensorAvailable) manualBearingOffset else rawAzimuth
+    // Apply declination + NaN guard: stale/NaN sensor values must never swing the needle.
+    val magneticAzimuth = if (rawAzimuth.isFinite()) rawAzimuth else currentContinuousAzimuth % 360f
+    val trueAzimuth = ((magneticAzimuth + declinationDeg) % 360f + 360f) % 360f
+    val effectiveAzimuth = if (isManualMode || !isSensorAvailable) manualBearingOffset else trueAzimuth
 
     LaunchedEffect(effectiveAzimuth) {
+        if (!effectiveAzimuth.isFinite()) return@LaunchedEffect
         val diff = (effectiveAzimuth - (currentContinuousAzimuth % 360f) + 540f) % 360f - 180f
-        currentContinuousAzimuth += diff
+        if (diff.isFinite()) currentContinuousAzimuth += diff
     }
 
     val animatedContinuousAzimuth by animateFloatAsState(
@@ -255,19 +275,25 @@ fun QiblaCompassView(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    // Responsive: text flexes so the alignment badge is never squeezed.
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (isEnglish) "Qibla Direction (কিবলা কম্পাস)" else "কিবলা কম্পাস (Qibla Compass)",
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "${if (isEnglish) cityLocation.nameEn else cityLocation.nameBn} • ${String.format("%.2f°N, %.2f°E", cityLocation.latitude, cityLocation.longitude)}",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Alignment Badge
                     Surface(
@@ -416,9 +442,16 @@ fun QiblaCompassView(
         }
 
         // Live Interactive Compass Dial
-        Box(
-            modifier = Modifier
-                .size(280.dp)
+        // Responsive: dial shrinks on narrow viewports instead of overflowing
+        // (280dp dial > 248dp available on a 280dp viewport with padding).
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            val dialSize = minOf(280f, maxWidth.value * 0.84f).coerceAtLeast(180f).dp
+            Box(
+                modifier = Modifier
+                    .size(dialSize)
                 .shadow(
                     elevation = if (isAligned) (16.dp * pulseGlow) else 4.dp,
                     shape = CircleShape,
@@ -691,6 +724,7 @@ fun QiblaCompassView(
                     .background(if (isAligned) EmeraldGlow else Color(0xFFEF4444))
             )
         }
+        }
 
         Spacer(modifier = Modifier.height(18.dp))
 
@@ -763,7 +797,9 @@ fun QiblaCompassView(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { isManualMode = !isManualMode }
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { isManualMode = !isManualMode }
             ) {
                 Icon(
                     imageVector = if (isSensorAvailable) Icons.Default.Sensors else Icons.Default.SensorsOff,
@@ -781,7 +817,10 @@ fun QiblaCompassView(
                         if (isEnglish) "Sensor Not Found (Manual Active)" else "সেন্সর পাওয়া যায়নি (ম্যানুয়াল চালু)"
                     },
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 11.sp
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
             }
 

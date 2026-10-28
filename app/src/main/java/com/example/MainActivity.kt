@@ -3,7 +3,6 @@ package com.example
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -23,7 +22,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // App-owned edge-to-edge: avoids the deprecated bar-color setters and
+        // short-edges cutout mode used by androidx.activity.enableEdgeToEdge().
+        enableNoorUpEdgeToEdge()
 
         // Initialize high-importance Notification Channels for prayer times and daily updates
         PrayerNotificationHelper.createNotificationChannels(this)

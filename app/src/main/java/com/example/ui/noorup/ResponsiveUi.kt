@@ -80,6 +80,40 @@ object ResponsiveBreakpoints {
         if (viewportWidthDp <= 0f || preferredWidthDp <= 0f) return preferredWidthDp.coerceAtLeast(minWidthDp)
         return minOf(preferredWidthDp, viewportWidthDp * peekFraction).coerceAtLeast(minWidthDp)
     }
+
+    /**
+     * Inner width of a prayer-timetable card below which the start–end time
+     * range moves onto its own line under the name/reason.
+     *
+     * At a 360dp phone the card content is ~272dp, and at 390dp it is ~302dp.
+     * Both are below this value, so the range gets the full width instead of
+     * squeezing the "নিষিদ্ধ" badge. A 412dp phone leaves ~324dp, where the
+     * range and the name/badge coexist comfortably.
+     */
+    const val prayerTimelineStackBelowDp: Float = 320f
+
+    /**
+     * Width of the prohibited-time strip below which its three chips stack
+     * vertically. At 412dp the strip is ~348dp wide (~112dp per chip); at
+     * 390dp and below the chips would be too narrow for the Bangla name plus
+     * a readable time range.
+     */
+    const val prohibitedChipsStackBelowDp: Float = 340f
+
+    /** Font scale at which both timetable layouts switch to their stacked form. */
+    const val stackedLayoutFontScale: Float = 1.3f
+
+    /** True when a timetable card should put its time range on its own line. */
+    fun prayerTimelineStacksTime(contentWidthDp: Float, fontScale: Float = 1f): Boolean {
+        if (contentWidthDp <= 0f) return true
+        return contentWidthDp < prayerTimelineStackBelowDp || fontScale >= stackedLayoutFontScale
+    }
+
+    /** True when the three prohibited-time chips should stack vertically. */
+    fun prohibitedChipsStack(stripWidthDp: Float, fontScale: Float = 1f): Boolean {
+        if (stripWidthDp <= 0f) return true
+        return stripWidthDp < prohibitedChipsStackBelowDp || fontScale >= stackedLayoutFontScale
+    }
 }
 
 /**

@@ -28,8 +28,8 @@ android {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
         targetSdk = 37
-        versionCode = 12
-        versionName = "1.2.5"
+        versionCode = 14
+        versionName = "1.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,6 +69,17 @@ android {
             if (!secret("NOORUP_KEYSTORE_FILE").isNullOrBlank()) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+    }
+    packaging {
+        jniLibs {
+            // androidx.graphics:graphics-path (pulled in by Compose ui-graphics)
+            // ships a stripped prebuilt libandroidx.graphics.path.so with no
+            // debug symbols. Compose only reaches it through Path.iterator(),
+            // PathHitTester and Path.toSvg(); this app uses none of them and R8
+            // removes the wrapper classes. Excluding the unused library keeps
+            // native code out of the bundle, so Play stops asking for symbols.
+            excludes += "**/libandroidx.graphics.path.so"
         }
     }
     compileOptions {

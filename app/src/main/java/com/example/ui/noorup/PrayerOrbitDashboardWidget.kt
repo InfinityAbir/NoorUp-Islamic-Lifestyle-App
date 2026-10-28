@@ -18,8 +18,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -265,6 +267,7 @@ fun PrayerStageVector(
  * Modern Hybrid Orbit & Timeline Hero Widget (Glassmorphic with Integrated Noor Garden and 3 Prohibited Times)
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun ModernPrayerOrbitWidget(
     viewModel: NoorUpViewModel,
     selectedCityLocation: CityLocation,
@@ -599,7 +602,10 @@ fun ModernPrayerOrbitWidget(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     // Circular Progress Mini Dial
                     Box(
                         modifier = Modifier.size(36.dp),
@@ -632,16 +638,22 @@ fun ModernPrayerOrbitWidget(
 
                     Spacer(modifier = Modifier.width(10.dp))
 
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            itemVerticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
                                 text = if (isEnglish) "Noor Garden Today" else "আজকের নূর বাগান",
                                 color = primaryTextColor,
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
                             if (currentStreak > 0) {
-                                Spacer(modifier = Modifier.width(6.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
@@ -653,7 +665,9 @@ fun ModernPrayerOrbitWidget(
                                         text = if (isEnglish) "🔥 $currentStreak d" else "🔥 ${currentStreak.toBanglaDigits()} দিন",
                                         color = if (isDarkMode) Color(0xFFFDE68A) else Color(0xFFD97706),
                                         fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        softWrap = false
                                     )
                                 }
                             }
@@ -661,27 +675,35 @@ fun ModernPrayerOrbitWidget(
                         Text(
                             text = if (isEnglish) "$completedCount/5 Prayers Offered" else "${completedCount.toBanglaDigits()}/৫ ওয়াক্ত আদায় হয়েছে",
                             color = secondaryTextColor,
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                // Next upcoming prayer quick indicator
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Next upcoming prayer quick indicator. Capped so it can never
+                // squeeze the garden title on a 320dp phone; wraps at word
+                // boundaries instead of clipping the prayer name.
                 Box(
                     modifier = Modifier
+                        .widthIn(max = 112.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(surfaceButtonColor)
                         .border(1.dp, surfaceBorderColor, RoundedCornerShape(12.dp))
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = if (isEnglish) "Next: $nextName" else "পরবর্তী: $nextName",
-                            color = if (isDarkMode) Color(0xFF38BDF8) else Color(0xFF0284C7),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = if (isEnglish) "Next: $nextName" else "পরবর্তী: $nextName",
+                        color = if (isDarkMode) Color(0xFF38BDF8) else Color(0xFF0284C7),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 
@@ -746,7 +768,11 @@ fun ModernPrayerOrbitWidget(
                                 text = label,
                                 color = if (isChecked) Color(0xFF10B981) else secondaryTextColor,
                                 fontSize = 10.5.sp,
-                                fontWeight = if (isChecked) FontWeight.Bold else FontWeight.Medium
+                                fontWeight = if (isChecked) FontWeight.Bold else FontWeight.Medium,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 12.sp
                             )
                         }
                     }
@@ -755,6 +781,17 @@ fun ModernPrayerOrbitWidget(
         }
     }
 }
+
+/**
+ * Data for one prohibited-time chip. Kept separate so the strip can render the
+ * same three chips either in a row or stacked without duplicating the calls.
+ */
+private data class ProhibitedChipModel(
+    val name: String,
+    val time: String,
+    val isActive: Boolean,
+    val isPassed: Boolean
+)
 
 /**
  * Prohibited / Makruh Times Summary Strip for Curved Orbit Arc View
@@ -804,42 +841,65 @@ private fun ProhibitedTimesStrip(
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            // 1. Sunrise Makruh
-            ProhibitedItemChip(
+        val chips = listOf(
+            ProhibitedChipModel(
                 name = if (isEnglish) "Sunrise" else "সূর্যোদয়",
-                time = "${selectedCityLocation.makruhSunriseStart.replace(" AM","")} - ${selectedCityLocation.makruhSunriseEnd.replace(" AM","")}",
+                time = "${selectedCityLocation.makruhSunriseStart.replace(" AM","")} – ${selectedCityLocation.makruhSunriseEnd.replace(" AM","")}",
                 isActive = isSunriseActive,
-                isPassed = curMins > sunriseE,
-                isEnglish = isEnglish,
-                isDarkMode = isDarkMode,
-                modifier = Modifier.weight(1f)
-            )
-
-            // 2. Zawal Zenith Makruh
-            ProhibitedItemChip(
+                isPassed = curMins > sunriseE
+            ),
+            ProhibitedChipModel(
                 name = if (isEnglish) "Zawal" else "দ্বিপ্রহর",
-                time = "${selectedCityLocation.makruhZawalStart.replace(" AM","")} - ${selectedCityLocation.makruhZawalEnd.replace(" PM","")}",
+                time = "${selectedCityLocation.makruhZawalStart.replace(" AM","")} – ${selectedCityLocation.makruhZawalEnd.replace(" PM","")}",
                 isActive = isZawalActive,
-                isPassed = curMins > zawalE,
-                isEnglish = isEnglish,
-                isDarkMode = isDarkMode,
-                modifier = Modifier.weight(1f)
-            )
-
-            // 3. Sunset Makruh
-            ProhibitedItemChip(
+                isPassed = curMins > zawalE
+            ),
+            ProhibitedChipModel(
                 name = if (isEnglish) "Sunset" else "সূর্যাস্ত",
-                time = "${selectedCityLocation.makruhSunsetStart.replace(" PM","")} - ${selectedCityLocation.makruhSunsetEnd.replace(" PM","")}",
+                time = "${selectedCityLocation.makruhSunsetStart.replace(" PM","")} – ${selectedCityLocation.makruhSunsetEnd.replace(" PM","")}",
                 isActive = isSunsetActive,
-                isPassed = curMins > sunsetE,
-                isEnglish = isEnglish,
-                isDarkMode = isDarkMode,
-                modifier = Modifier.weight(1f)
+                isPassed = curMins > sunsetE
             )
+        )
+
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val stackChips = ResponsiveBreakpoints.prohibitedChipsStack(
+                stripWidthDp = maxWidth.value,
+                fontScale = LocalDensity.current.fontScale
+            )
+            if (stackChips) {
+                // Narrow phones / large font scales: one readable chip per row.
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    chips.forEach { chip ->
+                        ProhibitedItemChip(
+                            name = chip.name,
+                            time = chip.time,
+                            isActive = chip.isActive,
+                            isPassed = chip.isPassed,
+                            isEnglish = isEnglish,
+                            isDarkMode = isDarkMode,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    chips.forEach { chip ->
+                        ProhibitedItemChip(
+                            name = chip.name,
+                            time = chip.time,
+                            isActive = chip.isActive,
+                            isPassed = chip.isPassed,
+                            isEnglish = isEnglish,
+                            isDarkMode = isDarkMode,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -1172,6 +1232,7 @@ private fun PrayerOrbitArcCanvas(
  * Complete Vertical Stage Timeline Visualizer (Includes 5 Prayers + 3 Prohibited Makruh Times)
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun PrayerVerticalTimeline(
     activeStage: OrbitPrayerStage?,
     isEnglish: Boolean,
@@ -1230,12 +1291,32 @@ private fun PrayerVerticalTimeline(
                     .border(if (isActive) 1.3.dp else 1.dp, itemBorder, RoundedCornerShape(14.dp))
                     .padding(horizontal = 12.dp, vertical = 7.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    // On phones up to ~390dp wide the time range gets its own
+                    // line, so the name, "নিষিদ্ধ" badge and reason never have
+                    // to compete with it for horizontal space. A 412dp phone
+                    // (~324dp card content) keeps the compact side-by-side row.
+                    val stackTimeRange = ResponsiveBreakpoints.prayerTimelineStacksTime(
+                        contentWidthDp = maxWidth.value,
+                        fontScale = LocalDensity.current.fontScale
+                    )
+                    val nameColor = when {
+                        isActive && isMakruh -> Color(0xFFF59E0B)
+                        isActive -> Color(0xFF10B981)
+                        isMakruh -> if (isDarkMode) Color(0xFFFCD34D) else Color(0xFFB45309)
+                        else -> if (isDarkMode) Color(0xFFF1F5F9) else Color(0xFF0F172A)
+                    }
+                    val timeColor = when {
+                        isActive && isMakruh -> Color(0xFFF59E0B)
+                        isActive -> Color(0xFF10B981)
+                        else -> if (isDarkMode) Color(0xFFCBD5E1) else Color(0xFF334155)
+                    }
+                    val timeRange = "$startTime – $endTime"
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = if (stackTimeRange) Alignment.Top else Alignment.CenterVertically
+                    ) {
                         // Custom Vector Graphic Icon
                         val iconContainerBg = when {
                             isActive && isMakruh -> if (isDarkMode) Color(0xFFF59E0B).copy(alpha = 0.25f) else Color(0xFFFDE68A)
@@ -1266,21 +1347,25 @@ private fun PrayerVerticalTimeline(
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            // Name + badge flow onto a second line as whole
+                            // items when they cannot fit side by side. The
+                            // badge is single-line and never splits its word.
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                itemVerticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
                                     text = if (isEnglish) stage.nameEn else stage.nameBn,
-                                    color = when {
-                                        isActive && isMakruh -> Color(0xFFF59E0B)
-                                        isActive -> Color(0xFF10B981)
-                                        isMakruh -> if (isDarkMode) Color(0xFFFCD34D) else Color(0xFFB45309)
-                                        else -> if (isDarkMode) Color(0xFFF1F5F9) else Color(0xFF0F172A)
-                                    },
+                                    color = nameColor,
                                     fontSize = 13.sp,
-                                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold
+                                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 if (isMakruh) {
-                                    Spacer(modifier = Modifier.width(6.dp))
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
@@ -1291,7 +1376,9 @@ private fun PrayerVerticalTimeline(
                                             text = if (isEnglish) "Prohibited" else "নিষিদ্ধ",
                                             color = if (isDarkMode) Color(0xFFF59E0B) else Color(0xFFD97706),
                                             fontSize = 8.5.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                            softWrap = false
                                         )
                                     }
                                 }
@@ -1303,22 +1390,43 @@ private fun PrayerVerticalTimeline(
                                     stage.arabic
                                 },
                                 color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B),
-                                fontSize = 9.5.sp
+                                fontSize = 9.5.sp,
+                                lineHeight = 13.sp,
+                                maxLines = if (isMakruh) Int.MAX_VALUE else 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = LocalTextStyle.current.copy(
+                                    textDirection = if (isMakruh) TextDirection.Content else TextDirection.Rtl
+                                )
+                            )
+                            if (stackTimeRange) {
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    text = timeRange,
+                                    modifier = Modifier.align(Alignment.End),
+                                    color = timeColor,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                                    maxLines = 2,
+                                    textAlign = TextAlign.End,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                        }
+
+                        if (!stackTimeRange) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // Start - End time interval
+                            Text(
+                                text = timeRange,
+                                color = timeColor,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                                maxLines = 2,
+                                textAlign = TextAlign.End,
+                                lineHeight = 14.sp
                             )
                         }
                     }
-
-                    // Start - End Time interval
-                    Text(
-                        text = "$startTime - $endTime",
-                        color = when {
-                            isActive && isMakruh -> Color(0xFFF59E0B)
-                            isActive -> Color(0xFF10B981)
-                            else -> if (isDarkMode) Color(0xFFCBD5E1) else Color(0xFF334155)
-                        },
-                        fontSize = 11.5.sp,
-                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium
-                    )
                 }
             }
         }

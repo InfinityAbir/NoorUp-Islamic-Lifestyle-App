@@ -1,6 +1,6 @@
 package com.example.ui.theme
 
-import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -50,13 +50,19 @@ fun NoorUpTheme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val view = LocalView.current
-    if (!view.isInEditMode) {
+    val activity = LocalActivity.current
+    if (!view.isInEditMode && activity != null) {
         SideEffect {
-            val window = (view.context as Activity).window
+            val window = activity.window
             // NOTE: Do NOT call window.statusBarColor / navigationBarColor here —
             // those setters are deprecated on Android 15+ and Play flags them.
-            // enableEdgeToEdge() in MainActivity already makes both bars transparent.
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            // enableNoorUpEdgeToEdge() in MainActivity keeps both bars transparent.
+            // Set both icon appearances so three-button navigation stays legible
+            // in light and dark themes; gesture navigation has no visible icons.
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
         }
     }
 

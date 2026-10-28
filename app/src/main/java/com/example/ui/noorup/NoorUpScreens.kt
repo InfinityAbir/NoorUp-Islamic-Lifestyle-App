@@ -6191,7 +6191,7 @@ private fun TasbihEditorDialog(
     )
 }
 
-// --- AiAssistantScreen (offline Islamic companion) ---
+// --- AiAssistantScreen (AI Islamic companion, offline answers as fallback) ---
 @Composable
 fun AiAssistantScreen(viewModel: NoorUpViewModel) {
     val messages by viewModel.chatMessages.collectAsState()
@@ -6213,17 +6213,32 @@ fun AiAssistantScreen(viewModel: NoorUpViewModel) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        val aiEnabled = viewModel.aiChat.isConfigured
         Text(
-            if (isEnglish) "100% offline — answers from built-in Islamic knowledge" else "১০০% অফলাইন — ভেতরের ইসলামিক জ্ঞান থেকে উত্তর",
+            when {
+                aiEnabled && isEnglish -> "AI answers online • basic built-in answers offline"
+                aiEnabled -> "অনলাইনে এআই উত্তর • অফলাইনে সাধারণ ইনবিল্ট উত্তর"
+                isEnglish -> "100% offline — answers from built-in Islamic knowledge"
+                else -> "১০০% অফলাইন — ভেতরের ইসলামিক জ্ঞান থেকে উত্তর"
+            },
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal
         )
         Text(
-            if (isEnglish) "Trusted guidance based on Quran & Sunnah" else "কুরআন ও সুন্নাহর আলোকে আপনার প্রশ্নের বিশ্বস্ত উত্তর",
+            if (isEnglish) "Based on Quran & Sunnah. AI can make mistakes — confirm important rulings with a scholar."
+            else "কুরআন ও সুন্নাহর আলোকে উত্তর। এআই ভুল করতে পারে — গুরুত্বপূর্ণ মাসআলা আলেমের কাছে যাচাই করুন।",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 13.sp
         )
+        if (aiEnabled) {
+            Text(
+                if (isEnglish) "When online, your question is sent to an AI service to write the answer."
+                else "অনলাইনে থাকলে উত্তর তৈরির জন্য আপনার প্রশ্ন একটি এআই সেবায় পাঠানো হয়।",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp
+            )
+        }
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn(

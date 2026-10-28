@@ -11,8 +11,8 @@ android {
     buildToolsVersion = "37.0.0"
 
     // Local secrets live in gitignored local.properties (see README "Signing a
-    // release"). Only the release keystore uses it now — the app itself is
-    // fully offline and takes no API keys.
+    // release"). Only the release keystore uses it: the app holds no API keys.
+    // The AI assistant reaches Gemini through the ai-proxy Worker (see ai-proxy/README.md).
     // NOTE: providers.gradleProperty does NOT see local.properties, so it is
     // read from disk explicitly.
     val localSecretsFile = rootProject.file("local.properties")
@@ -28,8 +28,12 @@ android {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
         targetSdk = 37
-        versionCode = 14
-        versionName = "1.2.7"
+        versionCode = 15
+        versionName = "1.3.0"
+
+        // Public URL of the deployed ai-proxy Worker; empty keeps the assistant offline-only.
+        val aiProxyUrl = (project.findProperty("aiProxyUrl") as String?)?.trim().orEmpty()
+        buildConfigField("String", "AI_PROXY_URL", "\"$aiProxyUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

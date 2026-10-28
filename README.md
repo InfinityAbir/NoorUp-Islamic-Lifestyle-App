@@ -120,8 +120,9 @@ The app is fully bilingual (বাংলা / English toggle) so it also works f
 - **Zakat & Sadaqah Calculator:** gold (vori), silver, cash, business assets, investments, liabilities → 2.5% net Zakat with Nisab logic
 - **Home-Screen Widget:** 4x2 glassmorphic prayer widget with 1-tap pin (`NoorUpWidgetProvider`)
 
-### 6. AI Companion (100% offline)
-- Islamic Q&A assistant, bilingual — built-in knowledge engine, no API keys, no network calls, works airplane-mode.
+### 6. AI Companion (Gemini-powered, offline fallback)
+- Islamic Q&A assistant, bilingual — answers come from Google Gemini through the `ai-proxy/` Cloudflare Worker, which holds the API key and the system prompt (the APK contains no key). Setup: [ai-proxy/README.md](ai-proxy/README.md).
+- With no `aiProxyUrl` configured, no connection, or a rate-limited proxy, it answers from the built-in offline knowledge engine instead. Questions are only sent to the proxy when it is configured.
 - Quick prompts: Assalamu Alaikum, Fajr & Prayer Rules, Tahajjud Virtue, Masnoon Duas, Zakat help
 
 ### 7. Stats — Consistency & Qada Analytics
@@ -144,7 +145,7 @@ The app is fully bilingual (বাংলা / English toggle) so it also works f
 - Lifecycle + ViewModel 2.11.0, WorkManager 2.12.0, Activity Compose 1.13.0
 
 **Data:**
-- Gson 2.14.0 and bundled offline data (no Retrofit/OkHttp/Moshi/Room/DataStore/Firebase — see `gradle/libs.versions.toml`)
+- Gson 2.14.0 and bundled offline data (no Retrofit/OkHttp/Moshi/Room/DataStore/Firebase — see `gradle/libs.versions.toml`; the AI call uses `HttpURLConnection`)
 
 **System:**
 - AlarmManager exact alarms, Notification Channels, AppWidget (custom RemoteViews provider), Geocoder + Location
@@ -177,7 +178,7 @@ Single-module Compose app with MVVM:
 
 - [Android Studio](https://developer.android.com/studio) (current stable release recommended)
 - Android Studio's bundled JDK 17 and Android SDK Platform 37
-- No API keys needed — the app is fully offline by design.
+- No API keys needed in the app. Everything except the AI assistant is offline; the assistant is optional (set `aiProxyUrl` in `gradle.properties` after deploying `ai-proxy/`, otherwise it stays offline).
 
 ### Run Locally
 

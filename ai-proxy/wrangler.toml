@@ -1,0 +1,23 @@
+name = "noorup-ai"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Public endpoint only; no per-version preview URLs.
+workers_dev = true
+preview_urls = false
+
+# Per Cloudflare location, best-effort. Period must be 10 or 60 seconds.
+# namespace_id values only need to be unique within the Cloudflare account (job-tracker-ai uses 1001/1002).
+[[ratelimits]]
+name = "DEVICE_LIMITER"
+namespace_id = "2001"
+  [ratelimits.simple]
+  limit = 8
+  period = 60
+
+[[ratelimits]]
+name = "IP_LIMITER"
+namespace_id = "2002"
+  [ratelimits.simple]
+  limit = 30
+  period = 60

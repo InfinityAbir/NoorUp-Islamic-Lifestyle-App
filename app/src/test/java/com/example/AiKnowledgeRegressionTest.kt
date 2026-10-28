@@ -2,6 +2,8 @@ package com.example
 
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
+import com.example.ui.noorup.AiChatClient
+import com.example.ui.noorup.ChatMessage
 import com.example.ui.noorup.NoorUpViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -20,8 +22,20 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 class AiKnowledgeRegressionTest {
 
+  // These tests cover the offline engine, so keep the AI client out of the loop
+  // even when the build has a proxy URL configured.
+  private val offlineOnly = object : AiChatClient {
+    override val isConfigured = false
+    override suspend fun ask(
+      question: String,
+      history: List<ChatMessage>,
+      isEnglish: Boolean,
+      referenceNotes: String
+    ): Result<String> = Result.failure(IllegalStateException("offline test"))
+  }
+
   private fun vm(): NoorUpViewModel =
-    NoorUpViewModel(ApplicationProvider.getApplicationContext<Application>())
+    NoorUpViewModel(ApplicationProvider.getApplicationContext<Application>()).also { it.aiChat = offlineOnly }
 
   /** Sends [prompt] and returns the assistant's reply text. */
   private fun ask(viewModel: NoorUpViewModel, prompt: String, isEng: Boolean): String {

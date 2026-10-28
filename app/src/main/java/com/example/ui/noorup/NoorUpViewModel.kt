@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.BuildConfig
 import com.example.NoorUpWidgetProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1288,7 +1289,17 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         prefs.edit().putStringSet("bookmarked_hadiths", updated.map { it.toString() }.toSet()).apply()
     }
 
-    // --- Islamic Assistant Chat State (offline rule-based answers, not an LLM) ---
+    // --- Islamic Assistant Chat State ---
+    // Answers come from Gemini through the NoorUp AI proxy. When the proxy is not built in,
+    // unreachable, or rate limited, the built-in rule-based engine answers instead.
+    internal var aiChat: AiChatClient = ProxyAiChatClient(BuildConfig.AI_PROXY_URL) { aiDeviceId() }
+
+    /** Random per-install id the proxy uses for rate limiting. Carries no personal data. */
+    private fun aiDeviceId(): String =
+        prefs.getString("ai_device_id", null) ?: java.util.UUID.randomUUID().toString().also {
+            prefs.edit().putString("ai_device_id", it).apply()
+        }
+
     private val _chatMessages = MutableStateFlow<List<ChatMessage>>(
         listOf(
             ChatMessage("আসসালামু আলাইকুম! আমি নূরআপ ইসলামিক সহকারী। ইসলামিক আদব, মাসআলা, দুআ কিংবা ইতিহাস সম্পর্কে যেকোনো প্রশ্ন করতে পারেন। / Assalamu Alaikum! I am your NoorUp Islamic assistant. Feel free to ask any question.", false, "এখন")
@@ -1301,18 +1312,67 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     fun sendAiMessage(prompt: String, isEng: Boolean) {
         if (prompt.isBlank()) return
+        // Context for the model: recent turns before this question, without the canned greeting.
+        val history = _chatMessages.value.drop(1).takeLast(AI_HISTORY_MESSAGES)
         val userMsg = ChatMessage(prompt, true, "এইমাত্র")
         _chatMessages.update { it + userMsg }
         _isAiThinking.value = true
 
-        // Fully offline by design: no API keys, no network calls. Answers come
-        // from the built-in Islamic knowledge engine below.
         viewModelScope.launch(Dispatchers.IO) {
-            val finalReply = generateLocalIslamicResponse(prompt, isEng)
-            _chatMessages.update { it + ChatMessage(finalReply, false, "এইমাত্র") }
-            _isAiThinking.value = false
+            try {
+                val finalReply = answerQuestion(prompt, history, isEng)
+                _chatMessages.update { it + ChatMessage(finalReply, false, "এইমাত্র") }
+            } finally {
+                _isAiThinking.value = false
+            }
         }
     }
+
+    private suspend fun answerQuestion(prompt: String, history: List<ChatMessage>, isEng: Boolean): String {
+        val offline = generateLocalIslamicResponse(prompt, isEng)
+        if (!aiChat.isConfigured) return offline
+        // The offline answers carry Quran/Hadith references, so they ground the AI answer for known topics.
+        val isKnownTopic = offline != genericLocalReply(isEng)
+        return aiChat.ask(prompt, history, isEng, if (isKnownTopic) offline else "").getOrElse { error ->
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            val failure = (error as? AiChatException)?.failure ?: AiFailure.OTHER
+            val note = aiUnavailableNote(failure, isEng)
+            // A topic the offline engine knows keeps its answer; otherwise only the notice is useful.
+            if (isKnownTopic) "$offline\n\n$note" else note
+        }
+    }
+
+    /** Plain-language notice for each failure. Never includes status codes or technical text. */
+    private fun aiUnavailableNote(failure: AiFailure, isEng: Boolean): String = when (failure) {
+        AiFailure.NETWORK ->
+            if (isEng) "No internet connection, so AI answers are unavailable. Connect and ask again for a fuller answer."
+            else "ইন্টারনেট সংযোগ নেই, তাই এআই উত্তর পাওয়া যাচ্ছে না। সংযোগ চালু করে আবার জিজ্ঞাসা করলে বিস্তারিত উত্তর পাবেন।"
+        AiFailure.TIMEOUT ->
+            if (isEng) "Your connection is slow or unstable, so the AI answer did not arrive. Please try again."
+            else "আপনার ইন্টারনেট ধীর বা অস্থির, তাই এআই উত্তর আসেনি। আবার চেষ্টা করুন।"
+        AiFailure.TOO_FAST ->
+            if (isEng) "You are asking too quickly. Please wait a minute and try again."
+            else "আপনি খুব দ্রুত প্রশ্ন করছেন। এক মিনিট অপেক্ষা করে আবার চেষ্টা করুন।"
+        AiFailure.LIMIT ->
+            if (isEng) "The free AI limit has been reached for now. Please try again a little later."
+            else "এখনকার জন্য ফ্রি এআই সীমা শেষ হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।"
+        AiFailure.BUSY ->
+            if (isEng) "The AI assistant is very busy right now. Please try again in a minute."
+            else "এআই সহকারী এখন অনেক ব্যস্ত। এক মিনিট পর আবার চেষ্টা করুন।"
+        AiFailure.TOO_LONG ->
+            if (isEng) "Your question is too long. Please shorten it and ask again."
+            else "আপনার প্রশ্নটি অনেক লম্বা। সংক্ষেপে লিখে আবার জিজ্ঞাসা করুন।"
+        AiFailure.OTHER ->
+            if (isEng) "The AI assistant is temporarily unavailable. Please try again shortly."
+            else "এআই সহকারী সাময়িকভাবে অনুপলব্ধ। একটু পরে আবার চেষ্টা করুন।"
+    }
+
+    private fun genericLocalReply(isEng: Boolean): String =
+        if (isEng) {
+            "Thank you for your question. As your Islamic Companion, I recommend consulting authentic Quranic verses and Sahih Hadith for precise fiqh rulings. Feel free to ask about Salah times, daily Masnoon Duas, fasting rules, or Zakat calculation."
+        } else {
+            "আপনার জিজ্ঞাসার জন্য ধন্যবাদ। ইসলামি বিধান, নামাজের সঠিক সময়সূচী, রোজা, যাকাত, কুরআন তেলাওয়াত কিংবা দৈনন্দিন মাসনূন দোয়ার যেকোনো বিষয়ে আপনাকে সহযোগিতা করতে আমি প্রস্তুত। আরো সুনির্দিষ্ট প্রশ্ন করতে পারেন।"
+        }
 
     private fun generateLocalIslamicResponse(prompt: String, isEng: Boolean): String {
         val lower = prompt.trim().lowercase()
@@ -1897,13 +1957,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
                     "কিবলা হলো মক্কার পবিত্র কাবা শরীফের অভিমুখ (বাংলাদেশ থেকে আনুমানিক ২৭৮° পশ্চিম-উত্তর-পশ্চিম)। সঠিক কিবলা জানতে 'সরঞ্জাম' ট্যাবের ডিজিটাল কিবলা কম্পাস ব্যবহার করুন।"
                 }
             }
-            else -> {
-                if (isEng) {
-                    "Thank you for your question. As your Islamic Companion, I recommend consulting authentic Quranic verses and Sahih Hadith for precise fiqh rulings. Feel free to ask about Salah times, daily Masnoon Duas, fasting rules, or Zakat calculation."
-                } else {
-                    "আপনার জিজ্ঞাসার জন্য ধন্যবাদ। ইসলামি বিধান, নামাজের সঠিক সময়সূচী, রোজা, যাকাত, কুরআন তেলাওয়াত কিংবা দৈনন্দিন মাসনূন দোয়ার যেকোনো বিষয়ে আপনাকে সহযোগিতা করতে আমি প্রস্তুত। আরো সুনির্দিষ্ট প্রশ্ন করতে পারেন।"
-                }
-            }
+            else -> genericLocalReply(isEng)
         }
     }
 
@@ -1912,6 +1966,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         val MANDATORY_PRAYERS = listOf("ফজর", "যোহর", "আসর", "মাগরিব", "এশা")
         val ALL_QADA_PRAYERS = listOf("Fajr", "Dhuhr", "Asr", "Maghrib", "Isha", "Witr")
         const val MAX_TASBIH_GOAL = 100000
+        private const val AI_HISTORY_MESSAGES = 8
         private const val MIGRATION_CLEAN_MOCK_V4 = "migration_zero_state_clean_v4"
     }
 

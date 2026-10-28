@@ -52,7 +52,16 @@ class HadithFilteringTest {
         val bangla = repo.filterHadiths(all, "", "all", "নিয়ত ও ইখলাস", 0)
         assertTrue(english.isNotEmpty())
         assertEquals(english.map { it.id }, bangla.map { it.id })
-        assertTrue(english.all { repo.canonicalTopicId(it.topicEn) == "intentions" || repo.canonicalTopicId(it.topicBn) == "intentions" })
+        assertTrue("Topic filter must span several books", english.map { it.bookId }.distinct().size > 1)
+        // Every hit is either filed under the topic or mentions one of the topic's keywords
+        // (e.g. a Muwatta "deeds are by intentions" hadith filed under Prayer).
+        val keywords = repo.topics.first { it.id == "intentions" }.searchTerms
+        assertTrue(english.all { hadith ->
+            val filedUnderTopic = repo.canonicalTopicId(hadith.topicEn) == "intentions" ||
+                repo.canonicalTopicId(hadith.topicBn) == "intentions"
+            val text = "${hadith.topicEn} ${hadith.chapterEn} ${hadith.translationEnglish} ${hadith.translationBangla}"
+            filedUnderTopic || keywords.any { text.contains(it, ignoreCase = true) }
+        })
     }
 
     @Test

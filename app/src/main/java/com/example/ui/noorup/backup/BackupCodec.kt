@@ -46,7 +46,7 @@ object BackupCodec {
         "audio_mode", "audio_reciter", "audio_speed", "audio_repeat_target",
         "calculation_method", "juristic_method", "hijri_day_offset",
         "is_dark_mode", "is_english", "is_traveling", "quran_show_transliteration",
-        "prayer_notifications_enabled"
+        "prayer_notifications_enabled", "tools_tab_order"
     )
 
     fun isBackedUp(key: String): Boolean = key in exactKeys || keyPrefixes.any { key.startsWith(it) }

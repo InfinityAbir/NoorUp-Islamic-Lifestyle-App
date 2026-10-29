@@ -42,6 +42,21 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         super.onCleared()
     }
 
+    // --- Tools sub-tab order (user can drag tabs; saved) ---
+    private val _toolsOrder = MutableStateFlow(ToolTabOrder.decode(prefs.getString("tools_tab_order", null)))
+    val toolsOrder: StateFlow<List<Int>> = _toolsOrder.asStateFlow()
+
+    fun setToolsOrder(order: List<Int>) {
+        val clean = ToolTabOrder.decode(ToolTabOrder.encode(order))
+        _toolsOrder.value = clean
+        prefs.edit().putString("tools_tab_order", ToolTabOrder.encode(clean)).apply()
+    }
+
+    fun resetToolsOrder() {
+        _toolsOrder.value = ToolTabOrder.DEFAULT
+        prefs.edit().remove("tools_tab_order").apply()
+    }
+
     // --- Universal search (top-bar overlay) + jump targets ---
     private val _searchOpen = MutableStateFlow(false)
     val searchOpen: StateFlow<Boolean> = _searchOpen.asStateFlow()

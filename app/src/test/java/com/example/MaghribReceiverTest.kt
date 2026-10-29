@@ -42,10 +42,26 @@ class MaghribReceiverTest {
                 .putExtra("channel_id", "prayer_reminders_channel")
                 .putExtra("notification_id", 2003)
         )
+        // The receiver reschedules alarms on a background thread (goAsync). Let it finish so it cannot leak
+        // into the next test's Robolectric environment.
+        waitForReceiverThreads()
         return shadowOf(nm).allNotifications.map {
             (it.extras.getCharSequence("android.title")?.toString().orEmpty()) to
                 (it.extras.getCharSequence("android.text")?.toString().orEmpty())
         }
+    }
+
+    private fun waitForReceiverThreads() {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (System.currentTimeMillis() < deadline) {
+            val busy = Thread.getAllStackTraces().keys.any { t ->
+                t.isAlive && t.name.startsWith("Thread-") &&
+                    t.stackTrace.any { it.className.contains("PrayerAlarmReceiver") || it.className.contains("PrayerNotificationScheduler") }
+            }
+            if (!busy) break
+            Thread.sleep(50)
+        }
+        Thread.sleep(200)
     }
 
     @Test

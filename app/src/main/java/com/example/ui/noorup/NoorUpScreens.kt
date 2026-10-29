@@ -5120,64 +5120,24 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
                 Icons.Default.Explore,
                 Icons.Default.CalendarMonth,
                 Icons.Default.AccountBalanceWallet,
-                Icons.Default.Widgets
+                Icons.Default.Widgets,
+                Icons.Default.NightsStay,
+                Icons.Default.Groups,
+                Icons.Default.CloudUpload
             )
 
-            // Responsive: scrollable row keeps full labels (no squeezing); trailing
-            // padding keeps the last pill from hard-clipping at the viewport edge.
-            val toolRowState = rememberLazyListState()
-            LaunchedEffect(toolTab) { toolRowState.animateScrollToItem(toolTab) }
-            LazyRow(
-                state = toolRowState,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(end = 8.dp)
-            ) {
-                items(toolNames.size) { index ->
-                    val isSelected = toolTab == index
-                    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-                    Surface(
-                        modifier = Modifier
-                            .heightIn(min = 40.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .clickable { toolTab = index },
-                        shape = RoundedCornerShape(20.dp),
-                        color = if (isSelected) {
-                            if (isDark) EmeraldGlow else Color(0xFF047857)
-                        } else {
-                            if (isDark) Color(0xFF0F172A) else Color(0xFFF1F5F9)
-                        },
-                        border = BorderStroke(
-                            1.dp,
-                            if (isSelected) {
-                                if (isDark) EmeraldGlow else Color(0xFF047857)
-                            } else {
-                                if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
-                            }
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Icon(
-                                toolIcons.getOrElse(index) { Icons.Default.Widgets },
-                                contentDescription = null,
-                                modifier = Modifier.size(15.dp),
-                                tint = if (isSelected) Color.White else if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
-                            )
-                            Text(
-                                toolNames[index],
-                                color = if (isSelected) Color.White else if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A),
-                                fontSize = 12.5.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    }
-                }
-            }
+            // Tabs keep a stable id; the user's drag order is saved and applied here.
+            val toolsOrder by viewModel.toolsOrder.collectAsState()
+            ReorderableToolTabs(
+                order = toolsOrder,
+                selectedId = toolTab,
+                isEnglish = isEnglish,
+                label = { id -> toolNames.getOrElse(id) { "" } },
+                icon = { id -> toolIcons.getOrElse(id) { Icons.Default.Widgets } },
+                onSelect = { toolTab = it },
+                onOrderChange = { viewModel.setToolsOrder(it) },
+                onReset = { viewModel.resetToolsOrder() }
+            )
         }
 
         if (toolTab == 0) {

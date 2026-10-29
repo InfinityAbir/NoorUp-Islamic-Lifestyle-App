@@ -31,6 +31,270 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     private val prefs = application.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
 
+    /** Quran recitation player (Media3 session in [com.example.ui.noorup.audio.QuranPlaybackService]). */
+    val audio = com.example.ui.noorup.audio.QuranAudioController(application, viewModelScope)
+
+    /** Encrypted Google Drive (appDataFolder) backup and restore. */
+    val backup = com.example.ui.noorup.backup.DriveBackupManager(application)
+
+    override fun onCleared() {
+        audio.release()
+        super.onCleared()
+    }
+
+    // --- Universal search (top-bar overlay) + jump targets ---
+    private val _searchOpen = MutableStateFlow(false)
+    val searchOpen: StateFlow<Boolean> = _searchOpen.asStateFlow()
+
+    val searchableDuas: List<DuaItem> get() = NoorUpRepository.duas
+
+    /** Set by a search result; the Duas screen applies it to its filter once, then clears it. */
+    private val _pendingDuaQuery = MutableStateFlow<String?>(null)
+    val pendingDuaQuery: StateFlow<String?> = _pendingDuaQuery.asStateFlow()
+
+    fun consumePendingDuaQuery() { _pendingDuaQuery.value = null }
+
+    // --- Family Dhikr & shared goals (serverless: links carry the goal and progress) ---
+    private val familyStore = com.example.ui.noorup.family.FamilyStore(prefs)
+    private val _familyGoals = MutableStateFlow(familyStore.goals())
+    val familyGoals: StateFlow<List<com.example.ui.noorup.family.FamilyGoal>> = _familyGoals.asStateFlow()
+    private val _familyMyName = MutableStateFlow(familyStore.myName())
+    val familyMyName: StateFlow<String> = _familyMyName.asStateFlow()
+    private val _familyCheckIns = MutableStateFlow(familyStore.checkIns())
+    val familyCheckIns: StateFlow<Map<String, Map<String, Int>>> = _familyCheckIns.asStateFlow()
+    private val _pendingFamilyJoin = MutableStateFlow<com.example.ui.noorup.family.FamilyLinkPayload?>(null)
+    val pendingFamilyJoin: StateFlow<com.example.ui.noorup.family.FamilyLinkPayload?> = _pendingFamilyJoin.asStateFlow()
+    private val _familyMessage = MutableStateFlow<String?>(null)
+    val familyMessage: StateFlow<String?> = _familyMessage.asStateFlow()
+
+    fun clearFamilyMessage() { _familyMessage.value = null }
+    fun reportFamilyMessage(text: String) { _familyMessage.value = text }
+    fun familyTodayKey(): String = getTodayDateKey()
+
+    fun setFamilyMyName(name: String) {
+        val clean = name.trim()
+        if (clean.isBlank()) return
+        val old = _familyMyName.value
+        familyStore.setMyName(clean)
+        _familyMyName.value = clean
+        if (old.isNotBlank() && old != clean) {
+            // Carry this person's existing counts and check-ins over to the new name.
+            saveFamilyGoals(_familyGoals.value.map { g ->
+                val c = g.contributions[old] ?: return@map g
+                g.copy(contributions = g.contributions - old + (clean to maxOf(c, g.contributions[clean] ?: 0)))
+            })
+            val ci = _familyCheckIns.value.mapValues { (_, m) ->
+                val c = m[old] ?: return@mapValues m
+                m - old + (clean to c)
+            }
+            _familyCheckIns.value = ci; familyStore.saveCheckIns(ci)
+        }
+        familyRecordMyCheckIn()
+    }
+
+    private fun saveFamilyGoals(goals: List<com.example.ui.noorup.family.FamilyGoal>) {
+        _familyGoals.value = goals
+        familyStore.saveGoals(goals)
+    }
+
+    fun createFamilyGoal(title: String, target: Int) {
+        val me = _familyMyName.value
+        if (me.isBlank() || target <= 0) return
+        val goal = com.example.ui.noorup.family.FamilyGoal(
+            id = com.example.ui.noorup.family.FamilyDhikrLogic.newId(), title = title,
+            target = target.coerceAtMost(100_000_000), createdBy = me
+        )
+        saveFamilyGoals(_familyGoals.value + goal)
+    }
+
+    fun addFamilyCount(goalId: String, delta: Int) {
+        val me = _familyMyName.value
+        if (me.isBlank() || delta <= 0) return
+        saveFamilyGoals(_familyGoals.value.map { g ->
+            if (g.id != goalId) g
+            else g.copy(contributions = g.contributions + (me to ((g.contributions[me] ?: 0) + delta).coerceAtMost(100_000_000)))
+        })
+    }
+
+    /** Rename a goal or change its target. Family members receive the change with the next link you share. */
+    fun editFamilyGoal(goalId: String, title: String, target: Int) {
+        val clean = title.trim().take(60)
+        if (clean.isBlank() || target <= 0) return
+        saveFamilyGoals(_familyGoals.value.map { g ->
+            if (g.id != goalId) g else g.copy(title = clean, target = target.coerceAtMost(100_000_000), rev = g.rev + 1)
+        })
+    }
+
+    fun deleteFamilyGoal(goalId: String) = saveFamilyGoals(_familyGoals.value.filterNot { it.id == goalId })
+
+    fun handleFamilyText(text: String) {
+        val payload = com.example.ui.noorup.family.FamilyLink.parseText(text)
+        if (payload == null) {
+            _familyMessage.value = if (_isEnglish.value) "That link isn't a NoorUp family link." else "এটি নূরআপের পারিবারিক লিংক নয়।"
+            return
+        }
+        applyFamilyPayload(payload)
+    }
+
+    /** Deep link (noorup://dhikr?...) delivered to MainActivity. */
+    fun handleFamilyLink(uri: android.net.Uri?) {
+        selectTab(3)
+        val payload = com.example.ui.noorup.family.FamilyLink.parse(uri)
+        if (payload == null) {
+            _familyMessage.value = if (_isEnglish.value) "That link isn't a NoorUp family link." else "এটি নূরআপের পারিবারিক লিংক নয়।"
+            return
+        }
+        applyFamilyPayload(payload)
+    }
+
+    private fun applyFamilyPayload(p: com.example.ui.noorup.family.FamilyLinkPayload) {
+        val known = _familyGoals.value.any { it.id == p.goalId }
+        if (p.member == null && !known) {
+            _pendingFamilyJoin.value = p // plain invite: ask first (the dialog lives in the Family tab)
+            _requestedToolTab.value = 8
+            return
+        }
+        if (p.member != null) {
+            saveFamilyGoals(com.example.ui.noorup.family.FamilyDhikrLogic.merge(_familyGoals.value, p))
+            if (p.prayers != null && p.dateKey != null) recordCheckIn(p.dateKey, p.member, p.prayers)
+            _familyMessage.value = if (_isEnglish.value)
+                "${p.member}'s progress was added to \"${p.title}\"." else "${p.member}-এর প্রগ্রেস \"${p.title}\"-এ যোগ হয়েছে।"
+        } else {
+            _familyMessage.value = if (_isEnglish.value) "You already have \"${p.title}\"." else "\"${p.title}\" আপনার কাছে আগে থেকেই আছে।"
+        }
+        // Tools tab 8 is Family Dhikr (see ToolsScreen).
+        _requestedToolTab.value = 8
+    }
+
+    fun acceptFamilyJoin() {
+        val p = _pendingFamilyJoin.value ?: return
+        saveFamilyGoals(com.example.ui.noorup.family.FamilyDhikrLogic.merge(_familyGoals.value, p))
+        _pendingFamilyJoin.value = null
+        _requestedToolTab.value = 8
+    }
+
+    fun dismissFamilyJoin() { _pendingFamilyJoin.value = null }
+
+    /** One-shot request for ToolsScreen to switch to a specific sub-tab (e.g. Family Dhikr from a deep link). */
+    private val _requestedToolTab = MutableStateFlow<Int?>(null)
+    val requestedToolTab: StateFlow<Int?> = _requestedToolTab.asStateFlow()
+    fun consumeRequestedToolTab() { _requestedToolTab.value = null }
+
+    private fun recordCheckIn(dateKey: String, member: String, prayers: Int) {
+        val next = _familyCheckIns.value.toMutableMap()
+        next[dateKey] = (next[dateKey] ?: emptyMap()) + (member to maxOf(prayers, next[dateKey]?.get(member) ?: 0))
+        _familyCheckIns.value = next
+        familyStore.saveCheckIns(next)
+    }
+
+    /** Records my own prayer count (from Noor Garden) for today. */
+    fun familyRecordMyCheckIn() {
+        val me = _familyMyName.value
+        if (me.isBlank()) return
+        val count = _habitPrayers.value.values.count { it }
+        val today = getTodayDateKey()
+        val next = _familyCheckIns.value.toMutableMap()
+        // My own count may go down if I untick a prayer, so overwrite rather than max().
+        next[today] = (next[today] ?: emptyMap()) + (me to count)
+        _familyCheckIns.value = next
+        familyStore.saveCheckIns(next)
+    }
+
+    fun familyStreak(): Int = com.example.ui.noorup.family.FamilyDhikrLogic.familyStreak(
+        _familyCheckIns.value, getTodayDateKey()
+    ) { key ->
+        val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val cal = Calendar.getInstance().apply { time = fmt.parse(key) ?: Date() }
+        cal.add(Calendar.DAY_OF_YEAR, -1)
+        fmt.format(cal.time)
+    }
+
+    fun familyProgressShareText(goal: com.example.ui.noorup.family.FamilyGoal, isEng: Boolean): String {
+        val me = _familyMyName.value
+        val mine = goal.contributions[me] ?: 0
+        val prayers = _habitPrayers.value.values.count { it }
+        val link = com.example.ui.noorup.family.FamilyLink.build(goal, me, mine, prayers, getTodayDateKey())
+        return if (isEng) "$me's NoorUp progress on \"${goal.title}\": $mine counted today toward ${goal.target}. Open to add it to the family total:\n$link${familyShareHint(true)}"
+        else "$me-এর নূরআপ প্রগ্রেস \"${goal.title}\": মোট ${mine.toBanglaDigits()} গোনা হয়েছে, লক্ষ্য ${goal.target.toBanglaDigits()}। পরিবারের মোটে যোগ করতে খুলুন:\n$link${familyShareHint(false)}"
+    }
+
+    /** Chat apps often don't make noorup:// links tappable, so every share explains the paste route. */
+    private fun familyShareHint(isEng: Boolean): String =
+        if (isEng) "\n\nCan't tap the link? Copy this whole message, then open NoorUp > Tools > Family Dhikr > Paste."
+        else "\n\nলিংকে ট্যাপ না হলে পুরো বার্তাটি কপি করে নূরআপ > সরঞ্জাম > পারিবারিক যিকর > পেস্ট করুন।"
+
+    fun familyInviteShareText(goal: com.example.ui.noorup.family.FamilyGoal, isEng: Boolean): String {
+        val me = _familyMyName.value
+        val link = com.example.ui.noorup.family.FamilyLink.build(goal)
+        return if (isEng) "$me invites you to a family dhikr goal on NoorUp: \"${goal.title}\" — target ${goal.target}.\n$link${familyShareHint(true)}"
+        else "$me আপনাকে নূরআপে পারিবারিক যিকর লক্ষ্যে আমন্ত্রণ জানিয়েছে: \"${goal.title}\" — লক্ষ্য ${goal.target.toBanglaDigits()}।\n$link${familyShareHint(false)}"
+    }
+
+    fun familyCheckInShareText(goal: com.example.ui.noorup.family.FamilyGoal, isEng: Boolean): String {
+        val me = _familyMyName.value
+        val prayers = _habitPrayers.value.values.count { it }
+        val link = com.example.ui.noorup.family.FamilyLink.build(goal, me, goal.contributions[me] ?: 0, prayers, getTodayDateKey())
+        return if (isEng) "$me prayed $prayers/5 today. Keep our family streak going!\n$link${familyShareHint(true)}"
+        else "$me আজ ${prayers.toBanglaDigits()}/৫ ওয়াক্ত পড়েছে। আমাদের পারিবারিক ধারাবাহিকতা ধরে রাখি!\n$link${familyShareHint(false)}"
+    }
+
+    // --- Dua bookmarks (also written by the Daily Verse widget) ---
+    private fun loadBookmarkedDuas(): Set<String> =
+        prefs.all.filter { (k, v) -> k.startsWith("dua_bm_") && v == true }.keys.map { it.removePrefix("dua_bm_") }.toSet()
+
+    private val _bookmarkedDuas = MutableStateFlow(loadBookmarkedDuas())
+    val bookmarkedDuas: StateFlow<Set<String>> = _bookmarkedDuas.asStateFlow()
+
+    fun toggleDuaBookmark(id: String) {
+        val now = id !in _bookmarkedDuas.value
+        prefs.edit().putBoolean("dua_bm_$id", now).apply()
+        _bookmarkedDuas.value = if (now) _bookmarkedDuas.value + id else _bookmarkedDuas.value - id
+    }
+
+    /** Re-read bookmarks that another component (the widget) may have changed. */
+    fun refreshBookmarksFromStorage() {
+        _bookmarkedDuas.value = loadBookmarkedDuas()
+        refreshBookmarkedVerses()
+    }
+
+    fun openDuaById(id: String) {
+        NoorUpRepository.duas.firstOrNull { it.id == id }?.let { openDuaFromSearch(it, _isEnglish.value) }
+    }
+
+    fun openGlobalSearch() { _searchOpen.value = true }
+    fun closeGlobalSearch() { _searchOpen.value = false }
+
+    fun openQuranFromSearch(surah: Int, ayah: Int) {
+        closeGlobalSearch()
+        selectTab(1)
+        openSurahAt(surah, ayah)
+    }
+
+    fun openDuaFromSearch(dua: DuaItem, isEng: Boolean) {
+        closeGlobalSearch()
+        _pendingDuaQuery.value = if (isEng) dua.titleEnglish else dua.titleBangla
+        setDuaSegment(0)
+        selectTab(2)
+    }
+
+    fun openHadithLibraryFromSearch(bookId: String, number: Int) {
+        closeGlobalSearch()
+        setDuaSegment(1)
+        selectTab(2)
+        selectHadithBook(bookId)
+        setHadithSearchQuery(number.toString())
+    }
+
+    fun openAssistantFromSearch(query: String, isEng: Boolean) {
+        closeGlobalSearch()
+        selectTab(4)
+        sendAiMessage(query, isEng)
+    }
+
+    /** Built-in assistant answer for [query], or null when the offline engine has no specific topic for it. */
+    fun offlineKnowledgeAnswer(query: String, isEng: Boolean): String? =
+        generateLocalIslamicResponse(query, isEng).takeIf { it != genericLocalReply(isEng) }
+
     private val _selectedTab = MutableStateFlow(prefs.getInt("selected_tab", 0).coerceIn(0, 5))
     val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
 
@@ -97,6 +361,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.Default) {
             try {
                 NoorUpWidgetProvider.updateAllWidgets(appContext)
+                com.example.DailyAyatWidgetProvider.updateAll(appContext)
             } catch (e: Exception) {
                 Log.e("NoorUpViewModel", "toggleLanguage widget update failed", e)
             }
@@ -290,6 +555,31 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         SharingStarted.Eagerly,
         HijriDateCalculator.calculateGregorianDate(Calendar.getInstance())
     )
+
+    // --- Ramadan Mode ---
+    val ramadanStore = com.example.ui.noorup.ramadan.RamadanStore(prefs)
+    private val _ramadanMode = MutableStateFlow(ramadanStore.modePref())
+    val ramadanMode: StateFlow<com.example.ui.noorup.ramadan.RamadanModePref> = _ramadanMode.asStateFlow()
+
+    /** Bumped whenever a Ramadan tracker is written, so tracker UIs re-read the store. */
+    private val _ramadanTick = MutableStateFlow(0)
+    val ramadanTick: StateFlow<Int> = _ramadanTick.asStateFlow()
+    fun ramadanChanged() { _ramadanTick.update { it + 1 } }
+
+    fun setRamadanMode(mode: com.example.ui.noorup.ramadan.RamadanModePref) {
+        ramadanStore.setModePref(mode)
+        _ramadanMode.value = mode
+    }
+
+    /** Auto: on for the whole of Hijri month 9. On/Off override it (On also previews outside Ramadan). */
+    val ramadanActive: StateFlow<Boolean> = combine(_ramadanMode, currentHijriDate) { mode, hijri ->
+        when (mode) {
+            com.example.ui.noorup.ramadan.RamadanModePref.ON -> true
+            com.example.ui.noorup.ramadan.RamadanModePref.OFF -> false
+            com.example.ui.noorup.ramadan.RamadanModePref.AUTO ->
+                com.example.ui.noorup.ramadan.RamadanLogic.isRamadan(hijri.month)
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val currentMoonPhase: StateFlow<MoonPhaseInfo> = combine(
         _selectedCalendarDate,
@@ -2777,6 +3067,12 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         prefs.edit().putBoolean("prayer_enabled_$key", enabled).apply()
         _perPrayerEnabled.value = _perPrayerEnabled.value.toMutableMap().apply { this[key] = enabled }
         if (_isNotificationEnabled.value) schedulePrayerNotifications(context, { /* onComplete */ })
+    }
+
+    /** Sehri-end follows the Fajr alert and Iftar follows Maghrib; turning one on also enables alerts overall. */
+    fun setRamadanAlert(prayerKey: String, enabled: Boolean, context: Context) {
+        if (enabled && !_isNotificationEnabled.value) toggleNotifications(true, context)
+        setPrayerEnabled(prayerKey, enabled, context)
     }
 
     fun toggleNotifications(enabled: Boolean, context: Context) {

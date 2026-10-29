@@ -124,12 +124,21 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         Log.d("PrayerAlarmReceiver", "Received prayer alarm for $prayerName (id=$notificationId)")
 
         if (notificationId != -1) {
+            // Ramadan: the Maghrib alert (id 2003) is also the Iftar alert; on odd nights of the last
+            // ten it also reminds about Laylatul Qadr.
+            val ramadan = if (notificationId == 2003) {
+                try {
+                    com.example.ui.noorup.ramadan.RamadanNotifications.maghribOverride(
+                        context, prefs.getBoolean("is_english", false)
+                    )
+                } catch (_: Exception) { null }
+            } else null
             // Guarded: denied POST_NOTIFICATIONS = silent no-op, never claim Active.
             PrayerNotificationHelper.showPrayerAlert(
                 context = context,
                 notificationId = notificationId,
-                title = prayerName,
-                message = message,
+                title = ramadan?.first ?: prayerName,
+                message = ramadan?.second ?: message,
                 channelId = channelId
             )
         } else {

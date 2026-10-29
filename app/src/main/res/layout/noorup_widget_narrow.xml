@@ -486,7 +486,7 @@
             android:layout_height="wrap_content"
             android:text="⚠️ ৩টি নিষিদ্ধ সময়:"
             android:textColor="#FBBF24"
-            android:textSize="10sp"
+            android:textSize="11.5sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -499,7 +499,7 @@
             android:gravity="center"
             android:text="সূর্যোদয়: ০৫:৫৮–০৬:১৪ • দ্বিপ্রহর: ১১:৫০–১২:০৪ • সূর্যাস্ত: ০৬:০০–০৬:১৭"
             android:textColor="#E5E7EB"
-            android:textSize="9sp"
-            android:lineSpacingExtra="1dp" />
+            android:textSize="11.5sp"
+            android:lineSpacingExtra="2dp" />
     </LinearLayout>
 </LinearLayout>

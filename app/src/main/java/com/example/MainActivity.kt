@@ -1,4 +1,4 @@
-package com.example
+﻿package com.example
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.noorup.*
+import com.example.ui.noorup.audio.QuranAudioBar
+import com.example.ui.noorup.search.GlobalSearchScreen
 import com.example.ui.theme.*
 
 class MainActivity : ComponentActivity() {
@@ -49,6 +51,7 @@ class MainActivity : ComponentActivity() {
             val isDarkMode by viewModel.isDarkMode.collectAsState()
             val isEnglish by viewModel.isEnglish.collectAsState()
             val selectedTab by viewModel.selectedTab.collectAsState()
+            val searchOpen by viewModel.searchOpen.collectAsState()
             val context = LocalContext.current
 
             // Android 13+ notification permission is owned by the Home-screen
@@ -170,6 +173,12 @@ class MainActivity : ComponentActivity() {
                                 4 -> AiAssistantScreen(viewModel)
                                 5 -> AnalyticsScreen(viewModel)
                             }
+                            QuranAudioBar(
+                                controller = viewModel.audio,
+                                isEnglish = isEnglish,
+                                modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
+                            )
+                            if (searchOpen) GlobalSearchScreen(viewModel)
                         }
                     }
                 }
@@ -178,7 +187,23 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleNotificationDeepLink(viewModel: NoorUpViewModel, intent: android.content.Intent?) {
-        if (intent?.getBooleanExtra(PrayerNotificationHelper.EXTRA_OPEN_DAILY_HADITH, false) == true) {
+        val data = intent?.data
+        if (data != null && data.scheme == "noorup" && data.host == "dhikr") {
+            intent?.data = null // one-shot
+            viewModel.handleFamilyLink(data)
+            return
+        }
+        val widgetSurah = intent?.getIntExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_SURAH, -1) ?: -1
+        val widgetDua = intent?.getStringExtra(DailyAyatWidgetProvider.EXTRA_OPEN_DUA_ID)
+        if (widgetSurah > 0) {
+            // Daily Verse widget: jump to the exact ayah, once.
+            val ayah = intent!!.getIntExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_AYAH, 1)
+            intent.removeExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_SURAH)
+            viewModel.openQuranFromSearch(widgetSurah, ayah)
+        } else if (widgetDua != null) {
+            intent!!.removeExtra(DailyAyatWidgetProvider.EXTRA_OPEN_DUA_ID)
+            viewModel.openDuaById(widgetDua)
+        } else if (intent?.getBooleanExtra(PrayerNotificationHelper.EXTRA_OPEN_DAILY_HADITH, false) == true) {
             val id = intent.getIntExtra(PrayerNotificationHelper.EXTRA_DAILY_HADITH_ID, -1)
             viewModel.handleDailyHadithDeepLink(id)
         } else if (intent?.getBooleanExtra(PrayerNotificationHelper.EXTRA_OPEN_HOME, false) == true) {
@@ -201,6 +226,10 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         val appCtx = applicationContext
+        // The Daily Verse widget can bookmark while the app is in the background.
+        try {
+            androidx.lifecycle.ViewModelProvider(this)[NoorUpViewModel::class.java].refreshBookmarksFromStorage()
+        } catch (_: Exception) { }
         Thread {
             try {
                 NoorUpWidgetProvider.updateAllWidgets(appCtx)
@@ -218,3 +247,4 @@ class MainActivity : ComponentActivity() {
         }.start()
     }
 }
+

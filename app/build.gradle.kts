@@ -28,8 +28,8 @@ android {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
         targetSdk = 37
-        versionCode = 15
-        versionName = "1.3.0"
+        versionCode = 16
+        versionName = "1.4.0"
 
         // Public URL of the deployed ai-proxy Worker; empty keeps the assistant offline-only.
         val aiProxyUrl = (project.findProperty("aiProxyUrl") as String?)?.trim().orEmpty()
@@ -55,6 +55,11 @@ android {
 
     buildTypes {
         debug {
+            // Opt-in (-PdebugIdSuffix=.dbg): installs next to a Play/release build whose signature differs,
+            // without touching its data. Off by default.
+            (project.findProperty("debugIdSuffix") as String?)?.takeIf { it.isNotBlank() }?.let {
+                applicationIdSuffix = it
+            }
         }
         release {
             // R8 enabled: Play requires DEX obfuscation (threshold deadline Feb 2027).
@@ -97,6 +102,8 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            // Robolectric + the bundled Quran/Hadith assets exhaust the default test heap in a full run.
+            all { it.maxHeapSize = "1536m" }
         }
     }
 }
@@ -120,6 +127,13 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.gson)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.datasource)
+    implementation(libs.androidx.media3.database)
+    implementation(libs.play.services.auth)
+    implementation(libs.zxing.core)
+    implementation(libs.play.services.code.scanner)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

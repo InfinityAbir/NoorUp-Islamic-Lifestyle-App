@@ -59,6 +59,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.draw.shadow
 import com.example.ui.theme.*
+import com.example.ui.noorup.audio.QuranAudioPanel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -749,6 +750,24 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Universal search
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f), CircleShape)
+                    .clickable { viewModel.openGlobalSearch() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = if (isEnglish) "Search" else "অনুসন্ধান",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
             // Language Toggle Pill
             Row(
                 modifier = Modifier
@@ -1293,6 +1312,8 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
         }
     }
 
+    val isRamadanMode by viewModel.ramadanActive.collectAsState()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -1302,6 +1323,11 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
         // 1. Top Controls Bar
         item {
             TopControlsHeader(viewModel)
+        }
+
+        // Ramadan Mode: seasonal dashboard (countdown, fasting tracker) right under the controls.
+        if (isRamadanMode) {
+            item { com.example.ui.noorup.ramadan.RamadanHomeCard(viewModel) }
         }
 
         // 2. Greeting Header with Clock and Live Hijri Date Badge
@@ -2158,6 +2184,9 @@ fun FocusModeView(viewModel: NoorUpViewModel) {
     }
 }
 
+/** Non-verse items ahead of the first verse in the reader list: the page controls and the Surah header card. */
+private const val VERSE_LIST_OFFSET = 1
+
 @Composable
 fun QuranScreen(viewModel: NoorUpViewModel) {
     val surahs by viewModel.surahs.collectAsState()
@@ -2179,13 +2208,24 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
     val readerResume by viewModel.readerResume.collectAsState()
     val pendingReaderAyat by viewModel.pendingReaderAyat.collectAsState()
     val listState = rememberLazyListState()
+    val audioController = viewModel.audio
+    val audioState by audioController.state.collectAsState()
 
     LaunchedEffect(showBookmarksOnly) {
         if (showBookmarksOnly) viewModel.refreshBookmarkedVerses()
     }
 
+    // Keep the verse being recited in view. Items 0 (controls) and 1 (Surah header) come first, so Ayat n is item n + 1.
+    LaunchedEffect(audioState.ayah, audioState.surah, audioState.active, selectedVerses.size) {
+        if (audioState.active && audioState.surah == selectedSurahNumber &&
+            audioState.ayah in 1..selectedVerses.size && !showBookmarksOnly
+        ) {
+            listState.animateScrollToItem(audioState.ayah + VERSE_LIST_OFFSET)
+        }
+    }
+
     // One-shot scroll to an explicitly requested Ayat once its verses land.
-    // Item 0 is the Surah header, so Ayat n sits at list index n.
+    // Items 0 (controls) and 1 (Surah header) come first, so Ayat n sits at list index n + 1.
     LaunchedEffect(pendingReaderAyat, selectedVerses, selectedSurahNumber, showBookmarksOnly) {
         val target = pendingReaderAyat ?: return@LaunchedEffect
         if (selectedSurahNumber == null || selectedVerses.isEmpty()) return@LaunchedEffect
@@ -2197,7 +2237,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
             return@LaunchedEffect
         }
         if (target in 1..selectedVerses.size) {
-            listState.scrollToItem(target)
+            listState.scrollToItem(target + VERSE_LIST_OFFSET)
             viewModel.consumeReaderAyatJump()
         }
     }
@@ -2246,6 +2286,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
+            contentPadding = PaddingValues(bottom = if (audioState.active) 150.dp else 0.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
@@ -2729,6 +2770,14 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                    QuranAudioPanel(
+                        controller = audioController,
+                        surah = selectedSurah!!.number,
+                        totalAyahs = selectedSurah!!.totalVerses,
+                        surahTitle = if (isEnglish) selectedSurah!!.nameEnglish else selectedSurah!!.nameBangla,
+                        isEnglish = isEnglish
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     if (isQuranLoading) {
                         GlassCard {
                             Row(
@@ -2778,7 +2827,11 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                 }
 
                 items(selectedVerses) { verse ->
-                    GlassCard {
+                    val isPlayingVerse = audioState.active && audioState.surah == selectedSurah!!.number && audioState.ayah == verse.number
+                    val highlight = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                    GlassCard(
+                        modifier = if (isPlayingVerse) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(18.dp)) else Modifier
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -2799,6 +2852,18 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                                 )
                             }
                             Row {
+                                IconButton(onClick = {
+                                    audioController.playAyah(
+                                        selectedSurah!!.number, verse.number, selectedSurah!!.totalVerses,
+                                        if (isEnglish) selectedSurah!!.nameEnglish else selectedSurah!!.nameBangla
+                                    )
+                                }) {
+                                    Icon(
+                                        imageVector = if (isPlayingVerse && audioState.isPlaying) Icons.Default.GraphicEq else Icons.Default.PlayCircleOutline,
+                                        contentDescription = if (isEnglish) "Play from this ayah" else "এই আয়াত থেকে শুনুন",
+                                        tint = if (isPlayingVerse) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                                 IconButton(onClick = { viewModel.toggleBookmark(selectedSurah!!.number, verse.number) }) {
                                     Icon(
                                         imageVector = if (verse.isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
@@ -2820,7 +2885,13 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                             arabic = verse.arabicText,
                             ayahNumber = verse.number,
                             fontSize = 20.sp,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (isPlayingVerse && audioState.lang == com.example.ui.noorup.audio.AudioLang.AR)
+                                        Modifier.background(highlight, RoundedCornerShape(10.dp)).padding(6.dp)
+                                    else Modifier
+                                ),
                             textAlign = TextAlign.End
                         )
                         if (showPronunciation) {
@@ -2843,8 +2914,16 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
+                        // While a translation is being spoken, show and highlight that language's text.
                         val trans = if (isEnglish) verse.englishTranslation else verse.banglaTranslation
-                        Text(trans, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                        val bnActive = isPlayingVerse && audioState.lang != com.example.ui.noorup.audio.AudioLang.AR
+                        val spoken = if (audioState.lang == com.example.ui.noorup.audio.AudioLang.EN) verse.englishTranslation else verse.banglaTranslation
+                        Text(
+                            if (bnActive) spoken else trans,
+                            color = if (bnActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
+                            modifier = if (bnActive) Modifier.fillMaxWidth().background(highlight, RoundedCornerShape(10.dp)).padding(6.dp) else Modifier
+                        )
                     }
                 }
             }
@@ -2892,6 +2971,16 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
     val selectedHadithTopic by viewModel.selectedHadithTopic.collectAsState()
     val hadithSearchQuery by viewModel.hadithSearchQuery.collectAsState()
     var duaSearchQuery by rememberSaveable { mutableStateOf("") }
+    val bookmarkedDuaIds by viewModel.bookmarkedDuas.collectAsState()
+    // Jump from a global-search result: filter the list down to that dua.
+    val pendingDuaQuery by viewModel.pendingDuaQuery.collectAsState()
+    LaunchedEffect(pendingDuaQuery) {
+        pendingDuaQuery?.let {
+            duaSearchQuery = it
+            selectedCategoryKey = DuaSearch.ALL_CATEGORY_KEY
+            viewModel.consumePendingDuaQuery()
+        }
+    }
 
     val isEnglish by viewModel.isEnglish.collectAsState()
     val bookmarkedHadiths by viewModel.bookmarkedHadiths.collectAsState()
@@ -4121,6 +4210,14 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
+                            val duaSaved = dua.id in bookmarkedDuaIds
+                            IconButton(onClick = { viewModel.toggleDuaBookmark(dua.id) }, modifier = Modifier.size(36.dp)) {
+                                Icon(
+                                    if (duaSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                    contentDescription = if (isEnglish) "Save dua" else "দুআ সংরক্ষণ",
+                                    tint = if (duaSaved) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
@@ -4778,9 +4875,15 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
     var toolTab by remember { mutableStateOf(0) }
     val isEnglish by viewModel.isEnglish.collectAsState()
     val toolNames = if (isEnglish) {
-        listOf("Prayer Alerts", "Digital Tasbih", "Solar Engine", "Qibla", "Hijri", "Zakat", "Home Widget")
+        listOf("Prayer Alerts", "Digital Tasbih", "Solar Engine", "Qibla", "Hijri", "Zakat", "Home Widget", "Ramadan", "Family Dhikr", "Backup")
     } else {
-        listOf("ওয়াক্ত অ্যালার্ট", "ডিজিটাল তসবীহ", "সৌর ইঞ্জিন", "কিবলা কম্পাস", "হিজরি", "যাকাত", "হোম উইজেট")
+        listOf("ওয়াক্ত অ্যালার্ট", "ডিজিটাল তসবীহ", "সৌর ইঞ্জিন", "কিবলা কম্পাস", "হিজরি", "যাকাত", "হোম উইজেট", "রমজান", "পারিবারিক যিকর", "ব্যাকআপ")
+    }
+
+    // Deep links (family invite/progress) ask the Tools screen to open a specific sub-tab.
+    val requestedToolTab by viewModel.requestedToolTab.collectAsState()
+    LaunchedEffect(requestedToolTab) {
+        requestedToolTab?.let { toolTab = it; viewModel.consumeRequestedToolTab() }
     }
 
     val tasbihCount by viewModel.tasbihCount.collectAsState()
@@ -5022,7 +5125,10 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
 
             // Responsive: scrollable row keeps full labels (no squeezing); trailing
             // padding keeps the last pill from hard-clipping at the viewport edge.
+            val toolRowState = rememberLazyListState()
+            LaunchedEffect(toolTab) { toolRowState.animateScrollToItem(toolTab) }
             LazyRow(
+                state = toolRowState,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(end = 8.dp)
             ) {
@@ -5484,6 +5590,12 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
             item {
                 ZakatCalculatorView(viewModel = viewModel)
             }
+        } else if (toolTab == 7) {
+            item { com.example.ui.noorup.ramadan.RamadanToolsView(viewModel) }
+        } else if (toolTab == 8) {
+            item { com.example.ui.noorup.family.FamilyDhikrView(viewModel) }
+        } else if (toolTab == 9) {
+            item { com.example.ui.noorup.backup.BackupRestoreView(viewModel) }
         } else if (toolTab == 6) {
             // Feature: Home Screen Widget Preview & Customizer
             item {

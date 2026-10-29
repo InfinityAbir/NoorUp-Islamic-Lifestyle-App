@@ -109,6 +109,21 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 R.layout.noorup_widget
             }
 
+        /**
+         * Text size for the prohibited-times footer. Roomy widgets get larger text; narrow ones stay smaller.
+         * Either way the line wraps at the " • " separators instead of clipping, so a larger size only ever
+         * costs an extra line, never lost text. Pure rule, unit-testable on the JVM.
+         */
+        fun prohibitedTimesSizeSp(minWidthDp: Int): Float = when {
+            minWidthDp <= 0 -> 11f          // unknown width: middle size
+            minWidthDp >= 380 -> 12.5f
+            minWidthDp >= 320 -> 11.5f
+            minWidthDp >= 250 -> 10.5f
+            else -> 10f
+        }
+
+        fun prohibitedLabelSizeSp(minWidthDp: Int): Float = prohibitedTimesSizeSp(minWidthDp) + 0.5f
+
         fun readMinWidthDp(appWidgetManager: AppWidgetManager, appWidgetId: Int): Int =
             try {
                 appWidgetManager.getAppWidgetOptions(appWidgetId)
@@ -227,7 +242,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
 
         fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             try {
-                val layoutRes = widgetLayoutForMinWidth(readMinWidthDp(appWidgetManager, appWidgetId))
+                val minWidthDp = readMinWidthDp(appWidgetManager, appWidgetId)
+                val layoutRes = widgetLayoutForMinWidth(minWidthDp)
                 val views = RemoteViews(context.packageName, layoutRes)
 
                 // Retrieve preferences for language, city, and GPS coordinates
@@ -568,6 +584,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                     combinedHtml.replace(Regex("<[^>]*>"), "")
                 }
                 views.setTextViewText(R.id.widget_prohibited_times, combined)
+                views.setTextViewTextSize(R.id.widget_prohibited_times, android.util.TypedValue.COMPLEX_UNIT_SP, prohibitedTimesSizeSp(minWidthDp))
+                views.setTextViewTextSize(R.id.widget_prohibited_label, android.util.TypedValue.COMPLEX_UNIT_SP, prohibitedLabelSizeSp(minWidthDp))
 
                 // Set Open App Intent on widget click
                 val intent = Intent(context, MainActivity::class.java).apply {

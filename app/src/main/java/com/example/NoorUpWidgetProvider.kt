@@ -109,21 +109,6 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 R.layout.noorup_widget
             }
 
-        /**
-         * Text size for the prohibited-times footer. Roomy widgets get larger text; narrow ones stay smaller.
-         * Either way the line wraps at the " • " separators instead of clipping, so a larger size only ever
-         * costs an extra line, never lost text. Pure rule, unit-testable on the JVM.
-         */
-        fun prohibitedTimesSizeSp(minWidthDp: Int): Float = when {
-            minWidthDp <= 0 -> 11f          // unknown width: middle size
-            minWidthDp >= 380 -> 12.5f
-            minWidthDp >= 320 -> 11.5f
-            minWidthDp >= 250 -> 10.5f
-            else -> 10f
-        }
-
-        fun prohibitedLabelSizeSp(minWidthDp: Int): Float = prohibitedTimesSizeSp(minWidthDp) + 0.5f
-
         fun readMinWidthDp(appWidgetManager: AppWidgetManager, appWidgetId: Int): Int =
             try {
                 appWidgetManager.getAppWidgetOptions(appWidgetId)
@@ -547,7 +532,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 // Bind 3 Prohibited / Makruh Times Bar
                 views.setTextViewText(
                     R.id.widget_prohibited_label,
-                    if (isEnglish) "⚠️ Prohibited:" else "⚠️ নিষিদ্ধ সময়:"
+                    if (isEnglish) "⚠️ Prohibited:" else "⚠️ নিষিদ্ধ:"
                 )
 
                 val sunriseRange = "${formatShortTime(todayTimes.makruhSunriseStart, isEnglish)}–${formatShortTime(todayTimes.makruhSunriseEnd, isEnglish)}"
@@ -561,9 +546,9 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 // Single wrapping times line (matches the vertical two-line footer layout):
                 // every range stays readable on narrow widgets; the active window is
                 // marked with 🔥 and tinted red via HTML spans (plain-text fallback).
-                val sunriseText = if (isEnglish) "Sunrise: $sunriseRange" else "সূর্যোদয়: $sunriseRange"
-                val zawalText = if (isEnglish) "Zawal: $zawalRange" else "দ্বিপ্রহর: $zawalRange"
-                val sunsetText = if (isEnglish) "Sunset: $sunsetRange" else "সূর্যাস্ত: $sunsetRange"
+                val sunriseText = if (isEnglish) "Sunrise $sunriseRange" else "সূর্যোদয় $sunriseRange"
+                val zawalText = if (isEnglish) "Zawal $zawalRange" else "দ্বিপ্রহর $zawalRange"
+                val sunsetText = if (isEnglish) "Sunset $sunsetRange" else "সূর্যাস্ত $sunsetRange"
 
                 fun markActive(text: String, active: Boolean): String =
                     if (active) "<font color='#EF4444'>🔥 $text</font>" else text
@@ -584,8 +569,6 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                     combinedHtml.replace(Regex("<[^>]*>"), "")
                 }
                 views.setTextViewText(R.id.widget_prohibited_times, combined)
-                views.setTextViewTextSize(R.id.widget_prohibited_times, android.util.TypedValue.COMPLEX_UNIT_SP, prohibitedTimesSizeSp(minWidthDp))
-                views.setTextViewTextSize(R.id.widget_prohibited_label, android.util.TypedValue.COMPLEX_UNIT_SP, prohibitedLabelSizeSp(minWidthDp))
 
                 // Set Open App Intent on widget click
                 val intent = Intent(context, MainActivity::class.java).apply {

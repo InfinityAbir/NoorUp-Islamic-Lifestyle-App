@@ -242,7 +242,7 @@
                     android:layout_weight="1"
                     android:text="ফজর"
                     android:textColor="#E5E7EB"
-                    android:textSize="10.5sp"
+                    android:textSize="12.5sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -252,7 +252,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৪:৪৮"
                     android:textColor="#E5E7EB"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -261,7 +261,7 @@
                     android:layout_height="wrap_content"
                     android:text=" – "
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -271,7 +271,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৫:৫৮ AM"
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
             </LinearLayout>
@@ -285,8 +285,8 @@
                 android:orientation="horizontal"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
 
                 <TextView
                     android:id="@+id/widget_dhuhr_name"
@@ -295,7 +295,7 @@
                     android:layout_weight="1"
                     android:text="যোহর"
                     android:textColor="#E5E7EB"
-                    android:textSize="10.5sp"
+                    android:textSize="12.5sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -305,7 +305,7 @@
                     android:layout_height="wrap_content"
                     android:text="১২:০৫"
                     android:textColor="#E5E7EB"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -314,7 +314,7 @@
                     android:layout_height="wrap_content"
                     android:text=" – "
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -324,7 +324,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৪:২১ PM"
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
             </LinearLayout>
@@ -338,8 +338,8 @@
                 android:orientation="horizontal"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
 
                 <TextView
                     android:id="@+id/widget_asr_name"
@@ -348,7 +348,7 @@
                     android:layout_weight="1"
                     android:text="আসর"
                     android:textColor="#34D399"
-                    android:textSize="10.5sp"
+                    android:textSize="12.5sp"
                     android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -359,7 +359,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৪:২২"
                     android:textColor="#34D399"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -369,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:text=" – "
                     android:textColor="#34D399"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -379,7 +379,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৫:৩২ PM"
                     android:textColor="#6EE7B7"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
             </LinearLayout>
@@ -393,8 +393,8 @@
                 android:orientation="horizontal"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
 
                 <TextView
                     android:id="@+id/widget_maghrib_name"
@@ -403,7 +403,7 @@
                     android:layout_weight="1"
                     android:text="মাগরিব"
                     android:textColor="#E5E7EB"
-                    android:textSize="10.5sp"
+                    android:textSize="12.5sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -413,7 +413,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৬:১৮"
                     android:textColor="#E5E7EB"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -422,7 +422,7 @@
                     android:layout_height="wrap_content"
                     android:text=" – "
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -432,7 +432,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৭:৩২ PM"
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
             </LinearLayout>
@@ -446,8 +446,8 @@
                 android:orientation="horizontal"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
 
                 <TextView
                     android:id="@+id/widget_isha_name"
@@ -456,7 +456,7 @@
                     android:layout_weight="1"
                     android:text="এশা"
                     android:textColor="#E5E7EB"
-                    android:textSize="10.5sp"
+                    android:textSize="12.5sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -466,7 +466,7 @@
                     android:layout_height="wrap_content"
                     android:text="০৭:৩৩"
                     android:textColor="#E5E7EB"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -475,7 +475,7 @@
                     android:layout_height="wrap_content"
                     android:text=" – "
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
 
@@ -485,52 +485,53 @@
                     android:layout_height="wrap_content"
                     android:text="০৪:৪৭ AM"
                     android:textColor="#9CA3AF"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Bottom Footer Bar: 3 Prohibited / Makruh Times.
-         Responsive: vertical two-line layout (yellow label on its own line +
-         one times line that wraps naturally). The times line uses wrap_content
-         height with NO maxLines/ellipsize cap, so sunrise/zawal/sunset ranges
-         stay complete: compact single line on wide widgets, two+ lines on
-         narrow widgets or larger fonts. Ranges use "–" without inner spaces so
-         each range stays together; wrapping happens at the " • " separators. -->
+    <!-- Bottom Footer Bar: 3 Prohibited / Makruh Times on ONE line.
+         Short yellow label + times that auto-shrink (12sp down to 8sp) to stay on a single
+         line instead of wrapping, so the footer height is constant at any widget width. -->
     <LinearLayout
         android:id="@+id/widget_prohibited_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:background="@drawable/widget_timeline_card_bg"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp">
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
 
         <TextView
             android:id="@+id/widget_prohibited_label"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚠️ ৩টি নিষিদ্ধ সময়:"
+            android:text="⚠️ নিষিদ্ধ:"
             android:textColor="#FBBF24"
-            android:textSize="11.5sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/widget_prohibited_times"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:gravity="center"
-            android:text="সূর্যোদয়: ০৫:৫৮–০৬:১৪ • দ্বিপ্রহর: ১১:৫০–১২:০৪ • সূর্যাস্ত: ০৬:০০–০৬:১৭"
+            android:layout_weight="1"
+            android:layout_marginLeft="6dp"
+            android:gravity="center_vertical|end"
+            android:text="সূর্যোদয় ০৫:৫৮–০৬:১৪ • দ্বিপ্রহর ১১:৫০–১২:০৪ • সূর্যাস্ত ০৬:০০–০৬:১৭"
             android:textColor="#E5E7EB"
-            android:textSize="11.5sp"
-            android:lineSpacingExtra="2dp" />
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeStepGranularity="0.5sp" />
     </LinearLayout>
 </LinearLayout>

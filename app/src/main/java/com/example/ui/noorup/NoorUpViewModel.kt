@@ -266,6 +266,24 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _bookmarkedDuas.value = if (now) _bookmarkedDuas.value + id else _bookmarkedDuas.value - id
     }
 
+    // --- Favourite Surahs: IDs only (separate from Ayat bookmarks "bm_*") ---
+    private fun loadFavoriteSurahs(): Set<Int> =
+        prefs.all.filter { (k, v) -> k.startsWith("fav_surah_") && v == true }
+            .keys.mapNotNull { it.removePrefix("fav_surah_").toIntOrNull() }
+            .filter { it in 1..114 }.toSet()
+
+    private val _favoriteSurahs = MutableStateFlow(loadFavoriteSurahs())
+    val favoriteSurahs: StateFlow<Set<Int>> = _favoriteSurahs.asStateFlow()
+
+    fun toggleFavoriteSurah(surahNumber: Int) {
+        if (surahNumber !in 1..114) return
+        val now = surahNumber !in _favoriteSurahs.value
+        val editor = prefs.edit()
+        if (now) editor.putBoolean("fav_surah_$surahNumber", true) else editor.remove("fav_surah_$surahNumber")
+        editor.apply()
+        _favoriteSurahs.value = if (now) _favoriteSurahs.value + surahNumber else _favoriteSurahs.value - surahNumber
+    }
+
     /** Re-read bookmarks that another component (the widget) may have changed. */
     fun refreshBookmarksFromStorage() {
         _bookmarkedDuas.value = loadBookmarkedDuas()

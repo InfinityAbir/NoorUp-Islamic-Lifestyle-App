@@ -36,7 +36,7 @@ object BackupCodec {
 
     /** Exactly the keys worth moving to a new phone. Device-specific and transient keys are left out. */
     private val keyPrefixes = listOf(
-        "bm_", "mem_", "dua_bm_", "reader_last_", "focus_",
+        "bm_", "mem_", "dua_bm_", "fav_surah_", "reader_last_", "focus_",
         "prayer_habit_", "prayer_record_", "prayer_transferred_qada_", "user_has_logged_",
         "qada_", "tasbih_", "ramadan_", "family_",
         "prayer_enabled_", "selected_city_"

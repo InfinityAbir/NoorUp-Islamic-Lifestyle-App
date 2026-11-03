@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +62,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.draw.shadow
 import com.example.ui.theme.*
 import com.example.ui.noorup.audio.QuranAudioPanel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -2283,6 +2285,8 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
     var showReaderSettings by remember { mutableStateOf(false) }
     var audioPanelOpen by rememberSaveable { mutableStateOf(false) }
     var browseByJuz by rememberSaveable { mutableStateOf(false) }
+    var showFavoritesOnly by rememberSaveable { mutableStateOf(false) }
+    val favoriteSurahs by viewModel.favoriteSurahs.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showPronunciationSource by remember { mutableStateOf(false) }
     var bookmarkQuery by remember { mutableStateOf("") }
@@ -2376,12 +2380,22 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
     if (isAmbientFocus) {
         FocusModeView(viewModel)
     } else {
+        // Side index only while browsing the full Surah or Para list.
+        val resumeSurahShown = readerResume?.let { (n, _) -> surahs.any { it.number == n } } == true
+        val libraryOffset = 1 + if (resumeSurahShown) 1 else 0
+        val showQuickIndex = selectedSurah == null && !showBookmarksOnly && !showFavoritesOnly &&
+            (browseByJuz || (searchQuery.isBlank() && surahs.size > 1))
+        val indexScope = rememberCoroutineScope()
+        Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            contentPadding = PaddingValues(bottom = if (audioState.active) 150.dp else 0.dp),
+            contentPadding = PaddingValues(
+                end = if (showQuickIndex) 30.dp else 0.dp,
+                bottom = if (audioState.active) 150.dp else 0.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
@@ -2440,18 +2454,34 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // One switch: Surah | Para | Bookmarks. Exactly one is active; the others stay tappable.
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // One switch: Surah | Para | Favorites | Bookmarks. Exactly one is active; the others stay tappable.
                     FilterChip(
-                        selected = !showBookmarksOnly && !browseByJuz,
-                        onClick = { showBookmarksOnly = false; browseByJuz = false },
+                        selected = !showBookmarksOnly && !showFavoritesOnly && !browseByJuz,
+                        onClick = { showBookmarksOnly = false; showFavoritesOnly = false; browseByJuz = false },
                         label = { Text(if (isEnglish) "Surah" else "সূরা") },
                         colors = brandChipColors()
                     )
                     FilterChip(
-                        selected = !showBookmarksOnly && browseByJuz,
-                        onClick = { showBookmarksOnly = false; browseByJuz = true },
+                        selected = !showBookmarksOnly && !showFavoritesOnly && browseByJuz,
+                        onClick = { showBookmarksOnly = false; showFavoritesOnly = false; browseByJuz = true },
                         label = { Text(if (isEnglish) "Juz (Para)" else "পারা") },
+                        colors = brandChipColors()
+                    )
+                    FilterChip(
+                        selected = !showBookmarksOnly && showFavoritesOnly,
+                        onClick = { showBookmarksOnly = false; browseByJuz = false; showFavoritesOnly = true },
+                        label = { Text(if (isEnglish) "Favorites" else "প্রিয়") },
+                        leadingIcon = {
+                            Icon(
+                                if (!showBookmarksOnly && showFavoritesOnly) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        },
                         colors = brandChipColors()
                     )
                     FilterChip(
@@ -2772,55 +2802,63 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
                         }
                     }
                 }
+            } else if (selectedSurah == null && showFavoritesOnly) {
+                val favorites = surahs.filter {
+                    it.number in favoriteSurahs &&
+                        (searchQuery.isBlank() ||
+                            it.nameBangla.contains(searchQuery, true) ||
+                            it.nameEnglish.contains(searchQuery, true) ||
+                            it.number.toString().contains(searchQuery))
+                }
+                if (favorites.isEmpty()) {
+                    item {
+                        GlassCard {
+                            if (favoriteSurahs.isEmpty()) {
+                                EmptyState(
+                                    icon = Icons.Default.FavoriteBorder,
+                                    title = if (isEnglish) "No favorite Surahs yet" else "এখনো কোনো প্রিয় সূরা নেই",
+                                    body = if (isEnglish) "Tap the heart beside any Surah to keep it here for quick access."
+                                    else "যেকোনো সূরার পাশের হার্ট আইকনে ট্যাপ করলে সেটি এখানে দ্রুত পাবেন।",
+                                    actionLabel = if (isEnglish) "Browse surahs" else "সূরা দেখুন",
+                                    onAction = { showFavoritesOnly = false; browseByJuz = false }
+                                )
+                            } else {
+                                Text(
+                                    if (isEnglish) "No favorite Surah matches \"$searchQuery\"."
+                                    else "\"$searchQuery\" এর সাথে কোনো প্রিয় সূরা মেলেনি।",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(favorites, key = { "fav_${it.number}" }) { surah ->
+                        SurahListCard(
+                            surah = surah,
+                            isEnglish = isEnglish,
+                            isFavorite = true,
+                            onOpen = { viewModel.openSurah(surah.number) },
+                            onToggleFavorite = { viewModel.toggleFavoriteSurah(surah.number) }
+                        )
+                    }
+                }
             } else if (selectedSurah == null) {
                 val filteredSurahs = surahs.filter {
                     it.nameBangla.contains(searchQuery, true) ||
                     it.nameEnglish.contains(searchQuery, true) ||
                     it.number.toString().contains(searchQuery)
                 }
-                items(filteredSurahs) { surah ->
-                    GlassCard(
-                        modifier = Modifier.clickable { viewModel.openSurah(surah.number) }
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        if (isEnglish) "${surah.number}" else surah.number.toBanglaDigits(),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    val sName = if (isEnglish) surah.nameEnglish else surah.nameBangla
-                                    val revType = if (isEnglish) surah.revelationTypeEnglish else surah.revelationTypeBangla
-                                    Text(sName, color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    Text("$revType • ${if (isEnglish) surah.totalVerses.toString() else surah.totalVerses.toBanglaDigits()} ${if (isEnglish) "Verses" else "আয়াত"}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                surah.nameArabic,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = QuranArabicFont,
-                                maxLines = 1
-                            )
-                        }
-                    }
+                items(filteredSurahs, key = { it.number }) { surah ->
+                    SurahListCard(
+                        surah = surah,
+                        isEnglish = isEnglish,
+                        isFavorite = surah.number in favoriteSurahs,
+                        onOpen = { viewModel.openSurah(surah.number) },
+                        onToggleFavorite = { viewModel.toggleFavoriteSurah(surah.number) }
+                    )
                 }
             } else {
                 item {
@@ -3093,6 +3131,31 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
                 }
             }
         }
+        if (showQuickIndex) {
+            val indexCount = if (browseByJuz) com.example.ui.noorup.quran.JuzIndex.STARTS.size else surahs.size
+            QuickIndexRail(
+                count = indexCount,
+                markerStep = if (browseByJuz) 5 else 20,
+                description = if (isEnglish) {
+                    if (browseByJuz) "Quick index: drag to jump to a Para" else "Quick index: drag to jump to a Surah"
+                } else {
+                    if (browseByJuz) "দ্রুত সূচি: পারায় যেতে টেনে নিন" else "দ্রুত সূচি: সূরায় যেতে টেনে নিন"
+                },
+                markerText = { if (isEnglish) "$it" else it.toBanglaDigits() },
+                label = { n ->
+                    if (browseByJuz) {
+                        if (isEnglish) "Juz $n" else "পারা ${n.toBanglaDigits()}"
+                    } else {
+                        val s = surahs.getOrNull(n - 1)
+                        val name = s?.let { if (isEnglish) it.nameEnglish else it.nameBangla } ?: ""
+                        "${if (isEnglish) "$n" else n.toBanglaDigits()} · $name"
+                    }
+                },
+                onSelect = { n -> indexScope.launch { listState.scrollToItem(libraryOffset + n - 1) } },
+                modifier = Modifier.fillMaxSize().padding(end = 4.dp)
+            )
+        }
+        }
     }
 
     if (showReaderAyatDialog) {
@@ -3244,8 +3307,8 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            TopControlsHeader(viewModel)
-            
+            TopControlsHeader(viewModel, showSearchIcon = false)
+
             Text(
                 if (isEnglish) "Masnoon Dua & Authentic Hadith Library" else "মাসনূন দুআ ও সহীহ হাদিস সম্ভার",
                 color = MaterialTheme.colorScheme.onSurface,

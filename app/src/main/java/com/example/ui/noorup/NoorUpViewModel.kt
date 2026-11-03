@@ -750,7 +750,15 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             buildPresetCity("মক্কা মুকাররমা", "Makkah", 21.4225, 39.8262, "Asia/Riyadh"),
             buildPresetCity("মদিনা মুনাওয়ারা", "Madinah", 24.4672, 39.6111, "Asia/Riyadh"),
             buildPresetCity("লন্ডন", "London", 51.5074, -0.1278, "Europe/London"),
-            buildPresetCity("নিউ ইয়র্ক", "New York", 40.7128, -74.0060, "America/New_York")
+            buildPresetCity("নিউ ইয়র্ক", "New York", 40.7128, -74.0060, "America/New_York"),
+            buildPresetCity("দুবাই", "Dubai", 25.2048, 55.2708, "Asia/Dubai"),
+            buildPresetCity("করাচি", "Karachi", 24.8607, 67.0011, "Asia/Karachi"),
+            buildPresetCity("দিল্লি", "Delhi", 28.6139, 77.2090, "Asia/Kolkata"),
+            buildPresetCity("ইস্তানবুল", "Istanbul", 41.0082, 28.9784, "Europe/Istanbul"),
+            buildPresetCity("কুয়ালালামপুর", "Kuala Lumpur", 3.1390, 101.6869, "Asia/Kuala_Lumpur"),
+            buildPresetCity("সিঙ্গাপুর", "Singapore", 1.3521, 103.8198, "Asia/Singapore"),
+            buildPresetCity("টরন্টো", "Toronto", 43.6532, -79.3832, "America/Toronto"),
+            buildPresetCity("সিডনি", "Sydney", -33.8688, 151.2093, "Australia/Sydney")
         )
     }
 
@@ -2630,6 +2638,88 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _focusFontScale = MutableStateFlow(prefs.getFloat("focus_font_scale", 1f).coerceIn(0.8f, 1.6f))
     val focusFontScale: StateFlow<Float> = _focusFontScale.asStateFlow()
+
+    private val _readerArabicScale = MutableStateFlow(
+        prefs.getFloat("reader_arabic_scale", 1f).coerceIn(READER_ARABIC_SCALE_MIN, READER_ARABIC_SCALE_MAX)
+    )
+    val readerArabicScale: StateFlow<Float> = _readerArabicScale.asStateFlow()
+
+    fun adjustReaderArabicScale(delta: Float) {
+        val next = (_readerArabicScale.value + delta)
+            .coerceIn(READER_ARABIC_SCALE_MIN, READER_ARABIC_SCALE_MAX)
+        _readerArabicScale.value = next
+        prefs.edit().putFloat("reader_arabic_scale", next).apply()
+    }
+
+    // --- Reader colour theme (0 follow app, 1 sepia, 2 night); only affects the Quran tab ---
+    private val _readerTheme = MutableStateFlow(prefs.getInt("reader_theme", 0).coerceIn(0, 2))
+    val readerTheme: StateFlow<Int> = _readerTheme.asStateFlow()
+
+    fun setReaderTheme(theme: Int) {
+        val clean = theme.coerceIn(0, 2)
+        _readerTheme.value = clean
+        prefs.edit().putInt("reader_theme", clean).apply()
+    }
+
+    // --- Discovery: first-run tour, What's new, one-time hints, Explore shortcuts ---
+    /** True when this install replaced an older version (not a fresh install), so the first-run tour is skipped. */
+    private val installedBeforeThisVersion: Boolean = try {
+        val info = getApplication<Application>().packageManager
+            .getPackageInfo(getApplication<Application>().packageName, 0)
+        info.lastUpdateTime - info.firstInstallTime > 60_000L
+    } catch (_: Exception) {
+        false
+    }
+
+    private val _showTour = MutableStateFlow(
+        !prefs.getBoolean("tour_seen", false) && !installedBeforeThisVersion
+    )
+    val showTour: StateFlow<Boolean> = _showTour.asStateFlow()
+
+    private val _showWhatsNew = MutableStateFlow(
+        !_showTour.value && prefs.getInt("whats_new_seen", 0) < DiscoveryContent.WHATS_NEW_ID
+    )
+    val showWhatsNew: StateFlow<Boolean> = _showWhatsNew.asStateFlow()
+
+    fun finishTour() {
+        _showTour.value = false
+        prefs.edit()
+            .putBoolean("tour_seen", true)
+            .putInt("whats_new_seen", DiscoveryContent.WHATS_NEW_ID)
+            .apply()
+    }
+
+    fun dismissWhatsNew() {
+        _showWhatsNew.value = false
+        prefs.edit().putBoolean("tour_seen", true).putInt("whats_new_seen", DiscoveryContent.WHATS_NEW_ID).apply()
+    }
+
+    /** Whole days since the app was first installed (0 when unknown). */
+    fun installAgeDays(): Long = try {
+        val app = getApplication<Application>()
+        val first = app.packageManager.getPackageInfo(app.packageName, 0).firstInstallTime
+        ((System.currentTimeMillis() - first) / 86_400_000L).coerceAtLeast(0L)
+    } catch (_: Exception) {
+        0L
+    }
+
+    fun hintSeen(key: String): Boolean = prefs.getBoolean("hint_seen_$key", false)
+
+    fun markHintSeen(key: String) {
+        prefs.edit().putBoolean("hint_seen_$key", true).apply()
+    }
+
+    /** Opens a Tools sub-tab (by its stable id, see [ToolTabOrder]) from anywhere in the app. */
+    fun openTool(toolId: Int) {
+        _requestedToolTab.value = toolId
+        selectTab(3)
+    }
+
+    /** Opens the Explore hub itself (no sub-tool). */
+    fun openExploreHub() {
+        _requestedToolTab.value = ToolTabOrder.HUB
+        selectTab(3)
+    }
 
     private val _focusShowTranslation = MutableStateFlow(prefs.getBoolean("focus_show_translation", true))
     val focusShowTranslation: StateFlow<Boolean> = _focusShowTranslation.asStateFlow()

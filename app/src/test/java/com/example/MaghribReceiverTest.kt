@@ -4,7 +4,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
+import com.example.ui.noorup.HijriDateCalculator
 import com.example.ui.noorup.PrayerAlarmReceiver
+import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -64,10 +66,22 @@ class MaghribReceiverTest {
         Thread.sleep(200)
     }
 
+    /**
+     * The Hijri day offset that makes today's Hijri date [month]/[day] for the default test location (Dhaka),
+     * so these tests do not depend on the date they run on.
+     */
+    private fun offsetFor(month: Int, day: Int): Int {
+        val today = Calendar.getInstance()
+        return (-400..400).first { offset ->
+            val hijri = HijriDateCalculator.calculateHijriDate(today, offset, isBangladesh = true)
+            hijri.month == month && hijri.day == day
+        }
+    }
+
     @Test
     fun `maghrib alarm during ramadan posts the iftar notification`() {
-        // Offset 114 puts "today" (30 Oct 2026) inside Ramadan, a non-odd night.
-        val posted = fireMaghrib(114)
+        // Ramadan day 13: after Maghrib it is already the 14th night, which is not an odd last-ten night.
+        val posted = fireMaghrib(offsetFor(month = 9, day = 13))
         assertEquals(posted.toString(), 1, posted.size)
         assertTrue(posted[0].first.contains("Iftar"))
         assertTrue(posted[0].second.contains("2357"))
@@ -76,7 +90,8 @@ class MaghribReceiverTest {
 
     @Test
     fun `maghrib alarm on an odd night also mentions laylatul qadr`() {
-        val posted = fireMaghrib(127)
+        // Ramadan day 26: after Maghrib it is the 27th night.
+        val posted = fireMaghrib(offsetFor(month = 9, day = 26))
         assertEquals(posted.toString(), 1, posted.size)
         assertTrue(posted[0].first.contains("Iftar"))
         assertTrue(posted[0].second.contains("Laylatul Qadr"))
@@ -84,14 +99,15 @@ class MaghribReceiverTest {
 
     @Test
     fun `maghrib alarm outside ramadan keeps the normal prayer text`() {
-        val posted = fireMaghrib(0)
+        // Safar (month 2) is never Ramadan, whatever the real date is.
+        val posted = fireMaghrib(offsetFor(month = 2, day = 10))
         assertEquals(posted.toString(), 1, posted.size)
         assertEquals("Maghrib Prayer", posted[0].first)
     }
 
     @Test
     fun `ramadan mode off keeps the normal prayer text even inside ramadan`() {
-        val posted = fireMaghrib(114, ramadanMode = "OFF")
+        val posted = fireMaghrib(offsetFor(month = 9, day = 13), ramadanMode = "OFF")
         assertEquals("Maghrib Prayer", posted.single().first)
     }
 }

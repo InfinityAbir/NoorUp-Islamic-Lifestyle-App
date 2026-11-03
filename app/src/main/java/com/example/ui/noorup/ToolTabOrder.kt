@@ -10,6 +10,9 @@ package com.example.ui.noorup
 object ToolTabOrder {
     const val TOOL_COUNT = 10
 
+    /** Pseudo tab id for the Explore hub (the grid of all features) shown before a tool is chosen. */
+    const val HUB = -1
+
     /** Default: Family Dhikr sits right after Digital Tasbih. */
     val DEFAULT: List<Int> = listOf(0, 1, 8, 2, 3, 4, 5, 6, 7, 9)
 

@@ -3,6 +3,8 @@
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +55,12 @@ class MainActivity : ComponentActivity() {
             val isEnglish by viewModel.isEnglish.collectAsState()
             val selectedTab by viewModel.selectedTab.collectAsState()
             val searchOpen by viewModel.searchOpen.collectAsState()
+            val readerTheme by viewModel.readerTheme.collectAsState()
+            val openSurah by viewModel.selectedSurahNumber.collectAsState()
+            // While reading with a sepia/night theme, paint the backdrop too so the area under the status bar matches.
+            val readerBackdrop = if (selectedTab == 1 && openSurah != null) readerColorScheme(readerTheme)?.background else null
+            val showTour by viewModel.showTour.collectAsState()
+            val showWhatsNew by viewModel.showWhatsNew.collectAsState()
             val context = LocalContext.current
 
             // Android 13+ notification permission is owned by the Home-screen
@@ -67,9 +76,16 @@ class MainActivity : ComponentActivity() {
             }
 
             NoorUpTheme(darkTheme = isDarkMode) {
+                // Status-bar icons must contrast with the reader backdrop (dark icons on sepia), not just the app theme.
+                val rootView = androidx.compose.ui.platform.LocalView.current
+                SideEffect {
+                    val lightBackdrop = readerBackdrop?.let { it.luminance() > 0.5f } ?: !isDarkMode
+                    androidx.core.view.WindowCompat.getInsetsController(window, rootView)
+                        .isAppearanceLightStatusBars = lightBackdrop
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = readerBackdrop ?: MaterialTheme.colorScheme.background,
                     contentWindowInsets = WindowInsets.safeDrawing,
                     bottomBar = {
                         NavigationBar(
@@ -118,8 +134,8 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 selected = selectedTab == 3,
                                 onClick = { viewModel.selectTab(3) },
-                                icon = { Icon(Icons.Default.NotificationsActive, contentDescription = "Alerts & Tools") },
-                                label = { Text(if (isEnglish) "Tools" else "সরঞ্জাম", fontSize = 10.sp, maxLines = 1, softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
+                                icon = { Icon(Icons.Default.Apps, contentDescription = "Explore") },
+                                label = { Text(if (isEnglish) "Explore" else "এক্সপ্লোর", fontSize = 10.sp, maxLines = 1, softWrap = false, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = MaterialTheme.colorScheme.primary,
                                     selectedTextColor = MaterialTheme.colorScheme.secondary,
@@ -162,16 +178,18 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                             .padding(top = 4.dp)
-                            .background(MaterialTheme.colorScheme.background)
+                            .background(readerBackdrop ?: MaterialTheme.colorScheme.background)
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
-                            when (selectedTab) {
-                                0 -> HomeScreen(viewModel)
-                                1 -> QuranScreen(viewModel)
-                                2 -> DuasScreen(viewModel)
-                                3 -> ToolsScreen(viewModel)
-                                4 -> AiAssistantScreen(viewModel)
-                                5 -> AnalyticsScreen(viewModel)
+                            Crossfade(targetState = selectedTab, animationSpec = tween(180), label = "tabs", modifier = Modifier.fillMaxSize()) { tab ->
+                                when (tab) {
+                                    0 -> HomeScreen(viewModel)
+                                    1 -> QuranScreen(viewModel)
+                                    2 -> DuasScreen(viewModel)
+                                    3 -> ToolsScreen(viewModel)
+                                    4 -> AiAssistantScreen(viewModel)
+                                    5 -> AnalyticsScreen(viewModel)
+                                }
                             }
                             QuranAudioBar(
                                 controller = viewModel.audio,
@@ -180,6 +198,8 @@ class MainActivity : ComponentActivity() {
                             )
                             if (searchOpen) GlobalSearchScreen(viewModel)
                         }
+                        if (showTour) OnboardingTour(viewModel)
+                        else if (showWhatsNew) WhatsNewDialog(viewModel)
                     }
                 }
             }

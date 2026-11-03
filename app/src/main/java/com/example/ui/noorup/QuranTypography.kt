@@ -1,5 +1,6 @@
 package com.example.ui.noorup
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +21,47 @@ import com.example.R
  * platform default font clips/crowds them at reading sizes.
  */
 val QuranArabicFont: FontFamily = FontFamily(Font(R.font.amiri_quran))
+
+/** Reader Arabic base size (sp) at scale 1.0, and the user-adjustable scale range. */
+const val READER_ARABIC_BASE_SP = 30f
+const val READER_ARABIC_SCALE_MIN = 0.8f
+const val READER_ARABIC_SCALE_MAX = 1.6f
+const val READER_ARABIC_SCALE_STEP = 0.1f
+
+/** The Bismillah exactly as the bundled Uthmani text spells it (four words). */
+const val BASMALA_TEXT =
+    "بِسْمِ ٱللَّهِ " +
+        "ٱلرَّحْمَٰنِ " +
+        "ٱلرَّحِيمِ"
+
+/** Mushaf convention: every surah opens with a Bismillah header except At-Tawbah; in Al-Fatihah it is ayah 1. */
+fun surahHasBasmalaHeader(surah: Int): Boolean = surah != 1 && surah != 9
+
+/**
+ * The bundled text fuses the Bismillah into ayah 1 of most surahs. Standard mushaf apps show it as its own
+ * header, so ayah 1 keeps only its own words (this also matches the translation and pronunciation data).
+ */
+fun stripLeadingBasmala(surah: Int, ayah: Int, arabic: String): String {
+    if (ayah != 1 || !surahHasBasmalaHeader(surah)) return arabic
+    val clean = arabic.trimStart('﻿')
+    val prefix = "$BASMALA_TEXT "
+    return if (clean.startsWith(prefix) && clean.length > prefix.length) clean.substring(prefix.length) else arabic
+}
+
+/** Centered Bismillah header line shown above ayah 1 of surahs that have one. */
+@Composable
+fun QuranBasmalaHeader(fontSize: TextUnit, modifier: Modifier = Modifier) {
+    Text(
+        text = BASMALA_TEXT,
+        color = MaterialTheme.colorScheme.onSurface,
+        fontSize = fontSize,
+        lineHeight = fontSize * 1.85f,
+        fontFamily = QuranArabicFont,
+        textAlign = TextAlign.Center,
+        style = LocalTextStyle.current.copy(textDirection = TextDirection.Rtl),
+        modifier = modifier.fillMaxWidth()
+    )
+}
 
 /** Ayat-end marker (U+06DD) followed by the Ayat number in Arabic-Indic digits. */
 fun formatQuranArabic(arabic: String, ayahNumber: Int): String =

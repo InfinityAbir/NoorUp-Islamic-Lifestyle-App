@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -63,18 +64,26 @@ import com.example.ui.noorup.audio.QuranAudioPanel
 import java.text.SimpleDateFormat
 import java.util.*
 
+/** When set (reader sepia/night themes), cards use this surface instead of the default slate/white. */
+val LocalGlassTint = androidx.compose.runtime.compositionLocalOf<Color?> { null }
+
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val bgBrush = if (isDark) {
-        Brush.verticalGradient(listOf(Color(0xFF0F172A), Color(0xFF0A111F)))
-    } else {
-        Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF8FAFC)))
+    val tint = LocalGlassTint.current
+    val bgBrush = when {
+        tint != null -> Brush.verticalGradient(listOf(tint, tint))
+        isDark -> Brush.verticalGradient(listOf(Color(0xFF0F172A), Color(0xFF0A111F)))
+        else -> Brush.verticalGradient(listOf(Color(0xFFFFFFFF), Color(0xFFF8FAFC)))
     }
-    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
+    val borderColor = when {
+        tint != null -> MaterialTheme.colorScheme.outline
+        isDark -> Color(0xFF1E293B)
+        else -> Color(0xFFE2E8F0)
+    }
 
     Box(
         modifier = modifier
@@ -513,7 +522,7 @@ private fun Context.findLifecycleOwner(): androidx.lifecycle.LifecycleOwner? {
 
 // --- Top Bar Controls (Language, Theme, Location & GPS Picker) ---
 @Composable
-fun TopControlsHeader(viewModel: NoorUpViewModel) {
+fun TopControlsHeader(viewModel: NoorUpViewModel, showSearchIcon: Boolean = true) {
     val isEnglish by viewModel.isEnglish.collectAsState()
     val isDarkMode by viewModel.isDarkMode.collectAsState()
     val selectedCityLocation by viewModel.selectedCityLocation.collectAsState()
@@ -595,6 +604,8 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                         }
                     },
                     text = {
+                        var showCityList by remember { mutableStateOf(false) }
+                        var cityQuery by remember { mutableStateOf("") }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -603,18 +614,20 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text(
-                                if (isEnglish) "Detect live GPS coordinates or select a city. Bangladesh locations use Islamic Foundation standard for accurate Hijri date & prayer times."
-                                else "লাইভ জিপিএস বা পছন্দের শহর নির্বাচন করুন। বাংলাদেশ লোকেশনে সঠিক হিজরি তারিখ ও ওয়াক্তের জন্য ইসলামিক ফাউন্ডেশনের মান স্বয়ংক্রিয়ভাবে সক্রিয় হবে।",
+                                if (isEnglish) "Use your phone's location for the most accurate times, or pick a city yourself."
+                                else "সবচেয়ে সঠিক সময়ের জন্য ফোনের লোকেশন ব্যবহার করুন, অথবা নিজে শহর বেছে নিন।",
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
-                            // GPS Detect Button
+                            // GPS Detect Button (primary action)
                             Button(
                                 onClick = {
                                     permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
                                 },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 48.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
@@ -632,104 +645,90 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
                                 )
                             }
 
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-
-                            Text(
-                                if (isEnglish) "City Presets:" else "বিভাগ ও শহরসমূহ:",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            LazyColumn(
+                            // Manual choice stays available (GPS denied, no fix, travelling) but out of the way.
+                            OutlinedButton(
+                                onClick = { showCityList = !showCityList },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .heightIn(max = 240.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                                    .heightIn(min = 48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                             ) {
-                                item {
-                                    Text(
-                                        if (isEnglish) "🇧🇩 Bangladesh Divisions (Islamic Foundation Hijri)"
-                                        else "🇧🇩 বাংলাদেশ (ইসলামিক ফাউন্ডেশন হিজরি মান)",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                                items(viewModel.availableCities.filter { it.latitude in 20.0..27.0 }) { city ->
-                                    val isSelected = selectedCityLocation.nameEn.equals(city.nameEn, ignoreCase = true) || selectedCityLocation.nameBn == city.nameBn
-                                    Surface(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                viewModel.setCityLocation(city)
-                                                showLocationDialog = false
-                                            },
-                                        shape = RoundedCornerShape(8.dp),
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                                        border = if (isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 10.dp, vertical = 7.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = if (isEnglish) city.nameEn else city.nameBn,
-                                                fontSize = 12.sp,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                            )
-                                            if (isSelected) {
-                                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                                            }
-                                        }
-                                    }
-                                }
+                                Icon(Icons.Default.Map, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    if (isEnglish) "Choose a city manually" else "নিজে শহর বেছে নিন",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 13.sp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    if (showCityList) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                                item {
-                                    Spacer(modifier = Modifier.height(4.dp))
+                            if (!showCityList) {
+                                Text(
+                                    (if (isEnglish) "Current: " else "বর্তমান: ") +
+                                        (if (isEnglish) selectedCityLocation.nameEn else selectedCityLocation.nameBn),
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                OutlinedTextField(
+                                    value = cityQuery,
+                                    onValueChange = { cityQuery = it },
+                                    placeholder = { Text(if (isEnglish) "Search city" else "শহর খুঁজুন") },
+                                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                val matches = viewModel.availableCities.filter {
+                                    cityQuery.isBlank() ||
+                                        it.nameEn.contains(cityQuery.trim(), ignoreCase = true) ||
+                                        it.nameBn.contains(cityQuery.trim(), ignoreCase = true)
+                                }
+                                // Bangladesh presets share the Dhaka time zone; everything else is international.
+                                val (bdCities, worldCities) = matches.partition { it.zoneId == "Asia/Dhaka" }
+                                if (bdCities.isNotEmpty()) {
                                     Text(
-                                        if (isEnglish) "🌐 International & Holy Cities (Umm al-Qura Standard)"
-                                        else "🌐 আন্তর্জাতিক ও পবিত্র শহর (উম্মুল কুরা মান)",
+                                        if (isEnglish) "\uD83C\uDDE7\uD83C\uDDE9 Bangladesh (Islamic Foundation Hijri)"
+                                        else "\uD83C\uDDE7\uD83C\uDDE9 বাংলাদেশ (ইসলামিক ফাউন্ডেশন হিজরি মান)",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.secondary
                                     )
-                                }
-                                items(viewModel.availableCities.filter { it.latitude !in 20.0..27.0 }) { city ->
-                                    val isSelected = selectedCityLocation.nameEn.equals(city.nameEn, ignoreCase = true) || selectedCityLocation.nameBn == city.nameBn
-                                    Surface(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                viewModel.setCityLocation(city)
-                                                showLocationDialog = false
-                                            },
-                                        shape = RoundedCornerShape(8.dp),
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                                        border = if (isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 10.dp, vertical = 7.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = if (isEnglish) city.nameEn else city.nameBn,
-                                                fontSize = 12.sp,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                            )
-                                            if (isSelected) {
-                                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                                            }
+                                    bdCities.forEach { city ->
+                                        CityPickRow(city, selectedCityLocation, isEnglish) {
+                                            viewModel.setCityLocation(city)
+                                            showLocationDialog = false
                                         }
                                     }
+                                }
+                                if (worldCities.isNotEmpty()) {
+                                    Text(
+                                        if (isEnglish) "\uD83C\uDF10 International & Holy Cities"
+                                        else "\uD83C\uDF10 আন্তর্জাতিক ও পবিত্র শহর",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                    worldCities.forEach { city ->
+                                        CityPickRow(city, selectedCityLocation, isEnglish) {
+                                            viewModel.setCityLocation(city)
+                                            showLocationDialog = false
+                                        }
+                                    }
+                                }
+                                if (matches.isEmpty()) {
+                                    Text(
+                                        if (isEnglish) "No city matches \"${cityQuery.trim()}\"" else "\"${cityQuery.trim()}\" নামে কোনো শহর নেই",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }
@@ -750,22 +749,24 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Universal search
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f), CircleShape)
-                    .clickable { viewModel.openGlobalSearch() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.Search,
-                    contentDescription = if (isEnglish) "Search" else "অনুসন্ধান",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
+            // Universal search (screens that already show the full search bar hide this icon)
+            if (showSearchIcon) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f), CircleShape)
+                        .clickable { viewModel.openGlobalSearch() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = if (isEnglish) "Search" else "অনুসন্ধান",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
 
             // Language Toggle Pill
@@ -818,6 +819,44 @@ fun TopControlsHeader(viewModel: NoorUpViewModel) {
 }
 
 // --- Feature 1: Interactive "Noor Garden" Habit Growth Card ---
+/** One selectable preset city in the location picker. */
+@Composable
+private fun CityPickRow(
+    city: CityLocation,
+    selectedCity: CityLocation,
+    isEnglish: Boolean,
+    onPick: () -> Unit
+) {
+    val isSelected = selectedCity.nameEn.equals(city.nameEn, ignoreCase = true) || selectedCity.nameBn == city.nameBn
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onPick),
+        shape = RoundedCornerShape(10.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+        border = if (isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 44.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (isEnglish) city.nameEn else city.nameBn,
+                fontSize = 13.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            )
+            if (isSelected) {
+                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+            }
+        }
+    }
+}
+
 @Composable
 fun NoorGardenCard(viewModel: NoorUpViewModel) {
     val habitPrayers by viewModel.habitPrayers.collectAsState()
@@ -1320,9 +1359,9 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // 1. Top Controls Bar
+        // 1. Top Controls Bar (search lives in the bar below, so no duplicate icon here)
         item {
-            TopControlsHeader(viewModel)
+            TopControlsHeader(viewModel, showSearchIcon = false)
         }
 
         // Ramadan Mode: seasonal dashboard (countdown, fasting tracker) right under the controls.
@@ -1384,9 +1423,13 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
             }
         }
 
-        /// 2b. Prayer Alarm Onboarding (banner for new users, compact retry row afterwards)
+        // 2a. Discovery: global search + quick-access launchpad for every major feature
+        item { HomeSearchBar(viewModel, isEnglish) }
         item {
-            PrayerAlarmOnboardingSection(viewModel)
+            Column {
+                HomeLaunchpad(viewModel, isEnglish)
+                HomeWidgetHint(viewModel, isEnglish)
+            }
         }
 
         // 3. Modern Hybrid Orbit & Timeline Hero Widget (Glassmorphic with Integrated Noor Garden)
@@ -1396,6 +1439,12 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
                 selectedCityLocation = selectedCityLocation,
                 isEnglish = isEnglish
             )
+        }
+
+        /// 2b. Prayer Alarm Onboarding (banner for new users, compact retry row afterwards).
+        /// Sits under the hero so the next prayer is the first thing a new user sees.
+        item {
+            PrayerAlarmOnboardingSection(viewModel)
         }
 
         // Sehri & Iftar Quick Status Bar
@@ -1472,6 +1521,9 @@ fun HomeScreen(viewModel: NoorUpViewModel) {
                 }
             }
         }
+
+        // One-tap continue reading (or a first step for new readers)
+        item { HomeContinueCard(viewModel, isEnglish) }
 
         // 4. Date & Solar Calibration Bar (Clean & Compact)
         item {
@@ -1974,6 +2026,9 @@ fun FocusModeView(viewModel: NoorUpViewModel) {
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
+                        if (v.number == 1 && surahHasBasmalaHeader(focusSurahNumber)) {
+                            QuranBasmalaHeader(fontSize = (26 * fontScale).sp)
+                        }
                         QuranArabicText(
                             arabic = v.arabicText,
                             ayahNumber = v.number,
@@ -2187,8 +2242,28 @@ fun FocusModeView(viewModel: NoorUpViewModel) {
 /** Non-verse items ahead of the first verse in the reader list: the page controls and the Surah header card. */
 private const val VERSE_LIST_OFFSET = 1
 
+/** Quran tab entry point: applies the reader's own colour theme (sepia / night) around the screen. */
 @Composable
 fun QuranScreen(viewModel: NoorUpViewModel) {
+    val readerTheme by viewModel.readerTheme.collectAsState()
+    val openSurah by viewModel.selectedSurahNumber.collectAsState()
+    // The reading theme only styles the reading view; the surah library keeps the app theme.
+    val scheme = if (openSurah != null) readerColorScheme(readerTheme) else null
+    if (scheme == null) {
+        QuranScreenContent(viewModel)
+    } else {
+        MaterialTheme(colorScheme = scheme, typography = MaterialTheme.typography) {
+            CompositionLocalProvider(LocalGlassTint provides scheme.surface) {
+                Box(modifier = Modifier.fillMaxSize().background(scheme.background)) {
+                    QuranScreenContent(viewModel)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuranScreenContent(viewModel: NoorUpViewModel) {
     val surahs by viewModel.surahs.collectAsState()
     val selectedSurahNumber by viewModel.selectedSurahNumber.collectAsState()
     val selectedVerses by viewModel.selectedSurahVerses.collectAsState()
@@ -2197,9 +2272,17 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
     val bookmarkedVerses by viewModel.bookmarkedVerses.collectAsState()
     val selectedSurah = selectedSurahNumber?.let { num -> surahs.find { it.number == num } }
     var showBookmarksOnly by remember { mutableStateOf(false) }
+    /** True while a surah is open for reading; the library controls (search, toggles) are hidden then. */
+    val inReader = selectedSurah != null && !showBookmarksOnly
     val isAmbientFocus by viewModel.isAmbientFocusActive.collectAsState()
     val isEnglish by viewModel.isEnglish.collectAsState()
     val showPronunciation by viewModel.quranShowTransliteration.collectAsState()
+    val readerArabicScale by viewModel.readerArabicScale.collectAsState()
+    val readerTheme by viewModel.readerTheme.collectAsState()
+    var showReaderHint by remember { mutableStateOf(!viewModel.hintSeen("quran_reader")) }
+    var showReaderSettings by remember { mutableStateOf(false) }
+    var audioPanelOpen by rememberSaveable { mutableStateOf(false) }
+    var browseByJuz by rememberSaveable { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var showPronunciationSource by remember { mutableStateOf(false) }
     var bookmarkQuery by remember { mutableStateOf("") }
@@ -2278,6 +2361,18 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
         )
     }
 
+    if (showReaderSettings) {
+        ReaderSettingsDialog(
+            viewModel = viewModel,
+            isEnglish = isEnglish,
+            scale = readerArabicScale,
+            theme = readerTheme,
+            showPronunciation = showPronunciation,
+            onShowSource = { showReaderSettings = false; showPronunciationSource = true },
+            onDismiss = { showReaderSettings = false }
+        )
+    }
+
     if (isAmbientFocus) {
         FocusModeView(viewModel)
     } else {
@@ -2290,7 +2385,8 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                TopControlsHeader(viewModel)
+                if (!inReader) {
+                TopControlsHeader(viewModel, showSearchIcon = false)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -2344,6 +2440,35 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // One switch: Surah | Para | Bookmarks. Exactly one is active; the others stay tappable.
+                    FilterChip(
+                        selected = !showBookmarksOnly && !browseByJuz,
+                        onClick = { showBookmarksOnly = false; browseByJuz = false },
+                        label = { Text(if (isEnglish) "Surah" else "সূরা") },
+                        colors = brandChipColors()
+                    )
+                    FilterChip(
+                        selected = !showBookmarksOnly && browseByJuz,
+                        onClick = { showBookmarksOnly = false; browseByJuz = true },
+                        label = { Text(if (isEnglish) "Juz (Para)" else "পারা") },
+                        colors = brandChipColors()
+                    )
+                    FilterChip(
+                        selected = showBookmarksOnly,
+                        onClick = { showBookmarksOnly = true },
+                        label = { Text(if (isEnglish) "Bookmarks" else "বুকমার্ক") },
+                        leadingIcon = {
+                            Icon(
+                                if (showBookmarksOnly) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        },
+                        colors = brandChipColors()
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -2385,30 +2510,6 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = { showBookmarksOnly = !showBookmarksOnly },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (showBookmarksOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = if (showBookmarksOnly) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                    ),
-                    border = BorderStroke(1.dp, if (showBookmarksOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(
-                        imageVector = if (showBookmarksOnly) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                        contentDescription = null,
-                        tint = if (showBookmarksOnly) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (showBookmarksOnly) (if (isEnglish) "Showing Bookmarked Verses (Tap to view all)" else "বুকমার্ক করা আয়াতসমূহ (সকল দেখতে চাপুন)")
-                        else (if (isEnglish) "View Bookmarked Verses" else "বুকমার্ক করা আয়াতসমূহ দেখুন"),
-                        color = if (showBookmarksOnly) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
                 }
             }
 
@@ -2464,19 +2565,13 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                 if (bookmarkedVerses.isEmpty()) {
                     item {
                         GlassCard {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(Icons.Default.BookmarkBorder, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(48.dp))
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    if (isEnglish) "No bookmarked verses yet. Tap the bookmark icon on any verse to save it here." else "কোনো বুকমার্ক করা আয়াত নেই। যেকোনো আয়াতের বুকমার্ক আইকনে ট্যাপ করে এখানে সংরক্ষণ করুন।",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 13.sp,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
+                            EmptyState(
+                                icon = Icons.Default.BookmarkBorder,
+                                title = if (isEnglish) "No bookmarks yet" else "এখনো কোনো বুকমার্ক নেই",
+                                body = if (isEnglish) "Tap the bookmark icon on any verse to save it here." else "যেকোনো আয়াতের বুকমার্ক আইকনে ট্যাপ করে এখানে সংরক্ষণ করুন।",
+                                actionLabel = if (isEnglish) "Browse surahs" else "সূরা দেখুন",
+                                onAction = { showBookmarksOnly = false }
+                            )
                         }
                     }
                 } else {
@@ -2594,9 +2689,9 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                                             QuranArabicText(
                                                 arabic = verse.arabicText,
                                                 ayahNumber = verse.number,
-                                                fontSize = 18.sp,
+                                                fontSize = 24.sp,
                                                 modifier = Modifier.fillMaxWidth(),
-                                                textAlign = TextAlign.End
+                                                textAlign = TextAlign.Center
                                             )
                                             if (showPronunciation) {
                                                 Spacer(modifier = Modifier.height(6.dp))
@@ -2626,6 +2721,55 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                                     }
                                 }
                             }
+                    }
+                }
+            } else if (selectedSurah == null && browseByJuz) {
+                items(com.example.ui.noorup.quran.JuzIndex.STARTS) { start ->
+                    val startSurah = surahs.find { it.number == start.surah }
+                    GlassCard(
+                        modifier = Modifier.clickable { viewModel.openSurahAt(start.surah, start.ayah) }
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    if (isEnglish) "${start.juz}" else start.juz.toBanglaDigits(),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    if (isEnglish) "Juz ${start.juz}" else "পারা ${start.juz.toBanglaDigits()}",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val name = startSurah?.let { if (isEnglish) it.nameEnglish else it.nameBangla } ?: ""
+                                Text(
+                                    if (isEnglish) "Starts at $name • Ayat ${start.ayah}"
+                                    else "$name • আয়াত ${start.ayah.toBanglaDigits()} থেকে শুরু",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Text(
+                                startSurah?.nameArabic ?: "",
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 18.sp,
+                                fontFamily = QuranArabicFont,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             } else if (selectedSurah == null) {
@@ -2680,103 +2824,115 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                 }
             } else {
                 item {
+                    val readerSurah = selectedSurah!!
+                    val readerName = if (isEnglish) readerSurah.nameEnglish else readerSurah.nameBangla
+                    val readerRevType = if (isEnglish) readerSurah.revelationTypeEnglish else readerSurah.revelationTypeBangla
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { viewModel.closeSurah() }
-                            .padding(vertical = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            if (isEnglish) "Back to Surah List" else "সকল সূরার তালিকায় ফিরে যান",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    GlassCard {
-                        val sName = if (isEnglish) selectedSurah!!.nameEnglish else selectedSurah!!.nameBangla
-                        val revType = if (isEnglish) selectedSurah!!.revelationTypeEnglish else selectedSurah!!.revelationTypeBangla
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(sName, color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { viewModel.closeSurah() }) {
+                            Icon(
+                                Icons.Default.ArrowBack,
+                                contentDescription = if (isEnglish) "Back to surah list" else "সূরার তালিকায় ফিরুন",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                readerName,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    selectedSurah!!.nameArabic,
+                                    readerSurah.nameArabic,
                                     color = MaterialTheme.colorScheme.secondary,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = QuranArabicFont
+                                    fontSize = 16.sp,
+                                    fontFamily = QuranArabicFont,
+                                    maxLines = 1
                                 )
                                 Text(
-                                    if (isEnglish) "Revelation: $revType | Total Verses: ${selectedSurah!!.totalVerses} | Showing: ${selectedVerses.size}" else "অবতরণ: $revType | মোট আয়াত: ${selectedSurah!!.totalVerses.toBanglaDigits()} | প্রদর্শিত: ${selectedVerses.size.toBanglaDigits()}",
+                                    " • $readerRevType • ${if (isEnglish) "${readerSurah.totalVerses} verses" else "${readerSurah.totalVerses.toBanglaDigits()} আয়াত"}",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 13.sp
-                                )
-                            }
-                            Button(
-                                onClick = { viewModel.enterFocusAtSurahStart(selectedSurah!!.number) },
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                                shape = RoundedCornerShape(16.dp),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                                modifier = Modifier.heightIn(min = 40.dp)
-                            ) {
-                                Icon(Icons.Default.SelfImprovement, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    if (isEnglish) "Focus" else "ফোকাস",
-                                    color = MaterialTheme.colorScheme.secondary,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
                                     maxLines = 1,
-                                    softWrap = false,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        OutlinedButton(
-                            onClick = { showReaderAyatDialog = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 44.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                            shape = RoundedCornerShape(14.dp),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                        IconButton(
+                            onClick = { showReaderSettings = true },
+                            modifier = Modifier.semantics {
+                                contentDescription = if (isEnglish) "Reading settings: text size and theme" else "পড়ার সেটিংস: লেখার আকার ও থিম"
+                            }
                         ) {
+                            Text("Aa", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        }
+                        IconButton(onClick = { showReaderAyatDialog = true }) {
                             Icon(
                                 Icons.Default.PinDrop,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(16.dp)
+                                contentDescription = if (isEnglish) "Go to Ayat" else "নির্দিষ্ট আয়াতে যান",
+                                tint = MaterialTheme.colorScheme.secondary
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                if (isEnglish) "Go to Ayat" else "নির্দিষ্ট আয়াতে যান",
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis
+                        }
+                        IconButton(onClick = { viewModel.enterFocusAtSurahStart(readerSurah.number) }) {
+                            Icon(
+                                Icons.Default.SelfImprovement,
+                                contentDescription = if (isEnglish) "Focus mode" else "ফোকাস মোড",
+                                tint = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    QuranAudioPanel(
-                        controller = audioController,
-                        surah = selectedSurah!!.number,
-                        totalAyahs = selectedSurah!!.totalVerses,
-                        surahTitle = if (isEnglish) selectedSurah!!.nameEnglish else selectedSurah!!.nameBangla,
-                        isEnglish = isEnglish
-                    )
+                    if (showReaderHint) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        HintBubble(
+                            text = if (isEnglish) "Tap Aa to change text size or theme. The pin jumps to an ayah, and the play icon on any ayah starts audio."
+                            else "লেখার আকার বা থিম বদলাতে Aa চাপুন। পিন আইকন নির্দিষ্ট আয়াতে নিয়ে যায়, আর যেকোনো আয়াতের প্লে আইকনে তিলাওয়াত শুরু হয়।",
+                            dismissLabel = if (isEnglish) "Got it" else "বুঝেছি",
+                            onDismiss = {
+                                viewModel.markHintSeen("quran_reader")
+                                showReaderHint = false
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedButton(
+                        onClick = { audioPanelOpen = !audioPanelOpen },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 44.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Icon(Icons.Default.Headphones, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            if (isEnglish) "Listen to this surah" else "এই সূরা শুনুন",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(
+                            if (audioPanelOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (audioPanelOpen) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        QuranAudioPanel(
+                            controller = audioController,
+                            surah = readerSurah.number,
+                            totalAyahs = readerSurah.totalVerses,
+                            surahTitle = readerName,
+                            isEnglish = isEnglish
+                        )
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     if (isQuranLoading) {
                         GlassCard {
@@ -2794,6 +2950,8 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        VerseSkeleton(count = 2)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     if (quranLoadError && selectedVerses.isEmpty() && !isQuranLoading) {
@@ -2823,6 +2981,13 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    // Same item as the header so verse list indexes (VERSE_LIST_OFFSET) stay valid.
+                    if (selectedVerses.isNotEmpty() && surahHasBasmalaHeader(selectedSurah!!.number)) {
+                        QuranBasmalaHeader(
+                            fontSize = (READER_ARABIC_BASE_SP * readerArabicScale).sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
                 }
 
@@ -2884,7 +3049,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                         QuranArabicText(
                             arabic = verse.arabicText,
                             ayahNumber = verse.number,
-                            fontSize = 20.sp,
+                            fontSize = (READER_ARABIC_BASE_SP * readerArabicScale).sp,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .then(
@@ -2892,7 +3057,7 @@ fun QuranScreen(viewModel: NoorUpViewModel) {
                                         Modifier.background(highlight, RoundedCornerShape(10.dp)).padding(6.dp)
                                     else Modifier
                                 ),
-                            textAlign = TextAlign.End
+                            textAlign = TextAlign.Center
                         )
                         if (showPronunciation) {
                             Spacer(modifier = Modifier.height(8.dp))
@@ -4872,7 +5037,8 @@ fun PrayerAlertsManagementCard(viewModel: NoorUpViewModel) {
 @Composable
 fun ToolsScreen(viewModel: NoorUpViewModel) {
     val context = LocalContext.current
-    var toolTab by remember { mutableStateOf(0) }
+    // Starts on the Explore hub (ToolTabOrder.HUB); picking a card opens that tool.
+    var toolTab by remember { mutableStateOf(ToolTabOrder.HUB) }
     val isEnglish by viewModel.isEnglish.collectAsState()
     val toolNames = if (isEnglish) {
         listOf("Prayer Alerts", "Digital Tasbih", "Solar Engine", "Qibla", "Hijri", "Zakat", "Home Widget", "Ramadan", "Family Dhikr", "Backup")
@@ -5105,39 +5271,68 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            TopControlsHeader(viewModel)
-            Text(
-                if (isEnglish) "Islamic Tools & Utilities" else "ইসলামিক টুলস ও ইউটিলিটি",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            val toolIcons = listOf(
-                Icons.Default.NotificationsActive,
-                Icons.Default.TouchApp,
-                Icons.Default.WbSunny,
-                Icons.Default.Explore,
-                Icons.Default.CalendarMonth,
-                Icons.Default.AccountBalanceWallet,
-                Icons.Default.Widgets,
-                Icons.Default.NightsStay,
-                Icons.Default.Groups,
-                Icons.Default.CloudUpload
-            )
-
-            // Tabs keep a stable id; the user's drag order is saved and applied here.
-            val toolsOrder by viewModel.toolsOrder.collectAsState()
-            ReorderableToolTabs(
-                order = toolsOrder,
-                selectedId = toolTab,
-                isEnglish = isEnglish,
-                label = { id -> toolNames.getOrElse(id) { "" } },
-                icon = { id -> toolIcons.getOrElse(id) { Icons.Default.Widgets } },
-                onSelect = { toolTab = it },
-                onOrderChange = { viewModel.setToolsOrder(it) },
-                onReset = { viewModel.resetToolsOrder() }
-            )
+            TopControlsHeader(viewModel, showSearchIcon = toolTab != ToolTabOrder.HUB)
+            if (toolTab == ToolTabOrder.HUB) {
+                Text(
+                    if (isEnglish) "Explore" else "এক্সপ্লোর",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (isEnglish) "Everything NoorUp can do, in one place" else "নূরআপের সব সুবিধা এক জায়গায়",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 13.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HomeSearchBar(viewModel, isEnglish)
+                Spacer(modifier = Modifier.height(16.dp))
+                ExploreHub(viewModel, isEnglish, onOpenTool = { toolTab = it })
+            } else {
+                // Inside a tool: the hub is the navigation, so only a way back and the tool's own title.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { toolTab = ToolTabOrder.HUB }
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        if (isEnglish) "All features" else "সব ফিচার",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Text(
+                    if (toolTab == 1 || toolTab == 8) {
+                        if (isEnglish) "Tasbih & Dhikr" else "তসবীহ ও যিকর"
+                    } else {
+                        toolNames.getOrElse(toolTab) { "" }
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                // Tasbih and Family Dhikr are one group: let people hop between the two without going back.
+                if (toolTab == 1 || toolTab == 8) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(1 to Icons.Default.TouchApp, 8 to Icons.Default.Groups).forEach { (id, icon) ->
+                            FilterChip(
+                                selected = toolTab == id,
+                                onClick = { toolTab = id },
+                                label = { Text(toolNames.getOrElse(id) { "" }) },
+                                leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                                colors = brandChipColors()
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
         }
 
         if (toolTab == 0) {

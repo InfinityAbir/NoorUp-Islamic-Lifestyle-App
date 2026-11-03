@@ -302,7 +302,7 @@ object QuranRepository {
                     val mapped = asset.verses.sortedBy { it.number }.map { av ->
                         Verse(
                             number = av.number,
-                            arabicText = av.arabic,
+                            arabicText = com.example.ui.noorup.stripLeadingBasmala(surahNumber, av.number, av.arabic),
                             banglaTranslation = av.bangla,
                             englishTranslation = av.english
                         )

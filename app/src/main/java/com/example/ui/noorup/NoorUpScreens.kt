@@ -2273,7 +2273,7 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
     val quranLoadError by viewModel.quranLoadError.collectAsState()
     val bookmarkedVerses by viewModel.bookmarkedVerses.collectAsState()
     val selectedSurah = selectedSurahNumber?.let { num -> surahs.find { it.number == num } }
-    var showBookmarksOnly by remember { mutableStateOf(false) }
+    var showBookmarksOnly by rememberSaveable { mutableStateOf(false) }
     /** True while a surah is open for reading; the library controls (search, toggles) are hidden then. */
     val inReader = selectedSurah != null && !showBookmarksOnly
     val isAmbientFocus by viewModel.isAmbientFocusActive.collectAsState()
@@ -2300,6 +2300,20 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
 
     LaunchedEffect(showBookmarksOnly) {
         if (showBookmarksOnly) viewModel.refreshBookmarkedVerses()
+    }
+
+    // Android Back mirrors the in-app back controls, innermost destination first:
+    // Focus mode -> bookmark list -> open Surah -> Para / Favourite filter -> (tab history).
+    NestedBackHandler(
+        viewModel.backNavigator,
+        enabled = isAmbientFocus || showBookmarksOnly || selectedSurahNumber != null || browseByJuz || showFavoritesOnly
+    ) {
+        when {
+            isAmbientFocus -> viewModel.exitFocus()
+            showBookmarksOnly -> showBookmarksOnly = false
+            selectedSurahNumber != null -> viewModel.closeSurah()
+            else -> { browseByJuz = false; showFavoritesOnly = false }
+        }
     }
 
     // Keep the verse being recited in view. Items 0 (controls) and 1 (Surah header) come first, so Ayat n is item n + 1.
@@ -2380,12 +2394,6 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
     if (isAmbientFocus) {
         FocusModeView(viewModel)
     } else {
-        // Side index only while browsing the full Surah or Para list.
-        val resumeSurahShown = readerResume?.let { (n, _) -> surahs.any { it.number == n } } == true
-        val libraryOffset = 1 + if (resumeSurahShown) 1 else 0
-        val showQuickIndex = selectedSurah == null && !showBookmarksOnly && !showFavoritesOnly &&
-            (browseByJuz || (searchQuery.isBlank() && surahs.size > 1))
-        val indexScope = rememberCoroutineScope()
         Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
@@ -2393,7 +2401,6 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
                 .fillMaxSize()
                 .padding(16.dp),
             contentPadding = PaddingValues(
-                end = if (showQuickIndex) 30.dp else 0.dp,
                 bottom = if (audioState.active) 150.dp else 0.dp
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -3131,30 +3138,6 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
                 }
             }
         }
-        if (showQuickIndex) {
-            val indexCount = if (browseByJuz) com.example.ui.noorup.quran.JuzIndex.STARTS.size else surahs.size
-            QuickIndexRail(
-                count = indexCount,
-                markerStep = if (browseByJuz) 5 else 20,
-                description = if (isEnglish) {
-                    if (browseByJuz) "Quick index: drag to jump to a Para" else "Quick index: drag to jump to a Surah"
-                } else {
-                    if (browseByJuz) "দ্রুত সূচি: পারায় যেতে টেনে নিন" else "দ্রুত সূচি: সূরায় যেতে টেনে নিন"
-                },
-                markerText = { if (isEnglish) "$it" else it.toBanglaDigits() },
-                label = { n ->
-                    if (browseByJuz) {
-                        if (isEnglish) "Juz $n" else "পারা ${n.toBanglaDigits()}"
-                    } else {
-                        val s = surahs.getOrNull(n - 1)
-                        val name = s?.let { if (isEnglish) it.nameEnglish else it.nameBangla } ?: ""
-                        "${if (isEnglish) "$n" else n.toBanglaDigits()} · $name"
-                    }
-                },
-                onSelect = { n -> indexScope.launch { listState.scrollToItem(libraryOffset + n - 1) } },
-                modifier = Modifier.fillMaxSize().padding(end = 4.dp)
-            )
-        }
         }
     }
 
@@ -3186,7 +3169,7 @@ fun DuasScreen(viewModel: NoorUpViewModel) {
     val isLoadingMoreHadiths by viewModel.isLoadingMoreHadiths.collectAsState()
     val hasMoreHadiths by viewModel.hasMoreHadiths.collectAsState()
 
-    var activeSegment by remember { mutableStateOf(0) } // 0: Duas, 1: Hadith Library
+    var activeSegment by rememberSaveable { mutableStateOf(0) } // 0: Duas, 1: Hadith Library
     // Notification deep link drives the segment from the ViewModel.
     val duaSegment by viewModel.duaSegment.collectAsState()
     LaunchedEffect(duaSegment) { activeSegment = duaSegment }
@@ -5101,7 +5084,11 @@ fun PrayerAlertsManagementCard(viewModel: NoorUpViewModel) {
 fun ToolsScreen(viewModel: NoorUpViewModel) {
     val context = LocalContext.current
     // Starts on the Explore hub (ToolTabOrder.HUB); picking a card opens that tool.
-    var toolTab by remember { mutableStateOf(ToolTabOrder.HUB) }
+    var toolTab by rememberSaveable { mutableStateOf(ToolTabOrder.HUB) }
+    // Android Back from a tool returns to the hub, exactly like the in-app "All features" row.
+    NestedBackHandler(viewModel.backNavigator, enabled = toolTab != ToolTabOrder.HUB) {
+        toolTab = ToolTabOrder.HUB
+    }
     val isEnglish by viewModel.isEnglish.collectAsState()
     val toolNames = if (isEnglish) {
         listOf("Prayer Alerts", "Digital Tasbih", "Solar Engine", "Qibla", "Hijri", "Zakat", "Home Widget", "Ramadan", "Family Dhikr", "Backup")
@@ -6703,7 +6690,7 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
     val consistencyHistory by viewModel.consistencyHistory.collectAsState()
     val currentStreak by viewModel.currentStreak.collectAsState()
     val pendingMissedDays by viewModel.pendingMissedDays.collectAsState()
-    var subTab by remember { mutableStateOf(0) } // 0: Consistency Timeline, 1: Qada Ledger
+    var subTab by rememberSaveable { mutableStateOf(0) } // 0: Consistency Timeline, 1: Qada Ledger
     var gardenRecord by remember { mutableStateOf<DailyRecord?>(null) }
 
     // Recalculate date-based Qada whenever this screen is opened.

@@ -28,8 +28,8 @@ android {
         applicationId = "com.aistudio.noorup.qzmxlw"
         minSdk = 26
         targetSdk = 37
-        versionCode = 18
-        versionName = "1.5.1"
+        versionCode = 19
+        versionName = "1.5.2"
 
         // Public URL of the deployed ai-proxy Worker; empty keeps the assistant offline-only.
         val aiProxyUrl = (project.findProperty("aiProxyUrl") as String?)?.trim().orEmpty()

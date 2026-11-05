@@ -2,7 +2,9 @@
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -62,6 +64,14 @@ class MainActivity : ComponentActivity() {
             val showTour by viewModel.showTour.collectAsState()
             val showWhatsNew by viewModel.showWhatsNew.collectAsState()
             val context = LocalContext.current
+
+            // The only Back handler in the app. Enabled while Back has somewhere to go
+            // inside NoorUp; at the Home root it is off, so the system performs its normal
+            // exit (and predictive back-to-home animation). Dialogs consume Back first.
+            // selectedTab is read so this recomposes on every tab change (tab history only changes with it).
+            val canGoBack = selectedTab != 0 || viewModel.canHandleSystemBack()
+            BackHandler(enabled = canGoBack) { viewModel.handleSystemBack() }
+            val tabStateHolder = rememberSaveableStateHolder()
 
             // Android 13+ notification permission is owned by the Home-screen
             // prayer-alarm onboarding: one rationale, one system dialog, then
@@ -182,13 +192,16 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             Crossfade(targetState = selectedTab, animationSpec = tween(180), label = "tabs", modifier = Modifier.fillMaxSize()) { tab ->
-                                when (tab) {
-                                    0 -> HomeScreen(viewModel)
-                                    1 -> QuranScreen(viewModel)
-                                    2 -> DuasScreen(viewModel)
-                                    3 -> ToolsScreen(viewModel)
-                                    4 -> AiAssistantScreen(viewModel)
-                                    5 -> AnalyticsScreen(viewModel)
+                                // Per-tab saved state: scroll positions and sub-screen choices survive tab switches and Back.
+                                tabStateHolder.SaveableStateProvider(tab) {
+                                    when (tab) {
+                                        0 -> HomeScreen(viewModel)
+                                        1 -> QuranScreen(viewModel)
+                                        2 -> DuasScreen(viewModel)
+                                        3 -> ToolsScreen(viewModel)
+                                        4 -> AiAssistantScreen(viewModel)
+                                        5 -> AnalyticsScreen(viewModel)
+                                    }
                                 }
                             }
                             QuranAudioBar(

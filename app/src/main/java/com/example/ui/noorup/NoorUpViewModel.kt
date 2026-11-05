@@ -331,9 +331,35 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     private val _selectedTab = MutableStateFlow(prefs.getInt("selected_tab", 0).coerceIn(0, 5))
     val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
 
+    /** Back-stack state: in-screen destinations register here, tab history lives in [tabHistory]. */
+    val backNavigator = BackNavigator()
+    private val tabHistory = TabHistory()
+
+    /** True when Back still has somewhere to go inside the app (nested screen, overlay or earlier tab). */
+    fun canHandleSystemBack(): Boolean =
+        backNavigator.hasNested || _selectedTab.value != TabHistory.HOME || !tabHistory.isEmpty
+
+    /**
+     * The one Android Back entry point. Order: overlay / nested screen, then the
+     * previous tab, then the Home root. Returns false only at the root, when the
+     * app may exit.
+     */
+    fun handleSystemBack(): Boolean {
+        if (backNavigator.handleNested()) return true
+        val previous = tabHistory.pop(_selectedTab.value) ?: return false
+        setTab(previous)
+        return true
+    }
+
     fun selectTab(tab: Int) {
-        _selectedTab.value = tab.coerceIn(0, 5)
-        prefs.edit().putInt("selected_tab", tab.coerceIn(0, 5)).apply()
+        val clean = tab.coerceIn(0, 5)
+        tabHistory.onSelect(_selectedTab.value, clean)
+        setTab(clean)
+    }
+
+    private fun setTab(tab: Int) {
+        _selectedTab.value = tab
+        prefs.edit().putInt("selected_tab", tab).apply()
     }
 
     // --- Dua-screen segment (0: Duas, 1: Hadith Library) + daily-hadith deep link ---

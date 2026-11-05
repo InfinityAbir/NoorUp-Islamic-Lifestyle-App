@@ -1,6 +1,5 @@
 package com.example.ui.noorup.search
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,6 +57,8 @@ import com.example.ui.noorup.GlassCard
 import com.example.ui.noorup.NoorUpViewModel
 import com.example.ui.noorup.QuranArabicText
 import com.example.ui.noorup.hadith.Hadith
+import com.example.ui.noorup.BackNavigator
+import com.example.ui.noorup.NestedBackHandler
 import com.example.ui.noorup.toBanglaDigits
 import kotlinx.coroutines.delay
 
@@ -75,7 +76,10 @@ fun GlobalSearchScreen(viewModel: NoorUpViewModel) {
     var openHadith by remember { mutableStateOf<SearchHit.HadithHit?>(null) }
     val focus = remember { FocusRequester() }
 
-    BackHandler { viewModel.closeGlobalSearch() }
+    // Overlay above the tabs: Back closes it before anything underneath (single app-level Back handler).
+    NestedBackHandler(viewModel.backNavigator, enabled = true, priority = BackNavigator.PRIORITY_OVERLAY) {
+        viewModel.closeGlobalSearch()
+    }
 
     LaunchedEffect(Unit) {
         HadithSearchIndex.ensureBuilt(context, viewModel.hadithRepository)

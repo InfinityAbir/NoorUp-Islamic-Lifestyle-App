@@ -320,7 +320,7 @@ fun ExploreHub(viewModel: NoorUpViewModel, isEnglish: Boolean, onOpenTool: (Int)
                 HubItem(Icons.Default.BarChart, "Stats", "পরিসংখ্যান", "Prayer and reading streaks", "নামাজ ও তিলাওয়াতের ধারাবাহিকতা") { viewModel.selectTab(5) },
                 HubItem(Icons.Default.CalendarMonth, "Hijri Calendar", "হিজরি ক্যালেন্ডার", "Dates and Islamic events", "তারিখ ও ইসলামিক দিবস") { onOpenTool(4) },
                 HubItem(Icons.Default.WbSunny, "Solar Engine", "সৌর ইঞ্জিন", "Sun-based prayer calibration", "সূর্য-ভিত্তিক ওয়াক্ত ক্যালিব্রেশন") { onOpenTool(2) },
-                HubItem(Icons.Default.Widgets, "Home Widget", "হোম উইজেট", "Prayer times on your home screen", "হোম স্ক্রিনে নামাজের সময়") { onOpenTool(6) },
+                HubItem(Icons.Default.Widgets, "Home Widget", "হোম উইজেট", "Prayer times, daily verse and tasbih widgets", "নামাজের সময়, আয়াত ও তসবীহ উইজেট") { onOpenTool(6) },
                 HubItem(Icons.Default.CloudUpload, "Backup", "ব্যাকআপ", "Encrypted Google Drive backup", "এনক্রিপ্টেড গুগল ড্রাইভ ব্যাকআপ") { onOpenTool(9) }
             )
         )

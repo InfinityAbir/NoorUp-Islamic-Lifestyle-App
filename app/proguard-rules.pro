@@ -15,6 +15,8 @@
 # Family Dhikr + Drive backup models are (de)serialised by Gson.
 -keep class com.example.ui.noorup.family.** { *; }
 -keep class com.example.ui.noorup.backup.** { *; }
+# Friday reflections are stored as Gson JSON: field names must survive R8 or saved entries stop loading.
+-keep class com.example.ui.noorup.journey.ReflectionEntry { *; }
 
 # ML Kit / Play-services code scanner (Family Dhikr QR scan): its init provider instantiates component
 # registrars by reflection, and R8 would otherwise strip their constructors (scanner fails in release).

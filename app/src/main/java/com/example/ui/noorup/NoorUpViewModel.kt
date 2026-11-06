@@ -944,30 +944,9 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     private fun resolveInitialTasbih(custom: List<TasbihDhikr>): InitialTasbihState {
-        val savedActiveId = prefs.getString("tasbih_active_id", null)
-        val savedActive = savedActiveId?.let { TasbihRepository.findById(it, custom) }
-        val legacyText = prefs.getString("tasbih_dhikr", null)
-        val active = savedActive
-            ?: legacyText?.let { text ->
-                TasbihRepository.findBuiltInByLegacyText(text)
-                    ?: TasbihRepository.legacyDefinition(
-                        text,
-                        prefs.getInt("tasbih_goal", TasbihRepository.builtIns.first().stages.first().target)
-                    )
-            }
-            ?: TasbihRepository.builtIns.first()
-
-        val stageIndex = prefs.getInt("tasbih_stage", 0)
-            .coerceIn(0, active.stages.lastIndex)
-        val savedGoal = prefs.getInt(
-            "tasbih_goal",
-            active.stages[stageIndex].target
-        ).coerceIn(1, MAX_TASBIH_GOAL)
-        val savedCount = prefs.getInt("tasbih_count", 0)
-            .coerceIn(0, savedGoal)
-        val completed = prefs.getBoolean("tasbih_completed", false) ||
-            (savedCount >= savedGoal && stageIndex == active.stages.lastIndex)
-        return InitialTasbihState(active, stageIndex, savedCount, savedGoal, completed)
+        // Same rules the home-screen widget uses (TasbihCounter), so both always agree.
+        val s = TasbihCounter.load(prefs, custom)
+        return InitialTasbihState(s.active, s.stageIndex, s.count, s.goal, s.completed)
     }
 
     private val initialCustomDhikrs = TasbihRepository.loadCustom(prefs)
@@ -1012,60 +991,63 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             .apply()
     }
 
+    private fun currentTasbihState() = TasbihState(
+        active = _activeDhikr.value,
+        stageIndex = _tasbihStageIndex.value,
+        count = _tasbihCount.value,
+        goal = _tasbihGoal.value,
+        completed = _tasbihCompleted.value
+    )
+
+    private fun applyTasbihState(state: TasbihState) {
+        _tasbihStageIndex.value = state.stageIndex
+        _tasbihCount.value = state.count
+        _tasbihGoal.value = state.goal
+        _tasbihCompleted.value = state.completed
+    }
+
     /** Exactly one increment per call. Extra taps after completion are ignored. */
     fun incrementTasbih() {
-        if (_tasbihCompleted.value) return
-        val active = _activeDhikr.value
-        val stageIndex = _tasbihStageIndex.value.coerceIn(0, active.stages.lastIndex)
-        val goal = _tasbihGoal.value.coerceIn(1, MAX_TASBIH_GOAL)
-
-        if (_tasbihCount.value >= goal) {
-            if (stageIndex == active.stages.lastIndex) {
-                completeTasbihRound(active)
-            } else {
-                advanceTasbihStage(active, stageIndex)
-            }
-            return
-        }
-
-        val next = _tasbihCount.value + 1
-        if (next < goal) {
-            _tasbihCount.value = next
-            persistTasbihState()
-            return
-        }
-
-        if (stageIndex < active.stages.lastIndex) {
-            advanceTasbihStage(active, stageIndex)
-        } else {
-            _tasbihCount.value = next
-            completeTasbihRound(active)
-        }
-    }
-
-    private fun advanceTasbihStage(active: TasbihDhikr, stageIndex: Int) {
-        val nextIndex = (stageIndex + 1).coerceAtMost(active.stages.lastIndex)
-        _tasbihStageIndex.value = nextIndex
-        _tasbihCount.value = 0
-        _tasbihGoal.value = active.stages[nextIndex].target.coerceIn(1, MAX_TASBIH_GOAL)
-        _tasbihCompleted.value = false
+        val before = currentTasbihState()
+        val tap = TasbihCounter.increment(before)
+        if (tap.state == before) return
+        applyTasbihState(tap.state)
         persistTasbihState()
-    }
-
-    private fun completeTasbihRound(active: TasbihDhikr) {
-        if (_tasbihCompleted.value) return
-        _tasbihCompleted.value = true
-        _tasbihCount.value = _tasbihGoal.value
-        persistTasbihState()
-        TasbihFeedback.vibrateCompletion(getApplication())
-        _completionEvents.tryEmit(
-            TasbihCompletionEvent(
-                titleBangla = active.titleBangla,
-                titleEnglish = active.titleEnglish,
-                totalTarget = if (active.stages.size == 1) _tasbihGoal.value else active.totalTarget,
-                stageCount = active.stages.size
+        if (tap.counted || tap.roundCompleted) {
+            TasbihHistory.record(
+                prefs, java.time.LocalDate.now(), tap.state.active,
+                count = if (tap.counted) 1 else 0,
+                rounds = if (tap.roundCompleted) 1 else 0
             )
-        )
+        }
+        if (tap.roundCompleted) {
+            val active = tap.state.active
+            TasbihFeedback.vibrateCompletion(getApplication())
+            _completionEvents.tryEmit(
+                TasbihCompletionEvent(
+                    titleBangla = active.titleBangla,
+                    titleEnglish = active.titleEnglish,
+                    totalTarget = if (active.stages.size == 1) _tasbihGoal.value else active.totalTarget,
+                    stageCount = active.stages.size
+                )
+            )
+        }
+    }
+
+    /**
+     * The home-screen tasbih widget writes the round position straight to storage.
+     * Pull it in when the app returns to the foreground. Never re-fires the completion celebration.
+     */
+    fun refreshTasbihFromStorage() {
+        val stored = TasbihCounter.load(prefs, _customDhikrs.value)
+        val now = currentTasbihState()
+        if (stored == now) return
+        if (stored.active.id != now.active.id) {
+            // Dhikr switched from the widget.
+            _activeDhikr.value = stored.active
+            _currentDhikr.value = stored.active.fullTitle(false)
+        }
+        applyTasbihState(stored)
     }
 
     fun resetTasbih() {
@@ -2589,13 +2571,24 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
 
     fun toggleHabitPrayer(prayerName: String) {
         ensureTodayRollover()
-        val selectedDateKey = habitDateKey
-        val updatedMap = _habitPrayers.value.toMutableMap().apply {
-            val newVal = !(this[prayerName] ?: false)
+        setHabitPrayer(habitDateKey, prayerName, !(_habitPrayers.value[prayerName] ?: false))
+    }
+
+    /**
+     * The one write path for a prayer's completed flag, for any date. [toggleHabitPrayer] and the
+     * Crescent Journey editor both end up here, so the streak, Qada sync, widgets and the
+     * `prayer_record_*` count that the home widget reads stay consistent.
+     */
+    fun setHabitPrayer(dateKey: String, prayerName: String, newVal: Boolean) {
+        ensureTodayRollover()
+        val selectedDateKey = dateKey
+        val isSelectedDate = dateKey == habitDateKey
+        val updatedMap = (if (isSelectedDate) _habitPrayers.value else loadHabitPrayers(dateKey)).toMutableMap().apply {
             this[prayerName] = newVal
             prefs.edit().putBoolean("prayer_habit_${selectedDateKey}_$prayerName", newVal).apply()
         }
-        _habitPrayers.value = updatedMap
+        recordPrayerMeta(dateKey, prayerName, newVal)
+        if (isSelectedDate) _habitPrayers.value = updatedMap
 
         val completedCount = updatedMap.values.count { it }
         val newStreak = computeCurrentStreak()
@@ -2611,9 +2604,13 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         _currentStreak.value = newStreak
-        _consistencyHistory.value = computeConsistencyHistory(updatedMap)
+        // Today's record is built from the map passed in: use the real today map when today is edited.
+        _consistencyHistory.value = computeConsistencyHistory(
+            if (isSelectedDate || dateKey == getTodayDateKey()) updatedMap else _habitPrayers.value
+        )
         syncAutomaticQadaLedger()
         _pendingMissedDays.value = computePendingMissedDays()
+        _journeyRevision.value += 1
 
         // Synchronize all home screen widgets instantly
         try {
@@ -2622,6 +2619,126 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             Log.e("NoorUpViewModel", "Failed updating widget after habit toggle", e)
         }
     }
+
+    // --- Crescent Journey: additive record metadata, tri-state edits, routing ---
+
+    /** Bumped on every prayer record change so Journey screens recompute even when only a note/state changed. */
+    private val _journeyRevision = MutableStateFlow(0)
+    val journeyRevision: StateFlow<Int> = _journeyRevision.asStateFlow()
+
+    /** Open Journey destination on the Stats tab: null = Stats list, "journey", or "friday". Not persisted. */
+    private val _journeyRoute = MutableStateFlow<String?>(null)
+    val journeyRoute: StateFlow<String?> = _journeyRoute.asStateFlow()
+
+    fun setJourneyRoute(route: String?) { _journeyRoute.value = route }
+
+    /** Notification / deep-link entry: jump to the Stats tab and open [route]. */
+    fun openJourneyRoute(route: String) {
+        selectTab(5)
+        _journeyRoute.value = route
+    }
+
+    /** Completion time + last-change time next to the legacy boolean; a completed prayer is never also "missed". */
+    private fun recordPrayerMeta(dateKey: String, prayerBn: String, completed: Boolean) {
+        val en = com.example.ui.noorup.journey.Prayer.entries.firstOrNull { it.bnKey == prayerBn }?.en ?: return
+        val now = System.currentTimeMillis()
+        prefs.edit().apply {
+            putLong("prayer_mod_${dateKey}_$en", now)
+            if (completed) {
+                putLong("prayer_ts_${dateKey}_$en", now)
+                remove("prayer_state_${dateKey}_$en")
+            } else {
+                remove("prayer_ts_${dateKey}_$en")
+            }
+        }.apply()
+    }
+
+    /**
+     * Three-way edit used by the Journey: Completed / Missed (explicit) / Not recorded.
+     * Only the tracker's own write path touches the completed flag; "missed" is a separate
+     * additive key and never creates Qada by itself. Future dates are ignored.
+     */
+    fun setPrayerRecord(dateKey: String, prayer: com.example.ui.noorup.journey.Prayer, choice: com.example.ui.noorup.journey.RecordChoice) {
+        val date = runCatching { java.time.LocalDate.parse(dateKey) }.getOrNull() ?: return
+        if (date.isAfter(java.time.LocalDate.now())) return
+        val completedNow = prefs.getBoolean("prayer_habit_${dateKey}_${prayer.bnKey}", false)
+        val stateKey = "prayer_state_${dateKey}_${prayer.en}"
+        when (choice) {
+            com.example.ui.noorup.journey.RecordChoice.COMPLETED -> {
+                if (!completedNow) setHabitPrayer(dateKey, prayer.bnKey, true)
+            }
+            com.example.ui.noorup.journey.RecordChoice.MISSED -> {
+                if (completedNow) setHabitPrayer(dateKey, prayer.bnKey, false)
+                prefs.edit()
+                    .putString(stateKey, com.example.ui.noorup.journey.PrefsPrayerRecordSource.STATE_MISSED)
+                    .putBoolean("user_has_logged_$dateKey", true)
+                    .putLong("prayer_mod_${dateKey}_${prayer.en}", System.currentTimeMillis())
+                    .apply()
+                if (!prefs.contains("prayer_tracking_start_date")) {
+                    prefs.edit().putString("prayer_tracking_start_date", dateKey).apply()
+                }
+                // A day with only "missed" marks must still appear in the timeline (the count key gates the list).
+                if (!prefs.contains("prayer_record_${dateKey}_completed")) {
+                    prefs.edit().putInt("prayer_record_${dateKey}_completed", 0).apply()
+                }
+            }
+            com.example.ui.noorup.journey.RecordChoice.UNRECORDED -> {
+                if (completedNow) setHabitPrayer(dateKey, prayer.bnKey, false)
+                prefs.edit()
+                    .remove(stateKey)
+                    .putLong("prayer_mod_${dateKey}_${prayer.en}", System.currentTimeMillis())
+                    .apply()
+            }
+        }
+        refreshConsistencyHistory()
+        _journeyRevision.value += 1
+    }
+
+    /** Start minutes of today's five prayers in the selected city's clock; null when that clock is not "today" here. */
+    fun journeyTodayTiming(): com.example.ui.noorup.journey.TodayTiming? = try {
+        val loc = _selectedCityLocation.value
+        val zone = if (loc.zoneId.isBlank()) java.util.TimeZone.getDefault() else java.util.TimeZone.getTimeZone(loc.zoneId)
+        val cal = Calendar.getInstance(zone)
+        val deviceToday = java.time.LocalDate.now()
+        val sameDay = cal.get(Calendar.YEAR) == deviceToday.year &&
+            cal.get(Calendar.DAY_OF_YEAR) == deviceToday.dayOfYear
+        if (!sameDay) null else {
+            val calc = SolarPrayerEngine.calculateTimes(
+                latitude = loc.latitude,
+                longitude = loc.longitude,
+                calendar = cal,
+                timezoneOffset = tzOffsetFor(loc.zoneId),
+                method = _calculationMethod.value,
+                juristic = _juristicMethod.value
+            )
+            val starts = listOf(calc.fajrStart, calc.dhuhrStart, calc.asrStart, calc.maghribStart, calc.ishaStart)
+                .map { com.example.ui.noorup.journey.JourneyEngine.parseClockMinutes(it) }
+            com.example.ui.noorup.journey.TodayTiming(
+                cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE),
+                starts
+            )
+        }
+    } catch (_: Exception) { null }
+
+    /** Prayer window text ("05:17 PM – 06:33 PM") for one of today's prayers, from the engine. */
+    fun journeyTodayWindow(prayer: com.example.ui.noorup.journey.Prayer): String? = try {
+        val loc = _selectedCityLocation.value
+        val calc = SolarPrayerEngine.calculateTimes(
+            latitude = loc.latitude,
+            longitude = loc.longitude,
+            calendar = Calendar.getInstance(if (loc.zoneId.isBlank()) java.util.TimeZone.getDefault() else java.util.TimeZone.getTimeZone(loc.zoneId)),
+            timezoneOffset = tzOffsetFor(loc.zoneId),
+            method = _calculationMethod.value,
+            juristic = _juristicMethod.value
+        )
+        when (prayer) {
+            com.example.ui.noorup.journey.Prayer.FAJR -> "${calc.fajrStart} – ${calc.fajrEnd}"
+            com.example.ui.noorup.journey.Prayer.DHUHR -> "${calc.dhuhrStart} – ${calc.dhuhrEnd}"
+            com.example.ui.noorup.journey.Prayer.ASR -> "${calc.asrStart} – ${calc.asrEnd}"
+            com.example.ui.noorup.journey.Prayer.MAGHRIB -> "${calc.maghribStart} – ${calc.maghribEnd}"
+            com.example.ui.noorup.journey.Prayer.ISHA -> "${calc.ishaStart} – ${calc.ishaEnd}"
+        }
+    } catch (_: Exception) { null }
 
     fun refreshConsistencyHistory() {
         ensureTodayRollover()

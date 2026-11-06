@@ -194,6 +194,12 @@ object PrayerNotificationScheduler {
     fun scheduleDailyTasks(context: Context) {
         scheduleGardenExactAlarm(context)
         scheduleDailyHadithExactAlarm(context)
+        // Opt-in Friday reflection / intention reminders; also the boot, timezone and periodic re-arm path.
+        try {
+            com.example.ui.noorup.journey.FridayReminderScheduler.scheduleAll(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Friday reminder scheduling failed", e)
+        }
     }
 
     fun isExactAlarmPermissionGranted(context: Context): Boolean {
@@ -448,6 +454,11 @@ object PrayerNotificationScheduler {
                 alarmManager.cancel(pendingIntent)
                 pendingIntent.cancel()
             }
+        }
+        try {
+            com.example.ui.noorup.journey.FridayReminderScheduler.cancelAll(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Friday reminder cancel failed", e)
         }
         context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE).edit()
             .putInt(KEY_SCHEDULED_COUNT, 0)

@@ -39,7 +39,9 @@ object BackupCodec {
         "bm_", "mem_", "dua_bm_", "fav_surah_", "reader_last_", "focus_",
         "prayer_habit_", "prayer_record_", "prayer_transferred_qada_", "user_has_logged_",
         "qada_", "tasbih_", "ramadan_", "family_",
-        "prayer_enabled_", "selected_city_"
+        "prayer_enabled_", "selected_city_",
+        // Crescent Journey: tri-state prayer metadata, milestones, reflections and reminder settings.
+        "prayer_state_", "prayer_ts_", "prayer_mod_", "journey_", "reflection_", "friday_", "intention_"
     )
     private val exactKeys = setOf(
         "current_prayer_streak", "prayer_tracking_start_date", "prayer_habit_last_active_date",

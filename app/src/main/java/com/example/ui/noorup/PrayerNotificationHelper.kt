@@ -20,6 +20,8 @@ object PrayerNotificationHelper {
     const val EXTRA_DAILY_HADITH_ID = "daily_hadith_id"
     /** Prayer and Garden notification taps always return to the Home dashboard. */
     const val EXTRA_OPEN_HOME = "open_home"
+    /** Crescent Journey notification taps open the named Journey route (e.g. "friday") on the Stats tab. */
+    const val EXTRA_OPEN_JOURNEY = "open_journey_route"
 
     /** Attaches the "open this hadith in the app" deep link to a tap intent. */
     fun putDailyHadithExtras(intent: Intent, hadithId: Int): Intent =
@@ -87,10 +89,21 @@ object PrayerNotificationHelper {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
 
+            // Gentle, weekly: default importance (no heads-up pop-up), private by default.
+            val journeyChannel = NotificationChannel(
+                com.example.ui.noorup.journey.FridayReminderScheduler.CHANNEL_ID,
+                "Crescent Journey & Friday Reflection",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Weekly Friday reflection and personal intention reminders"
+                lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            }
+
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(prayerChannel)
             manager.createNotificationChannel(gardenChannel)
             manager.createNotificationChannel(hadithChannel)
+            manager.createNotificationChannel(journeyChannel)
             channelsCreated = true
         } else {
             channelsCreated = true
@@ -112,7 +125,8 @@ object PrayerNotificationHelper {
         title: String,
         message: String,
         channelId: String = "prayer_reminders_channel",
-        deepLinkHadithId: Int? = null
+        deepLinkHadithId: Int? = null,
+        deepLinkJourneyRoute: String? = null
     ): Boolean {
         if (!areNotificationsEnabled(context)) {
             android.util.Log.w("PrayerNotify", "Suppressed notify #$notificationId: POST_NOTIFICATIONS denied")
@@ -137,6 +151,8 @@ object PrayerNotificationHelper {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             if (deepLinkHadithId != null) {
                 putDailyHadithExtras(this, deepLinkHadithId)
+            } else if (deepLinkJourneyRoute != null) {
+                putExtra(EXTRA_OPEN_JOURNEY, deepLinkJourneyRoute)
             } else {
                 putExtra(EXTRA_OPEN_HOME, true)
             }

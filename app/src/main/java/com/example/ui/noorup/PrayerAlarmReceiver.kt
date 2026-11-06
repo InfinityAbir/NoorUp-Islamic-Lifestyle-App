@@ -22,6 +22,26 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             } catch (_: Exception) { }
             return
         }
+        // Crescent Journey reminders (Friday reflection / weekly intention): own decision + re-arm logic.
+        if (intent.getBooleanExtra(com.example.ui.noorup.journey.FridayReminderScheduler.EXTRA_FRIDAY, false)) {
+            val pending = goAsync()
+            Thread {
+                try { com.example.ui.noorup.journey.FridayReminderScheduler.onFridayFire(context) }
+                catch (e: Exception) { Log.e("PrayerAlarmReceiver", "Friday reminder failed", e) }
+                finally { try { pending.finish() } catch (_: Exception) { } }
+            }.start()
+            return
+        }
+        if (intent.getBooleanExtra(com.example.ui.noorup.journey.FridayReminderScheduler.EXTRA_INTENTION, false)) {
+            val pending = goAsync()
+            Thread {
+                try { com.example.ui.noorup.journey.FridayReminderScheduler.onIntentionFire(context) }
+                catch (e: Exception) { Log.e("PrayerAlarmReceiver", "Intention reminder failed", e) }
+                finally { try { pending.finish() } catch (_: Exception) { } }
+            }.start()
+            return
+        }
+
         val isGarden = intent.getBooleanExtra("is_garden_reminder", false)
 
         if (isGarden) {
@@ -47,7 +67,10 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 Log.w("PrayerAlarmReceiver", "Garden reminder fired at stale hour $hour; skipping")
             }
 
-            if (!alreadyPostedToday && isValidEveningHour) {
+            // Optional gentleness (on by default): no evening nudge once all five prayers are recorded.
+            val skipBecauseDone = com.example.ui.noorup.journey.JourneyPrefs.shouldSkipEvening(prefs, slotKey)
+
+            if (!alreadyPostedToday && isValidEveningHour && !skipBecauseDone) {
                 val isEnglish = prefs.getBoolean("is_english", false)
                 val prayerName = intent.getStringExtra("prayer_name")
                     ?: if (isEnglish) "🌱 Noor Garden (10:00 PM Reminder)" else "🌱 নূর বাগান (রাত ১০:০০ ঘটিকার অনুস্মারক)"

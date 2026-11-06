@@ -4,4 +4,6 @@
     <string name="widget_desc">Today\'s 5 prayer times, countdown, streak and Makruh windows at a glance</string>
     <string name="daily_ayat_widget_name">NoorUp Daily Verse &amp; Dua</string>
     <string name="daily_ayat_widget_desc">A curated Quran verse or Masnoon dua each day, in Arabic with Bangla or English</string>
+    <string name="tasbih_widget_name">NoorUp Tasbih Counter</string>
+    <string name="tasbih_widget_desc">Count your dhikr right from the home screen and keep a daily zikr history</string>
 </resources>

@@ -118,6 +118,8 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             }
 
         fun updateAllWidgets(context: Context) {
+            // Shared "refresh every NoorUp widget" entry: language, date change, boot, resume.
+            TasbihWidgetProvider.updateAll(context)
             try {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val componentName = ComponentName(context, NoorUpWidgetProvider::class.java)

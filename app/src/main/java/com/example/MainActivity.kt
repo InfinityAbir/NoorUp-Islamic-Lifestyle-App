@@ -226,6 +226,13 @@ class MainActivity : ComponentActivity() {
             viewModel.handleFamilyLink(data)
             return
         }
+        // Crescent Journey notifications (Friday reflection, weekly intention): open the Journey route once.
+        val journeyRoute = intent?.getStringExtra(PrayerNotificationHelper.EXTRA_OPEN_JOURNEY)
+        if (journeyRoute != null) {
+            intent.removeExtra(PrayerNotificationHelper.EXTRA_OPEN_JOURNEY)
+            viewModel.openJourneyRoute(journeyRoute)
+            return
+        }
         val widgetSurah = intent?.getIntExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_SURAH, -1) ?: -1
         val widgetDua = intent?.getStringExtra(DailyAyatWidgetProvider.EXTRA_OPEN_DUA_ID)
         if (widgetSurah > 0) {
@@ -233,6 +240,10 @@ class MainActivity : ComponentActivity() {
             val ayah = intent!!.getIntExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_AYAH, 1)
             intent.removeExtra(DailyAyatWidgetProvider.EXTRA_OPEN_VERSE_SURAH)
             viewModel.openQuranFromSearch(widgetSurah, ayah)
+        } else if (intent?.getBooleanExtra(TasbihWidgetProvider.EXTRA_OPEN_TASBIH, false) == true) {
+            // Tasbih widget "Open": jump straight to Digital Tasbih (Explore tool 1), once.
+            intent.removeExtra(TasbihWidgetProvider.EXTRA_OPEN_TASBIH)
+            viewModel.openTool(1)
         } else if (widgetDua != null) {
             intent!!.removeExtra(DailyAyatWidgetProvider.EXTRA_OPEN_DUA_ID)
             viewModel.openDuaById(widgetDua)
@@ -256,12 +267,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        // Counts made in the app must show on the home-screen tasbih widget straight away.
+        val appCtx = applicationContext
+        Thread { TasbihWidgetProvider.updateAll(appCtx) }.start()
+    }
+
     override fun onResume() {
         super.onResume()
         val appCtx = applicationContext
         // The Daily Verse widget can bookmark while the app is in the background.
         try {
-            androidx.lifecycle.ViewModelProvider(this)[NoorUpViewModel::class.java].refreshBookmarksFromStorage()
+            val vm = androidx.lifecycle.ViewModelProvider(this)[NoorUpViewModel::class.java]
+            vm.refreshBookmarksFromStorage()
+            // The tasbih widget counts without the app; pull its latest round position in.
+            vm.refreshTasbihFromStorage()
         } catch (_: Exception) { }
         Thread {
             try {

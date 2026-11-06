@@ -62,6 +62,19 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.draw.shadow
 import com.example.ui.theme.*
 import com.example.ui.noorup.audio.QuranAudioPanel
+import com.example.ui.noorup.journey.CrescentJourneyHero
+import com.example.ui.noorup.journey.CrescentJourneyScreen
+import com.example.ui.noorup.journey.DayRecordEditorList
+import com.example.ui.noorup.journey.FridayReflectionScreen
+import com.example.ui.noorup.journey.JourneyPrefs
+import com.example.ui.noorup.journey.JourneyRepository
+import com.example.ui.noorup.journey.WeeklyReflectionCard
+import com.example.ui.noorup.journey.JourneyEngine
+import com.example.ui.noorup.journey.Prayer
+import com.example.ui.noorup.journey.PrayerDayIndicators
+import com.example.ui.noorup.journey.PrayerStatus
+import com.example.ui.noorup.journey.PrefsPrayerRecordSource
+import com.example.ui.noorup.journey.statusLabel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -5722,6 +5735,9 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
                     }
                 }
             }
+            item {
+                TasbihHistoryCard(isEnglish, refreshKey = listOf(tasbihCount, activeDhikr.id, tasbihCompleted))
+            }
         } else if (toolTab == 2) {
             // Solar & Astronomical Calculation Engine
             item {
@@ -5802,212 +5818,8 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
         } else if (toolTab == 9) {
             item { com.example.ui.noorup.backup.BackupRestoreView(viewModel) }
         } else if (toolTab == 6) {
-            // Feature: Home Screen Widget Preview & Customizer
-            item {
-                GlassCard {
-                    Text(
-                        if (isEnglish) "Home Screen Widget Preview" else "হোম স্ক্রিন উইজেট প্রিভিউ",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        if (isEnglish) "Wide 4x2 interactive glassmorphic widget showing 5 daily prayers side-by-side with dual timestamps (Start & End)."
-                        else "ওয়াইড ৪x২ গ্লাস মরফিক উইজেট — ৫ ওয়াক্তের শুরু ও শেষের নির্ভুল দ্বৈত সময়সূচী।",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 12.sp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Realistic Widget Preview Mockup Frame
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(Color(0xFF0E1624))
-                            .border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), RoundedCornerShape(18.dp))
-                            .padding(12.dp)
-                    ) {
-                        Column {
-                            // Header
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(EmeraldGlow)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        if (isEnglish) "NoorUp • Prayer Schedule" else "নূরআপ • নামাজের সময়সূচী",
-                                        color = EmeraldGlow,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f, fill = false)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    if (isEnglish) selectedCityLocation.nameEn else selectedCityLocation.nameBn,
-                                    color = Color(0xFF9CA3AF),
-                                    fontSize = 11.sp,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // 5 Columns
-                            val widgetPrayers = listOf(
-                                Triple(if (isEnglish) "Fajr" else "ফজর", selectedCityLocation.fajrStart, selectedCityLocation.fajrEnd),
-                                Triple(if (isEnglish) "Dhuhr" else "যোহর", selectedCityLocation.dhuhrStart, selectedCityLocation.dhuhrEnd),
-                                Triple(if (isEnglish) "Asr" else "আসর", selectedCityLocation.asrStart, selectedCityLocation.asrEnd),
-                                Triple(if (isEnglish) "Maghrib" else "মাগরিব", selectedCityLocation.maghribStart, selectedCityLocation.maghribEnd),
-                                Triple(if (isEnglish) "Isha" else "এশা", selectedCityLocation.ishaStart, selectedCityLocation.ishaEnd)
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                widgetPrayers.forEachIndexed { index, (name, start, end) ->
-                                    val isCurrent = index == 1 // Dhuhr active highlight
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(
-                                                if (isCurrent) EmeraldGlow.copy(alpha = 0.2f)
-                                                else Color.White.copy(alpha = 0.07f)
-                                            )
-                                            .border(
-                                                1.dp,
-                                                if (isCurrent) EmeraldGlow else Color.White.copy(alpha = 0.1f),
-                                                RoundedCornerShape(10.dp)
-                                            )
-                                            .padding(vertical = 8.dp, horizontal = 2.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            Text(
-                                                name,
-                                                color = if (isCurrent) EmeraldGlow else Color(0xFFF3F4F6),
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                maxLines = 1
-                                            )
-                                            Spacer(modifier = Modifier.height(3.dp))
-                                            Text(
-                                                start.replace(" AM", "").replace(" PM", ""),
-                                                color = if (isCurrent) EmeraldGlow else Color(0xFFE5E7EB),
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                maxLines = 1
-                                            )
-                                            Text(
-                                                "- " + end.replace(" AM", "").replace(" PM", ""),
-                                                color = if (isCurrent) Color(0xFF6EE7B7) else Color(0xFF9CA3AF),
-                                                fontSize = 10.sp,
-                                                fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // 1-Tap Add / Pin Widget to Home Screen Button
-                    val appWidgetManager = remember { android.appwidget.AppWidgetManager.getInstance(context) }
-                    val widgetProvider = remember { android.content.ComponentName(context, com.example.NoorUpWidgetProvider::class.java) }
-                    val isPinSupported = remember {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            appWidgetManager.isRequestPinAppWidgetSupported
-                        } else {
-                            false
-                        }
-                    }
-
-                    if (isPinSupported) {
-                        Button(
-                            onClick = {
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                    try {
-                                        appWidgetManager.requestPinAppWidget(widgetProvider, null, null)
-                                        Toast.makeText(
-                                            context,
-                                            if (isEnglish) "Check your home screen or accept the prompt to place widget" else "উইজেট বসাতে হোম স্ক্রিনের পপআপ নিশ্চিত করুন",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } catch (e: Exception) {
-                                        Toast.makeText(
-                                            context,
-                                            if (isEnglish) "Please drag widget manually from home screen" else "অনুগ্রহ করে হোম স্ক্রিন থেকে উইজেটটি ম্যানুয়ালি যুক্ত করুন",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = EmeraldGlow)
-                        ) {
-                            Icon(Icons.Default.Widgets, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                if (isEnglish) "Pin Widget to Home Screen" else "হোম স্ক্রিনে উইজেট যুক্ত করুন",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(12.dp)
-                    ) {
-                        Column {
-                            Text(
-                                if (isEnglish) "✨ How to add widget to your Home Screen:" else "✨ যেভাবে হোম স্ক্রিনে উইজেট যুক্ত করবেন:",
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                if (isEnglish) "1. Long press any empty space on your Android Home Screen.\n2. Tap 'Widgets' and scroll to 'NoorUp'.\n3. Drag the 4x2 wide prayer widget to your screen for instant live tracking."
-                                else "১. আপনার ফোনের হোম স্ক্রিনের ফাঁকা জায়গায় কিছুক্ষণ চেপে ধরে রাখুন।\n২. 'Widgets' অপশনে ট্যাপ করে 'NoorUp' খুঁজে নিন।\n৩. ৪x২ ওয়াইড উইজেটটি টেনে এনে স্ক্রিনে বসিয়ে দিন।",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 12.sp,
-                                lineHeight = 18.sp
-                            )
-                        }
-                    }
-                }
-            }
+            // All three home-screen widgets: Prayer Timeline, Daily Verse & Dua, Tasbih Counter.
+            item { HomeWidgetsHub(viewModel) }
         }
     }
 }
@@ -6684,6 +6496,39 @@ fun AiAssistantScreen(viewModel: NoorUpViewModel) {
 // --- AnalyticsScreen: Prayer Consistency & Qada Analytics ---
 @Composable
 fun AnalyticsScreen(viewModel: NoorUpViewModel) {
+    // Crescent Journey / Friday Reflection are nested routes inside the Stats tab (no new bottom tab).
+    val route by viewModel.journeyRoute.collectAsState()
+    var fridayFromJourney by rememberSaveable { mutableStateOf(false) }
+    NestedBackHandler(viewModel.backNavigator, enabled = route != null) {
+        if (route?.startsWith("friday") == true && fridayFromJourney) {
+            fridayFromJourney = false
+            viewModel.setJourneyRoute("journey")
+        } else {
+            viewModel.setJourneyRoute(null)
+        }
+    }
+    when (route) {
+        "journey" -> CrescentJourneyScreen(viewModel) { history ->
+            fridayFromJourney = true
+            viewModel.setJourneyRoute(if (history) "friday_history" else "friday")
+        }
+        "friday", "friday_history" -> FridayReflectionScreen(viewModel, startOnHistory = route == "friday_history") {
+            if (fridayFromJourney) {
+                fridayFromJourney = false
+                viewModel.setJourneyRoute("journey")
+            } else {
+                viewModel.setJourneyRoute(null)
+            }
+        }
+        else -> {
+            SideEffect { fridayFromJourney = false }
+            StatsOverview(viewModel)
+        }
+    }
+}
+
+@Composable
+private fun StatsOverview(viewModel: NoorUpViewModel) {
     val isEnglish by viewModel.isEnglish.collectAsState()
     val qadaCounts by viewModel.qadaCounts.collectAsState()
     val totalMadeUpQada by viewModel.totalMadeUpQada.collectAsState()
@@ -6692,6 +6537,32 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
     val pendingMissedDays by viewModel.pendingMissedDays.collectAsState()
     var subTab by rememberSaveable { mutableStateOf(0) } // 0: Consistency Timeline, 1: Qada Ledger
     var gardenRecord by remember { mutableStateOf<DailyRecord?>(null) }
+
+    // Crescent Journey reads the same prayer records as the rest of this screen (read-only).
+    val journeyContext = LocalContext.current
+    val habitPrayers by viewModel.habitPrayers.collectAsState()
+    val journeyRevision by viewModel.journeyRevision.collectAsState()
+    val journeyPrefsStore = remember(journeyContext) { journeyContext.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE) }
+    val journeyRepo = remember(journeyPrefsStore) { JourneyRepository(journeyPrefsStore) }
+    val journeySource = journeyRepo.source
+    val journeyToday = java.time.LocalDate.now()
+    // Minute tick so a prayer whose time arrives turns from upcoming to pending without leaving the screen.
+    var journeyTick by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(60_000)
+            journeyTick++
+        }
+    }
+    val journeyData = remember(consistencyHistory, habitPrayers, qadaCounts, journeyToday, journeyRevision, journeyTick) {
+        journeyRepo.snapshot(journeyToday, viewModel.journeyTodayTiming())
+    }
+    val journeySummary = journeyData.summary
+    LaunchedEffect(journeyData) { journeyRepo.persist(journeyData) }
+    val journeyMotion = remember(journeyContext, journeyRevision) {
+        JourneyPrefs(journeyPrefsStore).motionAllowed(TasbihFeedback.isReducedMotion(journeyContext))
+    }
+    var showAllDays by rememberSaveable { mutableStateOf(false) }
 
     // Recalculate date-based Qada whenever this screen is opened.
     LaunchedEffect(Unit) { viewModel.refreshConsistencyHistory() }
@@ -6721,9 +6592,18 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Minimalist Glass Summary Capsule
+            CrescentJourneyHero(
+                summary = journeySummary,
+                isEnglish = isEnglish,
+                motion = journeyMotion,
+                onOpen = { viewModel.setJourneyRoute("journey") }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Existing summary: Overall Prayer Health, streak, pending / fulfilled Qada (calculations unchanged)
             GlassCard {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
@@ -7015,12 +6895,40 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                     }
                 }
             } else {
-                items(consistencyHistory) { record ->
-                    GlassCard(
-                        modifier = Modifier.clickable {
-                            viewModel.openGardenForDate(record.dateKey)
-                            gardenRecord = record
+                item {
+                    Text(
+                        if (isEnglish) "Fajr to Isha:  ✓ completed   ✕ marked missed   – not recorded"
+                        else "ফজর থেকে এশা:  ✓ আদায়   ✕ ছুটে গেছে   – রেকর্ড নেই",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 11.sp
+                    )
+                }
+                items(if (showAllDays) consistencyHistory else consistencyHistory.take(7)) { record ->
+                    // Per-prayer statuses come from the tracker records; an unchecked prayer is "not recorded", never "missed".
+                    val day = remember(record.dateKey, consistencyHistory, habitPrayers) {
+                        runCatching {
+                            JourneyEngine.dayRecord(journeySource, java.time.LocalDate.parse(record.dateKey), journeyToday)
+                        }.getOrNull()
+                    }
+                    val rowDescription = buildString {
+                        append(record.dayLabel).append(", ")
+                        append(
+                            if (isEnglish) "${record.completedCount} of ${record.totalCount} prayers, ${record.scorePercent} percent."
+                            else "${record.totalCount.toBanglaDigits()} ওয়াক্তের মধ্যে ${record.completedCount.toBanglaDigits()}, ${record.scorePercent.toBanglaDigits()} শতাংশ।"
+                        )
+                        day?.let { d ->
+                            Prayer.entries.forEachIndexed { i, p ->
+                                append(' ').append(p.label(isEnglish)).append(' ').append(statusLabel(d.statuses[i], isEnglish)).append('.')
+                            }
                         }
+                    }
+                    GlassCard(
+                        modifier = Modifier
+                            .clickable {
+                                viewModel.openGardenForDate(record.dateKey)
+                                gardenRecord = record
+                            }
+                            .semantics(mergeDescendants = true) { contentDescription = rowDescription }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -7032,13 +6940,14 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(if (record.isStreakMaintained) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.error.copy(alpha = 0.2f)),
+                                        .background(if (record.isStreakMaintained) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
                                     contentAlignment = Alignment.Center
                                 ) {
+                                    // A day below 5/5 is neutral (moon), not an error: no red cross for an unfinished day.
                                     Icon(
-                                        imageVector = if (record.isStreakMaintained) Icons.Default.Check else Icons.Default.Close,
+                                        imageVector = if (record.isStreakMaintained) Icons.Default.Check else Icons.Default.NightsStay,
                                         contentDescription = null,
-                                        tint = if (record.isStreakMaintained) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                        tint = if (record.isStreakMaintained) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -7062,6 +6971,15 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 softWrap = false
+                            )
+                        }
+                        if (day != null) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            PrayerDayIndicators(
+                                statuses = day.statuses,
+                                completedColor = MaterialTheme.colorScheme.primary,
+                                missedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                mutedColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -7158,6 +7076,27 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                 }
             }
         }
+
+        if (subTab == 0 && consistencyHistory.size > 7) {
+            item {
+                TextButton(
+                    onClick = { showAllDays = !showAllDays },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) {
+                    Text(
+                        if (showAllDays) (if (isEnglish) "Show fewer days" else "কম দিন দেখান")
+                        else (if (isEnglish) "Show all ${consistencyHistory.size} days" else "সব ${consistencyHistory.size.toBanglaDigits()} দিন দেখান")
+                    )
+                }
+            }
+        }
+
+        // Section F: Friday Reflection entry (availability, previous reflection, last week's summary, history).
+        item {
+            WeeklyReflectionCard(journeyRepo, isEnglish) { history ->
+                viewModel.setJourneyRoute(if (history) "friday_history" else "friday")
+            }
+        }
     }
 
     // Keep the timeline visible while the user corrects the chosen day's prayers.
@@ -7179,7 +7118,18 @@ fun AnalyticsScreen(viewModel: NoorUpViewModel) {
                     )
                 }
             },
-            text = { NoorGardenCard(viewModel) },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    NoorGardenCard(viewModel)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        if (isEnglish) "Each prayer: completed, missed, or not recorded" else "প্রতিটি ওয়াক্ত: আদায়, ছুটে গেছে, বা রেকর্ড নেই",
+                        color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    DayRecordEditorList(viewModel, record.dateKey, isEnglish)
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { gardenRecord = null }) {
                     Text(if (isEnglish) "Done" else "সম্পন্ন")

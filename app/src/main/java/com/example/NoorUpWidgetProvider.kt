@@ -441,7 +441,9 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_active_countdown, countdownStr)
 
                 // Integrated Noor Garden Progress
-                val todayDateKey = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(cal.time)
+                // Prayer records are stored under the DEVICE date (that is what the app writes),
+                // not the selected city's date, so a far-away city can never read the wrong day.
+                val todayDateKey = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(deviceCal.time)
                 val todayCompleted = prefs.getInt("prayer_record_${todayDateKey}_completed", 0)
                 val todayPercent = (todayCompleted * 100) / 5
 
@@ -451,7 +453,9 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                     if (isEnglish) "$todayCompleted/5" else "${toBanglaDigits(todayCompleted.toString())}/৫"
                 )
                 views.setProgressBar(R.id.widget_garden_progress, 5, todayCompleted, false)
-                val currentStreak = prefs.getInt("current_prayer_streak", 0)
+                // Computed live (same rule as the app) instead of a stored number that only
+                // changed on a tick and went stale after a missed day.
+                val currentStreak = com.example.ui.noorup.PrayerStreak.compute(prefs, todayCompleted)
                 val streakSubtitle = if (currentStreak > 0) {
                     if (isEnglish) "🔥 $currentStreak d streak • $todayPercent%" else "🔥 ${toBanglaDigits(currentStreak.toString())} দিন স্ট্রিক • ${toBanglaDigits(todayPercent.toString())}%"
                 } else {

@@ -37,23 +37,28 @@ object WidgetUpdateScheduler {
      */
     fun getNextTransitionMillis(context: Context, nowMillis: Long = System.currentTimeMillis()): Long {
         val prefs = context.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
-        val latitude = prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
-        val longitude = prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
+        // Same coordinate source as the widget itself, so both compute identical prayer minutes.
+        val latitude = prefs.getString("selected_city_lat_dbl", null)?.toDoubleOrNull()
+            ?: prefs.getFloat("selected_city_lat", 23.8759f).toDouble()
+        val longitude = prefs.getString("selected_city_lng_dbl", null)?.toDoubleOrNull()
+            ?: prefs.getFloat("selected_city_lng", 90.3795f).toDouble()
 
         val methodStr = prefs.getString("calculation_method", CalculationMethod.KARACHI.name)
         val method = CalculationMethod.entries.find { it.name == methodStr } ?: CalculationMethod.KARACHI
         val juristicStr = prefs.getString("juristic_method", JuristicMethod.HANAFI.name)
         val juristic = JuristicMethod.entries.find { it.name == juristicStr } ?: JuristicMethod.HANAFI
 
-        val cal = Calendar.getInstance().apply { timeInMillis = nowMillis }
-        // Prayer math follows the selected city's timezone (blank = device zone).
+        // Prayer math follows the selected city's timezone (blank = device zone). The calendar must
+        // live in that zone too: minute-of-day values below are city wall-clock minutes, and applying
+        // them in the device zone put every alarm hours off for a city in another zone.
         val cityZoneId = prefs.getString("selected_city_zone_id", "") ?: ""
         val cityTimeZone = try {
-            if (cityZoneId.isBlank()) cal.timeZone
+            if (cityZoneId.isBlank()) java.util.TimeZone.getDefault()
             else java.util.TimeZone.getTimeZone(cityZoneId)
         } catch (_: Exception) {
-            cal.timeZone
+            java.util.TimeZone.getDefault()
         }
+        val cal = Calendar.getInstance(cityTimeZone).apply { timeInMillis = nowMillis }
 
         val transitionTimestamps = mutableListOf<Long>()
 
@@ -82,15 +87,21 @@ object WidgetUpdateScheduler {
             val maghribMins = NoorUpWidgetProvider.parseTimeToMins(times.maghribStart)
             val ishaMins = NoorUpWidgetProvider.parseTimeToMins(times.ishaStart)
 
+            // The widget (and the app) treat a prohibited window as INCLUSIVE of its last minute:
+            // 06:24 is still prohibited, 06:25 is not. So the screen changes one minute AFTER
+            // the printed end time. Waking at the end minute itself re-rendered an identical
+            // state and the next wake-up was then up to 15 minutes away (stale "prohibited").
             val minuteMilestones = listOf(
                 fajrMins,
                 sunriseMins,
                 sunriseMakruhEndMins,
+                sunriseMakruhEndMins + 1,
                 zawalStartMins,
                 dhuhrMins,
                 asrMins,
                 sunsetMakruhStartMins,
                 maghribMins,
+                maghribMins + 1, // sunset window ends at Maghrib and is inclusive, like sunrise
                 ishaMins,
                 0 // Midnight boundary
             )

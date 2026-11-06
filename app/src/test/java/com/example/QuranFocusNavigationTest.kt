@@ -365,6 +365,82 @@ class QuranFocusNavigationTest {
   }
 
   @Test
+  fun `widget and app share one streak rule and a missed day resets it`() {
+    val today = java.time.LocalDate.now()
+    fun day(daysAgo: Long, done: Int) =
+      prefs().edit().putInt("prayer_record_${today.minusDays(daysAgo)}_completed", done)
+    day(1, 5).putInt("prayer_record_${today.minusDays(2)}_completed", 5).commit()
+
+    // Yesterday and the day before complete: streak stays alive while today is unfinished.
+    assertEquals(2, com.example.ui.noorup.PrayerStreak.compute(prefs(), todayCompleted = 0))
+    assertEquals(3, com.example.ui.noorup.PrayerStreak.compute(prefs(), todayCompleted = 5))
+
+    // A missed yesterday ends it, even though a stale stored value would still say 2.
+    prefs().edit()
+      .putInt("current_prayer_streak", 2)
+      .putInt("prayer_record_${today.minusDays(1)}_completed", 3)
+      .commit()
+    assertEquals(0, com.example.ui.noorup.PrayerStreak.compute(prefs(), todayCompleted = 0))
+  }
+
+  @Test
+  fun `a bookmark changed by the widget shows in the open reader after resume`() {
+    val vm = NoorUpViewModel(app())
+    vm.openSurah(2)
+    awaitSettled { !vm.isQuranLoading.value && vm.selectedSurahVerses.value.size == 286 }
+    assertFalse(vm.selectedSurahVerses.value.first { it.number == 255 }.isBookmarked)
+
+    // The Daily Verse widget writes straight to storage.
+    prefs().edit().putBoolean("bm_2_255", true).commit()
+    vm.refreshBookmarksFromStorage()
+    assertTrue(vm.selectedSurahVerses.value.first { it.number == 255 }.isBookmarked)
+
+    prefs().edit().putBoolean("bm_2_255", false).commit()
+    vm.refreshBookmarksFromStorage()
+    assertFalse(vm.selectedSurahVerses.value.first { it.number == 255 }.isBookmarked)
+  }
+
+  @Test
+  fun `going to the previous day reloads that day's prayer checks`() {
+    val today = java.time.LocalDate.now()
+    val yesterday = today.minusDays(1)
+    // The one-time zero-state migration would otherwise wipe the seeded key.
+    prefs().edit()
+      .putBoolean("migration_zero_state_clean_v4", true)
+      .putBoolean("prayer_habit_${yesterday}_ফজর", true)
+      .commit()
+
+    val vm = NoorUpViewModel(app())
+    assertFalse("Today starts unchecked", vm.habitPrayers.value["ফজর"] == true)
+
+    vm.goToPreviousDay()
+    assertTrue("Yesterday's saved check must show", vm.habitPrayers.value["ফজর"] == true)
+
+    vm.goToNextDay()
+    assertFalse("Back on today the check must disappear", vm.habitPrayers.value["ফজর"] == true)
+  }
+
+  @Test
+  fun `scrolling the reader updates Continue reading position`() {
+    val vm = NoorUpViewModel(app())
+    vm.openSurah(21)
+    awaitSettled { !vm.isQuranLoading.value }
+    assertEquals(21 to 1, vm.readerResume.value)
+
+    vm.recordReaderPosition(21, 17)
+    assertEquals(21 to 17, vm.readerResume.value)
+    assertEquals(17, prefs().getInt("reader_last_verse", -1))
+
+    // A Surah that is not open must never overwrite the position.
+    vm.recordReaderPosition(2, 5)
+    assertEquals(21 to 17, vm.readerResume.value)
+
+    // Out-of-range values are clamped to the Surah.
+    vm.recordReaderPosition(21, 9999)
+    assertEquals(21 to 112, vm.readerResume.value)
+  }
+
+  @Test
   fun `reader jump rejects invalid input without moving the reading position`() {
     val vm = NoorUpViewModel(app())
     vm.openSurah(2)

@@ -264,6 +264,31 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         val now = id !in _bookmarkedDuas.value
         prefs.edit().putBoolean("dua_bm_$id", now).apply()
         _bookmarkedDuas.value = if (now) _bookmarkedDuas.value + id else _bookmarkedDuas.value - id
+        refreshDailyAyatWidget()
+    }
+
+    /** The Daily Verse & Dua widget shows a Saved star, so in-app bookmark changes must reach it. */
+    private fun refreshDailyAyatWidget() {
+        val app = getApplication<Application>().applicationContext
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                com.example.DailyAyatWidgetProvider.updateAll(app)
+            } catch (e: Exception) {
+                Log.e("NoorUpViewModel", "Daily Ayat widget refresh failed", e)
+            }
+        }
+    }
+
+    private var tasbihWidgetJob: Job? = null
+
+    /** Debounced so a fast run of taps becomes one widget update instead of one per tap. */
+    private fun refreshTasbihWidgetSoon() {
+        val app = getApplication<Application>().applicationContext
+        tasbihWidgetJob?.cancel()
+        tasbihWidgetJob = viewModelScope.launch(Dispatchers.IO) {
+            kotlinx.coroutines.delay(250)
+            com.example.TasbihWidgetProvider.updateAll(app)
+        }
     }
 
     // --- Favourite Surahs: IDs only (separate from Ayat bookmarks "bm_*") ---
@@ -287,6 +312,18 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     /** Re-read bookmarks that another component (the widget) may have changed. */
     fun refreshBookmarksFromStorage() {
         _bookmarkedDuas.value = loadBookmarkedDuas()
+        // Loaded verses cache their own star; re-read it so a widget change shows in an open reader
+        // (and so the next in-app toggle flips from the true state, not a stale one).
+        fun Verse.synced(surah: Int) = prefs.getBoolean("bm_${surah}_$number", false).let { bm ->
+            if (bm == isBookmarked) this else copy(isBookmarked = bm)
+        }
+        _surahs.update { list ->
+            list.map { s -> if (s.verses.isEmpty()) s else s.copy(verses = s.verses.map { it.synced(s.number) }) }
+        }
+        _selectedSurahNumber.value?.let { open ->
+            _selectedSurahVerses.update { verses -> verses.map { it.synced(open) } }
+        }
+        _focusVerse.update { fv -> fv?.synced(_focusSurahNumber.value) }
         refreshBookmarkedVerses()
     }
 
@@ -837,6 +874,9 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             add(Calendar.DAY_OF_YEAR, -1)
         }
         _selectedCalendarDate.value = cal
+        // Same as every other date change: reload the prayer checks for the new date,
+        // otherwise the previous day shows today's ticks and edits land on the wrong day.
+        loadHabitsForSelectedDate()
         recalculateSolarTimes()
     }
 
@@ -989,6 +1029,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             .putInt("tasbih_stage", _tasbihStageIndex.value)
             .putBoolean("tasbih_completed", _tasbihCompleted.value)
             .apply()
+        refreshTasbihWidgetSoon()
     }
 
     private fun currentTasbihState() = TasbihState(
@@ -1295,6 +1336,20 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             .apply()
     }
 
+    /**
+     * Called by the reader as the user scrolls, so "Continue reading" (Quran tab,
+     * Home, Favourites) always reflects the Ayat actually being read, not just the
+     * one the Surah was opened at. Only the open Surah may update its own position.
+     */
+    fun recordReaderPosition(surahNumber: Int, verseNumber: Int) {
+        if (_selectedSurahNumber.value != surahNumber) return
+        val total = com.example.ui.noorup.quran.QuranRepository.getSurahMeta(surahNumber)?.totalVerses ?: 0
+        if (total <= 0) return
+        val next = surahNumber to verseNumber.coerceIn(1, total)
+        if (_readerResume.value == next) return
+        persistReaderPosition(next.first, next.second)
+    }
+
     fun consumeReaderAyatJump() {
         _pendingReaderAyat.value = null
     }
@@ -1422,6 +1477,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             } else fv
         }
         refreshBookmarkedVerses()
+        refreshDailyAyatWidget()
     }
 
     fun toggleMemorized(surahNumber: Int, verseNumber: Int) {
@@ -2407,36 +2463,9 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         return historyList
     }
 
-    private fun computeCurrentStreak(): Int {
-        val todayCompleted = loadHabitPrayers(getTodayDateKey()).values.count { it }
-        var streak = 0
-        val startIndex: Int
-        if (todayCompleted == 5) {
-            streak = 1
-            startIndex = 1
-        } else {
-            // Keep streak alive during the current day if yesterday was completed
-            val yesterdayKey = getDateKeyForDaysAgo(1)
-            val yesterdayCompleted = prefs.getInt("prayer_record_${yesterdayKey}_completed", 0)
-            if (yesterdayCompleted == 5) {
-                streak = 1
-                startIndex = 2
-            } else {
-                return 0
-            }
-        }
-
-        for (i in startIndex..365) {
-            val pastKey = getDateKeyForDaysAgo(i)
-            val pastCompleted = prefs.getInt("prayer_record_${pastKey}_completed", 0)
-            if (pastCompleted == 5) {
-                streak++
-            } else {
-                break
-            }
-        }
-        return streak
-    }
+    // Shared with the home-screen widget (PrayerStreak) so both always show the same number.
+    private fun computeCurrentStreak(): Int =
+        PrayerStreak.compute(prefs, loadHabitPrayers(getTodayDateKey()).values.count { it })
 
     private fun computePendingMissedDays(): List<MissedDayRecord> {
         val prayerMapping = listOf(
@@ -2692,6 +2721,13 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         }
         refreshConsistencyHistory()
         _journeyRevision.value += 1
+        // Missed / Not recorded edits skip setHabitPrayer when the completed flag is
+        // unchanged, so refresh the home widgets here as well.
+        try {
+            NoorUpWidgetProvider.updateAllWidgets(getApplication())
+        } catch (e: Exception) {
+            Log.e("NoorUpViewModel", "Failed updating widget after prayer record edit", e)
+        }
     }
 
     /** Start minutes of today's five prayers in the selected city's clock; null when that clock is not "today" here. */

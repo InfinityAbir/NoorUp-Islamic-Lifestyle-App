@@ -34,6 +34,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -2354,6 +2356,24 @@ private fun QuranScreenContent(viewModel: NoorUpViewModel) {
             listState.scrollToItem(target + VERSE_LIST_OFFSET)
             viewModel.consumeReaderAyatJump()
         }
+    }
+
+    // Track the Ayat the user is actually reading so Continue reading stays in sync.
+    // Waits for verses to load and for any explicit jump to be consumed, so a stale
+    // scroll offset can never overwrite the position being restored.
+    LaunchedEffect(selectedSurahNumber, showBookmarksOnly, isAmbientFocus) {
+        val surahNumber = selectedSurahNumber ?: return@LaunchedEffect
+        if (showBookmarksOnly || isAmbientFocus) return@LaunchedEffect
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .distinctUntilChanged()
+            .collectLatest { index ->
+                kotlinx.coroutines.delay(300)
+                if (viewModel.pendingReaderAyat.value != null) return@collectLatest
+                val verseCount = viewModel.selectedSurahVerses.value.size
+                if (verseCount == 0) return@collectLatest
+                // Item 0 = controls, item 1 = Surah header, Ayat n = item n + VERSE_LIST_OFFSET.
+                viewModel.recordReaderPosition(surahNumber, (index - VERSE_LIST_OFFSET).coerceIn(1, verseCount))
+            }
     }
 
     if (showPronunciationSource) {

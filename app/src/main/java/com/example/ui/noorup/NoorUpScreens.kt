@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -5139,6 +5140,7 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
     val tasbihGoal by viewModel.tasbihGoal.collectAsState()
     val activeDhikr by viewModel.activeDhikr.collectAsState()
     val customDhikrs by viewModel.customDhikrs.collectAsState()
+    val orderedBuiltIns by viewModel.orderedBuiltIns.collectAsState()
     val tasbihStageIndex by viewModel.tasbihStageIndex.collectAsState()
     val tasbihCompleted by viewModel.tasbihCompleted.collectAsState()
     val selectedCityLocation by viewModel.selectedCityLocation.collectAsState()
@@ -5258,8 +5260,10 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
 
     if (showManageDialog) {
         TasbihManageDialog(
-            builtIns = TasbihRepository.builtIns,
+            builtIns = orderedBuiltIns,
             customDhikrs = customDhikrs,
+            onMoveBuiltIn = { target, delta -> viewModel.moveBuiltInDhikr(target.id, delta) },
+            onMoveCustom = { target, delta -> viewModel.moveCustomDhikr(target.id, delta) },
             isEnglish = isEnglish,
             onDismiss = { showManageDialog = false },
             onCreate = {
@@ -5673,7 +5677,7 @@ fun ToolsScreen(viewModel: NoorUpViewModel) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            items(TasbihRepository.builtIns, key = { it.id }) { dhikr ->
+                            items(orderedBuiltIns, key = { it.id }) { dhikr ->
                                 TasbihDhikrChip(
                                     label = dhikr.title(isEnglish),
                                     selected = activeDhikr.id == dhikr.id,
@@ -5985,7 +5989,9 @@ private fun TasbihManageDialog(
     onCreate: () -> Unit,
     onEdit: (TasbihDhikr) -> Unit,
     onDelete: (TasbihDhikr) -> Unit,
-    onDuplicate: (TasbihDhikr) -> Unit
+    onDuplicate: (TasbihDhikr) -> Unit,
+    onMoveBuiltIn: (TasbihDhikr, Int) -> Unit,
+    onMoveCustom: (TasbihDhikr, Int) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -6008,12 +6014,21 @@ private fun TasbihManageDialog(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                items(builtIns, key = { "builtin_${it.id}" }) { dhikr ->
+                itemsIndexed(builtIns, key = { _, it -> "builtin_${it.id}" }) { index, dhikr ->
                     TasbihManageRow(
                         dhikr = dhikr,
                         isEnglish = isEnglish,
                         trailing = {
-                            TextButton(onClick = { onDuplicate(dhikr) }) {
+                            TasbihMoveButtons(
+                                isEnglish = isEnglish,
+                                canMoveUp = index > 0,
+                                canMoveDown = index < builtIns.lastIndex,
+                                onMove = { delta -> onMoveBuiltIn(dhikr, delta) }
+                            )
+                            TextButton(
+                                onClick = { onDuplicate(dhikr) },
+                                contentPadding = PaddingValues(horizontal = 6.dp)
+                            ) {
                                 Icon(
                                     Icons.Default.ContentCopy,
                                     contentDescription = null,
@@ -6043,12 +6058,18 @@ private fun TasbihManageDialog(
                         )
                     }
                 } else {
-                    items(customDhikrs, key = { "custom_${it.id}" }) { dhikr ->
+                    itemsIndexed(customDhikrs, key = { _, it -> "custom_${it.id}" }) { index, dhikr ->
                         TasbihManageRow(
                             dhikr = dhikr,
                             isEnglish = isEnglish,
                             trailing = {
-                                Row {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    TasbihMoveButtons(
+                                        isEnglish = isEnglish,
+                                        canMoveUp = index > 0,
+                                        canMoveDown = index < customDhikrs.lastIndex,
+                                        onMove = { delta -> onMoveCustom(dhikr, delta) }
+                                    )
                                     IconButton(onClick = { onEdit(dhikr) }) {
                                         Icon(
                                             Icons.Default.Edit,
@@ -6085,6 +6106,40 @@ private fun TasbihManageDialog(
             }
         }
     )
+}
+
+/** Up/down arrows used to organise the order of zikr in the manage dialog. */
+@Composable
+private fun TasbihMoveButtons(
+    isEnglish: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMove: (Int) -> Unit
+) {
+    Column {
+        IconButton(
+            onClick = { onMove(-1) },
+            enabled = canMoveUp,
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(
+                Icons.Default.KeyboardArrowUp,
+                contentDescription = if (isEnglish) "Move up" else "উপরে সরান",
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        IconButton(
+            onClick = { onMove(1) },
+            enabled = canMoveDown,
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = if (isEnglish) "Move down" else "নিচে সরান",
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
 }
 
 @Composable

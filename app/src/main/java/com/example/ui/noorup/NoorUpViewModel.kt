@@ -995,6 +995,11 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     private val _customDhikrs = MutableStateFlow(initialCustomDhikrs)
     val customDhikrs: StateFlow<List<TasbihDhikr>> = _customDhikrs.asStateFlow()
 
+    private val _builtInOrder = MutableStateFlow(TasbihRepository.loadBuiltInOrder(prefs))
+    private val _orderedBuiltIns = MutableStateFlow(TasbihRepository.orderedBuiltIns(_builtInOrder.value))
+    /** Built-in dhikrs in the order the user chose. */
+    val orderedBuiltIns: StateFlow<List<TasbihDhikr>> = _orderedBuiltIns.asStateFlow()
+
     private val _activeDhikr = MutableStateFlow(initialTasbih.active)
     val activeDhikr: StateFlow<TasbihDhikr> = _activeDhikr.asStateFlow()
 
@@ -1242,6 +1247,25 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             selectDhikr(TasbihRepository.builtIns.first().id)
         }
         return true
+    }
+
+    /** Moves a built-in up (-1) or down (+1) in the user's list and persists the order. */
+    fun moveBuiltInDhikr(id: String, delta: Int) {
+        val moved = TasbihRepository.moved(_orderedBuiltIns.value, delta) { it.id == id }
+        if (moved == _orderedBuiltIns.value) return
+        _orderedBuiltIns.value = moved
+        _builtInOrder.value = moved.map { it.id }
+        TasbihRepository.saveBuiltInOrder(prefs, _builtInOrder.value)
+        refreshTasbihWidgetSoon()
+    }
+
+    /** Moves one of the user's own dhikrs up (-1) or down (+1) and persists the order. */
+    fun moveCustomDhikr(id: String, delta: Int) {
+        val moved = TasbihRepository.moved(_customDhikrs.value, delta) { it.id == id }
+        if (moved == _customDhikrs.value) return
+        _customDhikrs.value = moved
+        TasbihRepository.saveCustom(prefs, moved)
+        refreshTasbihWidgetSoon()
     }
 
     /** Convenience for customising a protected built-in without mutating it. */

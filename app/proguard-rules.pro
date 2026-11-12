@@ -15,6 +15,9 @@
 # Family Dhikr + Drive backup models are (de)serialised by Gson.
 -keep class com.example.ui.noorup.family.** { *; }
 -keep class com.example.ui.noorup.backup.** { *; }
+# Custom tasbih models: persistence is hand-written JSON, but keep names stable anyway.
+-keep class com.example.ui.noorup.TasbihDhikr { *; }
+-keep class com.example.ui.noorup.TasbihStage { *; }
 # Friday reflections are stored as Gson JSON: field names must survive R8 or saved entries stop loading.
 -keep class com.example.ui.noorup.journey.ReflectionEntry { *; }
 

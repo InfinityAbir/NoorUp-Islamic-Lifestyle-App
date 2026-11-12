@@ -13,18 +13,31 @@ import org.junit.Test
 class TasbihRepositoryTest {
 
     @Test
-    fun `built-ins are protected and include a multi-stage sequence`() {
+    fun `built-ins are protected and the removed sequence is gone`() {
         val builtIns = TasbihRepository.builtIns
-        assertEquals(6, builtIns.size)
+        assertEquals(5, builtIns.size)
         assertEquals(builtIns.size, builtIns.map { it.id }.distinct().size)
         assertTrue(builtIns.all { it.isBuiltIn })
         assertTrue(builtIns.all { TasbihRepository.isBuiltInId(it.id) })
         assertTrue(builtIns.all { it.stages.isNotEmpty() })
         assertTrue(builtIns.all { dhikr -> dhikr.stages.all { it.target in 1..TasbihRepository.MAX_TARGET } })
 
-        val sequence = builtIns.first { it.id == "builtin_tasbih_fatimah" }
-        assertEquals(3, sequence.stages.size)
-        assertEquals(100, sequence.totalTarget)
+        assertTrue(builtIns.none { it.id == "builtin_tasbih_fatimah" })
+        assertTrue(TasbihRepository.isRemovedBuiltInId("builtin_tasbih_fatimah"))
+    }
+
+    @Test
+    fun `ordering keeps known ids, appends missing and ignores unknown`() {
+        val ids = TasbihRepository.builtIns.map { it.id }
+        val reversed = ids.reversed()
+        assertEquals(reversed, TasbihRepository.orderedBuiltIns(reversed).map { it.id })
+        assertEquals(
+            listOf(ids[2]) + ids.filter { it != ids[2] },
+            TasbihRepository.orderedBuiltIns(listOf("nope", ids[2])).map { it.id }
+        )
+        assertEquals(listOf(2, 1, 3), TasbihRepository.moved(listOf(1, 2, 3), -1) { it == 2 })
+        assertEquals(listOf(1, 3, 2), TasbihRepository.moved(listOf(1, 2, 3), 1) { it == 2 })
+        assertEquals(listOf(1, 2, 3), TasbihRepository.moved(listOf(1, 2, 3), -1) { it == 1 })
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.example.ui.noorup
 
 import android.content.SharedPreferences
-import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.util.Locale
@@ -70,9 +70,7 @@ object TasbihRepository {
     const val MAX_LABEL_LENGTH = 80
     const val MAX_ARABIC_LENGTH = 1000
 
-    private val gson = Gson()
     private val idPattern = Regex("[A-Za-z0-9_.-]+")
-    private val stageId = "builtin_tasbih_fatimah"
 
     val builtIns: List<TasbihDhikr> = listOf(
         TasbihDhikr(
@@ -114,22 +112,53 @@ object TasbihRepository {
             arabicText = "لَا إِلَٰهَ إِلَّا اللَّهُ",
             stages = listOf(TasbihStage("লা ইলাহা ইল্লাল্লাহ", "La ilaha illallah", 100)),
             isBuiltIn = true
-        ),
-        TasbihDhikr(
-            id = stageId,
-            titleBangla = "তাসবীহে ফাতিমী",
-            titleEnglish = "Tasbih of Fatimah",
-            arabicText = "",
-            stages = listOf(
-                TasbihStage("সুবহানাল্লাহ", "Subhanallah", 33),
-                TasbihStage("আলহামদুলিল্লাহ", "Alhamdulillah", 33),
-                TasbihStage("আল্লাহু আকবার", "Allahu Akbar", 34)
-            ),
-            isBuiltIn = true
         )
     )
 
     private val builtInIds: Set<String> = builtIns.map { it.id }.toSet()
+
+    /** Built-ins that shipped earlier and were removed. A saved selection of one falls back to the first built-in. */
+    private const val REMOVED_FATIMAH_ID = "builtin_tasbih_fatimah"
+
+    fun isRemovedBuiltInId(id: String?): Boolean = id == REMOVED_FATIMAH_ID
+
+    const val BUILTIN_ORDER_KEY = "tasbih_builtin_order_v1"
+
+    /** User-chosen order of the built-ins. Unknown ids are ignored; missing ones keep default order at the end. */
+    fun orderedBuiltIns(order: List<String>): List<TasbihDhikr> {
+        val byId = builtIns.associateBy { it.id }
+        val picked = order.distinct().mapNotNull { byId[it] }
+        val pickedIds = picked.map { it.id }.toSet()
+        return picked + builtIns.filter { it.id !in pickedIds }
+    }
+
+    /** Returns [items] with the item matching [id] shifted by [delta] places, clamped to the ends. */
+    fun <T> moved(items: List<T>, delta: Int, matches: (T) -> Boolean): List<T> {
+        val from = items.indexOfFirst(matches)
+        if (from < 0) return items
+        val to = (from + delta).coerceIn(0, items.lastIndex)
+        if (to == from) return items
+        val mutable = items.toMutableList()
+        mutable.add(to, mutable.removeAt(from))
+        return mutable
+    }
+
+    fun loadBuiltInOrder(prefs: SharedPreferences): List<String> {
+        val raw = prefs.getString(BUILTIN_ORDER_KEY, null) ?: return emptyList()
+        return try {
+            JsonParser.parseString(raw).asJsonArray.mapNotNull { e ->
+                runCatching { e.asString }.getOrNull()
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    fun saveBuiltInOrder(prefs: SharedPreferences, order: List<String>) {
+        val array = JsonArray()
+        order.forEach { array.add(it) }
+        prefs.edit().putString(BUILTIN_ORDER_KEY, array.toString()).apply()
+    }
 
     fun isBuiltInId(id: String): Boolean = id in builtInIds
 
@@ -254,8 +283,33 @@ object TasbihRepository {
     }
 
     fun saveCustom(prefs: SharedPreferences, custom: List<TasbihDhikr>) {
-        val safe = sanitizeCustom(custom)
-        prefs.edit().putString(PREFS_KEY, gson.toJson(safe)).apply()
+        prefs.edit().putString(PREFS_KEY, encodeCustom(custom)).apply()
+    }
+
+    /**
+     * Explicit JSON keys on purpose: reflective Gson writes R8-obfuscated field names in
+     * release builds, which [loadCustom] cannot read back (saved custom dhikrs vanished).
+     */
+    fun encodeCustom(custom: List<TasbihDhikr>): String {
+        val array = JsonArray()
+        sanitizeCustom(custom).forEach { dhikr ->
+            val obj = JsonObject()
+            obj.addProperty("id", dhikr.id)
+            obj.addProperty("titleBangla", dhikr.titleBangla)
+            obj.addProperty("titleEnglish", dhikr.titleEnglish)
+            obj.addProperty("arabicText", dhikr.arabicText)
+            val stages = JsonArray()
+            dhikr.stages.forEach { stage ->
+                val s = JsonObject()
+                s.addProperty("labelBangla", stage.labelBangla)
+                s.addProperty("labelEnglish", stage.labelEnglish)
+                s.addProperty("target", stage.target)
+                stages.add(s)
+            }
+            obj.add("stages", stages)
+            array.add(obj)
+        }
+        return array.toString()
     }
 
     private fun JsonObject.string(name: String): String {

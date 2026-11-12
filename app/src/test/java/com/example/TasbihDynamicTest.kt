@@ -45,6 +45,16 @@ class TasbihDynamicTest {
 
     private fun vm(): NoorUpViewModel = NoorUpViewModel(app)
 
+    private fun addFatimahLike(viewModel: NoorUpViewModel): String = viewModel.addCustomDhikr(
+        "ফাতিমী", "Fatimi", "",
+        listOf(
+            TasbihStage("সুবহানাল্লাহ", "Subhanallah", 33),
+            TasbihStage("আলহামদুলিল্লাহ", "Alhamdulillah", 33),
+            TasbihStage("আল্লাহু আকবার", "Allahu Akbar", 34)
+        )
+    )!!
+
+
     @Test
     fun `increment is exactly one per call and stops at the target`() {
         val viewModel = vm()
@@ -80,7 +90,7 @@ class TasbihDynamicTest {
     @Test
     fun `multi-stage sequence advances and celebrates only after the final stage`() = runBlocking {
         val viewModel = vm()
-        assertTrue(viewModel.selectDhikr("builtin_tasbih_fatimah"))
+        addFatimahLike(viewModel)
         val event = async(start = CoroutineStart.UNDISPATCHED) {
             viewModel.completionEvents.first()
         }
@@ -199,10 +209,30 @@ class TasbihDynamicTest {
     fun `selecting a built-in resets stage count and goal`() {
         val viewModel = vm()
         repeat(10) { viewModel.incrementTasbih() }
-        assertTrue(viewModel.selectDhikr("builtin_tasbih_fatimah"))
+        val id = addFatimahLike(viewModel)
+        viewModel.selectDhikr("builtin_alhamdulillah")
+        repeat(3) { viewModel.incrementTasbih() }
+        assertTrue(viewModel.selectDhikr(id))
         assertEquals(0, viewModel.tasbihStageIndex.value)
         assertEquals(0, viewModel.tasbihCount.value)
         assertEquals(33, viewModel.tasbihGoal.value)
         assertFalse(viewModel.tasbihCompleted.value)
+    }
+
+    @Test
+    fun `reordering built-ins and customs persists across a new view model`() {
+        val viewModel = vm()
+        val first = viewModel.orderedBuiltIns.value.first().id
+        viewModel.moveBuiltInDhikr(first, +1)
+        assertEquals(first, viewModel.orderedBuiltIns.value[1].id)
+
+        val a = viewModel.addCustomDhikr("ক", "A", "", listOf(TasbihStage("ক", "A", 3)))!!
+        val b = viewModel.addCustomDhikr("খ", "B", "", listOf(TasbihStage("খ", "B", 3)))!!
+        viewModel.moveCustomDhikr(b, -1)
+        assertEquals(listOf(b, a), viewModel.customDhikrs.value.map { it.id })
+
+        val reopened = NoorUpViewModel(app)
+        assertEquals(first, reopened.orderedBuiltIns.value[1].id)
+        assertEquals(listOf(b, a), reopened.customDhikrs.value.map { it.id })
     }
 }

@@ -25,7 +25,16 @@ class TasbihWidgetHistoryTest {
     private lateinit var app: Application
     private val prefs get() = app.getSharedPreferences("noorup_prefs", Context.MODE_PRIVATE)
     private val subhanallah = TasbihRepository.builtIns.first { it.id == "builtin_subhanallah" }
-    private val fatimah = TasbihRepository.builtIns.first { it.id == "builtin_tasbih_fatimah" }
+    private val fatimah = com.example.ui.noorup.TasbihDhikr(
+        id = "custom_fatimah_test",
+        titleBangla = "ফাতিমী",
+        titleEnglish = "Fatimi",
+        stages = listOf(
+            com.example.ui.noorup.TasbihStage("সুবহানাল্লাহ", "Subhanallah", 33),
+            com.example.ui.noorup.TasbihStage("আলহামদুলিল্লাহ", "Alhamdulillah", 33),
+            com.example.ui.noorup.TasbihStage("আল্লাহু আকবার", "Allahu Akbar", 34)
+        )
+    )
 
     @Before
     fun setUp() {
@@ -182,6 +191,26 @@ class TasbihWidgetHistoryTest {
         val next = TasbihCounter.selectAdjacentFromWidget(prefs, +1)
         assertEquals(id, next.id)
         assertEquals(7, TasbihCounter.load(prefs, TasbihRepository.loadCustom(prefs)).goal)
+    }
+
+    @Test
+    fun `widget cycling follows the user chosen built in order`() {
+        val vm = NoorUpViewModel(app)
+        val first = TasbihRepository.builtIns.first().id
+        vm.moveBuiltInDhikr(first, +1)
+        val ordered = TasbihRepository.orderedBuiltIns(TasbihRepository.loadBuiltInOrder(prefs))
+        // active is the old first built-in, now at index 1, so next is index 2
+        assertEquals(ordered[2].id, TasbihCounter.selectAdjacentFromWidget(prefs, +1).id)
+    }
+
+    @Test
+    fun `a saved selection of the removed fatimah built in falls back to the first built in`() {
+        prefs.edit().putString("tasbih_active_id", "builtin_tasbih_fatimah")
+            .putInt("tasbih_stage", 2).putInt("tasbih_count", 5).commit()
+        val s = TasbihCounter.load(prefs, emptyList())
+        assertEquals(TasbihRepository.builtIns.first().id, s.active.id)
+        assertEquals(0, s.stageIndex)
+        assertEquals(0, s.count)
     }
 
     @Test

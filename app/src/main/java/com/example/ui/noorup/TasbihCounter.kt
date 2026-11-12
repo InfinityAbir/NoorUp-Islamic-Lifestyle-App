@@ -36,6 +36,11 @@ object TasbihCounter {
     fun load(prefs: SharedPreferences, custom: List<TasbihDhikr>): TasbihState {
         val savedActiveId = prefs.getString("tasbih_active_id", null)
         val savedActive = savedActiveId?.let { TasbihRepository.findById(it, custom) }
+        if (savedActive == null && TasbihRepository.isRemovedBuiltInId(savedActiveId)) {
+            val first = TasbihRepository.builtIns.first()
+            val goal = first.stages.first().target
+            return TasbihState(first, 0, 0, goal, false)
+        }
         val legacyText = prefs.getString("tasbih_dhikr", null)
         val active = savedActive
             ?: legacyText?.let { text ->
@@ -134,7 +139,7 @@ object TasbihCounter {
      */
     fun selectAdjacentFromWidget(prefs: SharedPreferences, delta: Int): TasbihDhikr = synchronized(lock) {
         val custom = TasbihRepository.loadCustom(prefs)
-        val all = TasbihRepository.builtIns + custom
+        val all = TasbihRepository.orderedBuiltIns(TasbihRepository.loadBuiltInOrder(prefs)) + custom
         val current = load(prefs, custom).active
         val index = all.indexOfFirst { it.id == current.id }
         val target = all[Math.floorMod((if (index < 0) 0 else index) + delta, all.size)]

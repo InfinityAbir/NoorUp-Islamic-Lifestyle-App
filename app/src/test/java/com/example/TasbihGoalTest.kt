@@ -51,6 +51,18 @@ class TasbihGoalTest {
   }
 
   @Test
+  fun `built-in goal survives switching dhikr and back`() {
+    val viewModel = vm()
+    viewModel.selectDhikr("builtin_astaghfirullah")
+    viewModel.setTasbihGoal(250)
+    viewModel.selectDhikr("builtin_subhanallah")
+    assertEquals("Other dhikr keeps its own preset", 33, viewModel.tasbihGoal.value)
+    viewModel.selectDhikr("builtin_astaghfirullah")
+    assertEquals(250, viewModel.tasbihGoal.value)
+    assertEquals(250, vm().let { it.selectDhikr("builtin_astaghfirullah"); it.tasbihGoal.value })
+  }
+
+  @Test
   fun `selecting a dhikr preset still resets count with its goal`() {
     val viewModel = vm()
     repeat(5) { viewModel.incrementTasbih() }

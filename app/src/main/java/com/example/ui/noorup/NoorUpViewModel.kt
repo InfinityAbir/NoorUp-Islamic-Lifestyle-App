@@ -1099,7 +1099,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
     fun resetTasbih() {
         val active = _activeDhikr.value
         if (_tasbihStageIndex.value != 0) {
-            _tasbihGoal.value = active.stages.first().target.coerceIn(1, MAX_TASBIH_GOAL)
+            _tasbihGoal.value = TasbihCounter.startingGoal(prefs, active)
         }
         _tasbihStageIndex.value = 0
         _tasbihCount.value = 0
@@ -1148,6 +1148,9 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
             _activeDhikr.value = active.copy(
                 stages = listOf(active.stages.first().copy(target = sane))
             )
+        } else if (_tasbihStageIndex.value == 0) {
+            // Built-in: remember the user's goal for this dhikr so switching away and back keeps it.
+            TasbihCounter.saveGoalOverride(prefs, active.id, 0, sane)
         }
 
         _tasbihCompleted.value = _tasbihCount.value >= sane
@@ -1161,7 +1164,7 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _currentDhikr.value = found.fullTitle(false)
         _tasbihStageIndex.value = 0
         _tasbihCount.value = 0
-        _tasbihGoal.value = found.stages.first().target.coerceIn(1, MAX_TASBIH_GOAL)
+        _tasbihGoal.value = TasbihCounter.startingGoal(prefs, found)
         _tasbihCompleted.value = false
         persistTasbihState()
         return true

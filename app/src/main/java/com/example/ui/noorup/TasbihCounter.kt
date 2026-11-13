@@ -33,6 +33,25 @@ object TasbihCounter {
     /** Serialises widget taps, in-app taps and history writes so read-modify-write never loses a count. */
     val lock = Any()
 
+    private fun goalOverrideKey(dhikrId: String, stageIndex: Int) = "tasbih_goal_$dhikrId#$stageIndex"
+
+    /** The goal the user chose for this dhikr stage, or null when they never changed it. */
+    fun savedGoalOverride(prefs: SharedPreferences, dhikrId: String, stageIndex: Int): Int? {
+        val key = goalOverrideKey(dhikrId, stageIndex)
+        return if (prefs.contains(key)) prefs.getInt(key, 0).takeIf { it >= 1 }?.coerceAtMost(MAX_GOAL) else null
+    }
+
+    fun saveGoalOverride(prefs: SharedPreferences, dhikrId: String, stageIndex: Int, goal: Int) {
+        prefs.edit().putInt(goalOverrideKey(dhikrId, stageIndex), goal.coerceIn(1, MAX_GOAL)).apply()
+    }
+
+    /** Goal a dhikr stage starts with: the user's saved choice, else the preset target. */
+    fun startingGoal(prefs: SharedPreferences, dhikr: TasbihDhikr, stageIndex: Int = 0): Int {
+        val index = stageIndex.coerceIn(0, dhikr.stages.lastIndex)
+        return savedGoalOverride(prefs, dhikr.id, index)
+            ?: dhikr.stages[index].target.coerceIn(1, MAX_GOAL)
+    }
+
     fun load(prefs: SharedPreferences, custom: List<TasbihDhikr>): TasbihState {
         val savedActiveId = prefs.getString("tasbih_active_id", null)
         val savedActive = savedActiveId?.let { TasbihRepository.findById(it, custom) }
@@ -87,10 +106,12 @@ object TasbihCounter {
         }
     }
 
-    fun reset(state: TasbihState): TasbihState {
-        val goal = if (state.stageIndex != 0) {
-            state.active.stages.first().target.coerceIn(1, MAX_GOAL)
-        } else state.goal
+    /** [firstStageGoal] is the goal to restore when resetting from a later stage (user's choice, else preset). */
+    fun reset(
+        state: TasbihState,
+        firstStageGoal: Int = state.active.stages.first().target.coerceIn(1, MAX_GOAL)
+    ): TasbihState {
+        val goal = if (state.stageIndex != 0) firstStageGoal else state.goal
         return state.copy(stageIndex = 0, count = 0, goal = goal, completed = false)
     }
 
@@ -143,7 +164,7 @@ object TasbihCounter {
         val current = load(prefs, custom).active
         val index = all.indexOfFirst { it.id == current.id }
         val target = all[Math.floorMod((if (index < 0) 0 else index) + delta, all.size)]
-        val first = target.stages.first().target.coerceIn(1, MAX_GOAL)
+        val first = startingGoal(prefs, target)
         prefs.edit()
             .putString("tasbih_active_id", target.id)
             .putString("tasbih_dhikr", target.fullTitle(false))
@@ -157,7 +178,8 @@ object TasbihCounter {
 
     fun resetFromWidget(prefs: SharedPreferences): TasbihState = synchronized(lock) {
         val custom = TasbihRepository.loadCustom(prefs)
-        val state = reset(load(prefs, custom))
+        val loaded = load(prefs, custom)
+        val state = reset(loaded, startingGoal(prefs, loaded.active))
         saveProgress(prefs, state, sync = true)
         state
     }

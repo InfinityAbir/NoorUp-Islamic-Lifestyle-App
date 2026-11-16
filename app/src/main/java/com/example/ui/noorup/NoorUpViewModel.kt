@@ -2592,12 +2592,29 @@ class NoorUpViewModel(application: Application) : AndroidViewModel(application) 
         _habitPrayers.value = loadHabitPrayers(habitDateKey)
     }
 
+    /** Selection that was active before [openGardenForDate]; restored by [closeGardenForDate]. */
+    private var calendarBeforeGardenEdit: Calendar? = null
+
     /** Selects a timeline date so its prayer checks can be corrected in Noor Garden. */
     fun openGardenForDate(dateKey: String) {
+        if (calendarBeforeGardenEdit == null) {
+            calendarBeforeGardenEdit = _selectedCalendarDate.value.clone() as Calendar
+        }
         val calendar = Calendar.getInstance().apply {
             time = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateKey) ?: Date()
         }
         setCalendarDate(calendar)
+    }
+
+    /**
+     * Puts the selection back after a timeline edit. Without this the Home screen keeps showing the
+     * edited past day under "Today's Noor Garden" until the app is restarted.
+     */
+    fun closeGardenForDate() {
+        val previous = calendarBeforeGardenEdit ?: return
+        calendarBeforeGardenEdit = null
+        setCalendarDate(previous)
+        ensureTodayRollover()
     }
 
     /** Midnight rollover: if process survived past 00:00, yesterday's checks must not render as today's. */

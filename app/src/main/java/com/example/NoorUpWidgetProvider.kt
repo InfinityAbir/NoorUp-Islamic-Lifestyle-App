@@ -140,17 +140,24 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             R.id.widget_garden_label to 10f,
             R.id.widget_garden_ratio to 10f,
             R.id.widget_garden_streak to 9f,
-            R.id.widget_prohibited_label to 12f,
             R.id.widget_fajr_name to 12.5f, R.id.widget_fajr_start to 12f, R.id.widget_fajr_sep to 12f, R.id.widget_fajr_end to 12f,
             R.id.widget_dhuhr_name to 12.5f, R.id.widget_dhuhr_start to 12f, R.id.widget_dhuhr_sep to 12f, R.id.widget_dhuhr_end to 12f,
             R.id.widget_asr_name to 12.5f, R.id.widget_asr_start to 12f, R.id.widget_asr_sep to 12f, R.id.widget_asr_end to 12f,
             R.id.widget_maghrib_name to 12.5f, R.id.widget_maghrib_start to 12f, R.id.widget_maghrib_sep to 12f, R.id.widget_maghrib_end to 12f,
-            R.id.widget_isha_name to 12.5f, R.id.widget_isha_start to 12f, R.id.widget_isha_sep to 12f, R.id.widget_isha_end to 12f
+            R.id.widget_isha_name to 12.5f, R.id.widget_isha_start to 12f, R.id.widget_isha_sep to 12f, R.id.widget_isha_end to 12f,
+            R.id.widget_sunrise_name to 12.5f, R.id.widget_sunrise_start to 12f, R.id.widget_sunrise_sep to 12f, R.id.widget_sunrise_end to 12f,
+            R.id.widget_zawal_name to 12.5f, R.id.widget_zawal_start to 12f, R.id.widget_zawal_sep to 12f, R.id.widget_zawal_end to 12f,
+            R.id.widget_sunset_name to 12.5f, R.id.widget_sunset_start to 12f, R.id.widget_sunset_sep to 12f, R.id.widget_sunset_end to 12f
         )
 
         private val PRAYER_ROW_IDS = intArrayOf(
             R.id.widget_fajr_row, R.id.widget_dhuhr_row, R.id.widget_asr_row,
             R.id.widget_maghrib_row, R.id.widget_isha_row
+        )
+
+        /** Prohibited-time rows shown between the prayer rows, in time order. */
+        private val PROHIBITED_ROW_IDS = intArrayOf(
+            R.id.widget_sunrise_row, R.id.widget_zawal_row, R.id.widget_sunset_row
         )
 
         /** Applies [scale] to all text sizes and to the paddings (margins and icon sizes stay fixed). */
@@ -165,7 +172,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             views.setViewPadding(R.id.widget_timeline_card, px(6f), px(6f), px(6f), px(6f))
             val rowV = if (narrow) 5f else 4f
             for (id in PRAYER_ROW_IDS) views.setViewPadding(id, px(6f), px(rowV), px(6f), px(rowV))
-            views.setViewPadding(R.id.widget_prohibited_bar, px(8f), px(6f), px(8f), px(6f))
+            for (id in PROHIBITED_ROW_IDS) views.setViewPadding(id, px(6f), 0, px(6f), 0)
         }
 
         fun updateAllWidgets(context: Context) {
@@ -278,9 +285,43 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             }
         }
 
+        /**
+         * Real on-screen size of a widget in dp. The launcher reports the portrait size as
+         * (MIN_WIDTH x MAX_HEIGHT) and the landscape size as (MAX_WIDTH x MIN_HEIGHT).
+         */
+        fun readWidgetSizeDp(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Pair<Int, Int> =
+            try {
+                val o = appWidgetManager.getAppWidgetOptions(appWidgetId)
+                val landscape = context.resources.configuration.orientation ==
+                    android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                val minW = o?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0) ?: 0
+                val maxW = o?.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0) ?: 0
+                val minH = o?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) ?: 0
+                val maxH = o?.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0) ?: 0
+                val w = if (landscape && maxW > 0) maxW else minW
+                val h = if (landscape) (if (minH > 0) minH else maxH) else (if (maxH > 0) maxH else minH)
+                w to h
+            } catch (_: Exception) {
+                0 to 0
+            }
+
         fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             try {
-                val minWidthDp = readMinWidthDp(appWidgetManager, appWidgetId)
+                val (widthDp, heightDp) = readWidgetSizeDp(context, appWidgetManager, appWidgetId)
+                appWidgetManager.updateAppWidget(appWidgetId, buildWidgetViews(context, widthDp, heightDp))
+            } catch (e: Exception) {
+                android.util.Log.e("NoorUpWidget", "Error updating widget $appWidgetId", e)
+            }
+        }
+
+        /** Builds the whole widget for a cell of [minWidthDp] x [minHeightDp]; also used by the debug preview. */
+        fun buildWidgetViews(
+            context: Context,
+            minWidthDp: Int,
+            minHeightDp: Int,
+            nowMillis: Long = System.currentTimeMillis()
+        ): RemoteViews {
+            run {
                 val layoutRes = widgetLayoutForMinWidth(minWidthDp)
                 val views = RemoteViews(context.packageName, layoutRes)
 
@@ -310,7 +351,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 } catch (_: Exception) {
                     deviceCal.timeZone
                 }
-                val cal = Calendar.getInstance(cityTimeZone).apply { timeInMillis = System.currentTimeMillis() }
+                val cal = Calendar.getInstance(cityTimeZone).apply { timeInMillis = nowMillis }
                 val tzOffsetHours = cityTimeZone.getOffset(cal.timeInMillis) / 3600000.0
                 val curHour = cal.get(Calendar.HOUR_OF_DAY)
                 val curMin = cal.get(Calendar.MINUTE)
@@ -586,74 +627,63 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 views.setTextColor(R.id.widget_isha_start, if (isIshaActive) colActive else colInactiveStart)
                 views.setTextColor(R.id.widget_isha_end, if (isIshaActive) colActiveSub else colInactiveEnd)
 
-                // Bind 3 Prohibited / Makruh Times Bar
-                views.setTextViewText(
-                    R.id.widget_prohibited_label,
-                    if (isEnglish) "⚠️ Prohibited:" else "⚠️ নিষিদ্ধ:"
+                // Prayer-row dashes stay neutral grey (a stale XML colour used to tint Asr's green).
+                for (id in intArrayOf(
+                    R.id.widget_fajr_sep, R.id.widget_dhuhr_sep, R.id.widget_asr_sep,
+                    R.id.widget_maghrib_sep, R.id.widget_isha_sep
+                )) views.setTextColor(id, colInactiveEnd)
+
+                // The 3 prohibited (Makruh) windows sit between the prayers, in time order.
+                // The one running right now gets a red row and a 🔥.
+                val isNarrowLayout = layoutRes == R.layout.noorup_widget_narrow
+                val colWarnName = Color.parseColor("#FBBF24")
+                val colWarnTime = Color.parseColor("#D1D5DB")
+                val colWarnActive = Color.parseColor("#FCA5A5")
+                fun bindProhibited(
+                    rowId: Int, nameId: Int, startId: Int, endId: Int,
+                    nameEn: String, nameBn: String, start: String, end: String, active: Boolean
+                ) {
+                    val label = if (isEnglish) nameEn else nameBn
+                    views.setTextViewText(nameId, if (active) "🔥 $label" else "⚠ $label")
+                    views.setTextViewText(startId, formatShortTime(start, isEnglish))
+                    views.setTextViewText(endId, formatShortTime(end, isEnglish))
+                    views.setInt(rowId, "setBackgroundResource", if (active) R.drawable.widget_timeline_item_warn else 0)
+                    views.setTextColor(nameId, if (active) colWarnActive else colWarnName)
+                    views.setTextColor(startId, if (active) colWarnActive else colWarnTime)
+                    views.setTextColor(endId, if (active) colWarnActive else colWarnTime)
+                }
+                bindProhibited(
+                    R.id.widget_sunrise_row, R.id.widget_sunrise_name, R.id.widget_sunrise_start, R.id.widget_sunrise_end,
+                    "Sunrise", "সূর্যোদয়", todayTimes.makruhSunriseStart, todayTimes.makruhSunriseEnd,
+                    curMins in sunriseS..sunriseE
+                )
+                bindProhibited(
+                    R.id.widget_zawal_row, R.id.widget_zawal_name, R.id.widget_zawal_start, R.id.widget_zawal_end,
+                    "Zawal", "দ্বিপ্রহর", todayTimes.makruhZawalStart, todayTimes.makruhZawalEnd,
+                    curMins in zawalS until zawalE
+                )
+                bindProhibited(
+                    R.id.widget_sunset_row, R.id.widget_sunset_name, R.id.widget_sunset_start, R.id.widget_sunset_end,
+                    "Sunset", "সূর্যাস্ত", todayTimes.makruhSunsetStart, todayTimes.makruhSunsetEnd,
+                    curMins in sunsetS..sunsetE
                 )
 
-                val sunriseRange = "${formatShortTime(todayTimes.makruhSunriseStart, isEnglish)}–${formatShortTime(todayTimes.makruhSunriseEnd, isEnglish)}"
-                val zawalRange = "${formatShortTime(todayTimes.makruhZawalStart, isEnglish)}–${formatShortTime(todayTimes.makruhZawalEnd, isEnglish)}"
-                val sunsetRange = "${formatShortTime(todayTimes.makruhSunsetStart, isEnglish)}–${formatShortTime(todayTimes.makruhSunsetEnd, isEnglish)}"
-
-                val isSunriseActive = curMins in sunriseS..sunriseE
-                val isZawalActive = curMins in zawalS until zawalE
-                val isSunsetActive = curMins in sunsetS..sunsetE
-
-                // Single wrapping times line (matches the vertical two-line footer layout):
-                // every range stays readable on narrow widgets; the active window is
-                // marked with 🔥 and tinted red via HTML spans (plain-text fallback).
-                val sunriseText = if (isEnglish) "Sunrise $sunriseRange" else "সূর্যোদয় $sunriseRange"
-                val zawalText = if (isEnglish) "Zawal $zawalRange" else "দ্বিপ্রহর $zawalRange"
-                val sunsetText = if (isEnglish) "Sunset $sunsetRange" else "সূর্যাস্ত $sunsetRange"
-
-                fun markActive(text: String, active: Boolean): String =
-                    if (active) "<font color='#EF4444'>🔥 $text</font>" else text
-
-                // English labels are long: three ranges on one line were auto-shrunk to ~8sp.
-                // On the wide layout English uses two lines at the normal size (sunrise + zawal,
-                // then sunset). Narrow widths wrap freely within two lines. Bengali stays on one line.
-                val isNarrowLayout = layoutRes == R.layout.noorup_widget_narrow
-                val splitEnglishLines = isEnglish && !isNarrowLayout
-                val sunriseHtml = markActive(sunriseText, isSunriseActive)
-                val zawalHtml = markActive(zawalText, isZawalActive)
-                val sunsetHtml = markActive(sunsetText, isSunsetActive)
-                val combinedHtml = if (splitEnglishLines) {
-                    "$sunriseHtml • $zawalHtml<br>$sunsetHtml"
-                } else {
-                    listOf(sunriseHtml, zawalHtml, sunsetHtml).joinToString(" • ")
-                }
-                views.setInt(R.id.widget_prohibited_times, "setMaxLines", if (isEnglish) 2 else 1)
-                val combined: CharSequence = try {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                        android.text.Html.fromHtml(combinedHtml, android.text.Html.FROM_HTML_MODE_LEGACY)
-                    } else {
-                        @Suppress("DEPRECATION")
-                        android.text.Html.fromHtml(combinedHtml)
-                    }
-                } catch (_: Exception) {
-                    combinedHtml.replace("<br>", "\n").replace(Regex("<[^>]*>"), "")
-                }
-                views.setTextViewText(R.id.widget_prohibited_times, combined)
-
                 // Scale text and paddings with the cell, so resizing the widget resizes its content.
-                val minHeightDp = readMinHeightDp(appWidgetManager, appWidgetId)
                 val scale = WidgetScale.scaleFor(minWidthDp, minHeightDp, isNarrowLayout, isEnglish)
                 applyScale(context, views, scale, isNarrowLayout)
                 views.setTextViewTextSize(
-                    R.id.widget_prohibited_times,
+                    R.id.widget_hijri_date,
                     TypedValue.COMPLEX_UNIT_SP,
-                    WidgetScale.prohibitedTimesSp(
-                        baseSp = 12f,
+                    WidgetScale.headerDateSp(
+                        baseSp = 11.5f,
                         scale = scale,
                         widthDp = minWidthDp,
                         narrow = isNarrowLayout,
-                        labelChars = if (isEnglish) 14 else 10,
-                        longestLineChars = WidgetScale.longestFooterLine(
-                            combinedHtml,
-                            wrapsInTwoLines = isEnglish && isNarrowLayout
-                        ),
-                        fontScale = context.resources.configuration.fontScale
+                        brandChars = if (isEnglish) 6 else 5,
+                        cityChars = cityName.length,
+                        dateChars = hijriDisplay.length,
+                        fontScale = context.resources.configuration.fontScale,
+                        ownLine = isNarrowLayout
                     )
                 )
 
@@ -669,10 +699,7 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 )
                 views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
-                // Commit update
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            } catch (e: Exception) {
-                android.util.Log.e("NoorUpWidget", "Error updating widget $appWidgetId", e)
+                return views
             }
         }
     }

@@ -13,22 +13,25 @@ import kotlin.math.min
  * height-limited for short ones, so nothing clips and nothing is left tiny in a big cell.
  */
 object WidgetScale {
-    const val MIN_SCALE = 0.6f
+    const val MIN_SCALE = 0.5f
     const val MAX_SCALE = 1.8f
 
     /** Width the layouts were designed for. */
-    fun designWidthDp(narrow: Boolean): Float = if (narrow) 250f else 340f
+    fun designWidthDp(narrow: Boolean): Float = if (narrow) 250f else 400f
 
     /**
-     * Content height at scale 1. English is a little taller: its prohibited-time footer takes
-     * two lines (wide) or wraps (narrow), Bengali stays on one.
+     * Content height at scale 1, measured on a phone with the debug preview (natural height at the
+     * design width). English wide is a little taller: its footer takes two lines.
      */
     fun designHeightDp(narrow: Boolean, isEnglish: Boolean): Float = when {
-        narrow && isEnglish -> 385f
-        narrow -> 365f
-        isEnglish -> 224f
-        else -> 208f
+        narrow && isEnglish -> 437f
+        narrow -> 452f
+        isEnglish -> 254f
+        else -> 262f
     }
+
+    /** Vertical dp that stay the same at every scale (card gaps, divider, progress bar, line gaps). */
+    fun fixedHeightDp(narrow: Boolean): Float = if (narrow) 40f else 20f
 
     /**
      * Scale for a cell of [widthDp] x [heightDp]. An unknown size (<= 0) falls back to the other
@@ -36,7 +39,13 @@ object WidgetScale {
      */
     fun scaleFor(widthDp: Int, heightDp: Int, narrow: Boolean, isEnglish: Boolean): Float {
         val byWidth = if (widthDp > 0) widthDp / designWidthDp(narrow) else null
-        val byHeight = if (heightDp > 0) heightDp / designHeightDp(narrow, isEnglish) else null
+        val byHeight = if (heightDp > 0) {
+            // Margins, the divider and the progress bar do not scale, so only the rest of the
+            // height is proportional to the scale.
+            val fixed = fixedHeightDp(narrow)
+            // 5% safety: text metrics differ a little between fonts and font-size settings.
+            (heightDp - fixed) / (designHeightDp(narrow, isEnglish) * 1.05f - fixed)
+        } else null
         val raw = when {
             byWidth != null && byHeight != null -> min(byWidth, byHeight)
             byWidth != null -> byWidth
@@ -46,43 +55,35 @@ object WidgetScale {
         return raw.coerceIn(MIN_SCALE, MAX_SCALE)
     }
 
-    /** Average glyph advance relative to the font size (measured ~0.42 on device); padded so text is not clipped. */
-    private const val GLYPH_EM = 0.47f
+    /** Average glyph advance relative to the font size (measured ~0.52 for digits + Latin on device); padded so text is not clipped. */
+    private const val GLYPH_EM = 0.56f
 
     /**
-     * Font size (sp) for the prohibited-times footer. It is sized in code, because Android ignores
-     * text-size changes on an auto-sizing TextView: the scaled base size, capped so the longest
-     * line still fits the width left beside the label.
-     *
-     * @param longestLineChars characters on the longest line the footer will render
+     * Font size (sp) of the Hijri date in the header, which shares one row with the brand and the
+     * city: the scaled base size, capped so the date fits the width they leave over.
      */
-    fun prohibitedTimesSp(
+    fun headerDateSp(
         baseSp: Float,
         scale: Float,
         widthDp: Int,
         narrow: Boolean,
-        labelChars: Int,
-        longestLineChars: Int,
+        brandChars: Int,
+        cityChars: Int,
+        dateChars: Int,
         fontScale: Float = 1f,
+        ownLine: Boolean = false,
     ): Float {
         val wide = if (widthDp > 0) widthDp.toFloat() else designWidthDp(narrow) * scale
-        val labelSp = baseSp * scale
-        val labelWidth = labelChars * GLYPH_EM * labelSp * fontScale
-        val chrome = (2 * (10f + 8f) + 6f) * scale // root + bar padding and the gap after the label
-        val available = wide - chrome - labelWidth
+        val bold = 0.6f // brand and city are bold: slightly wider glyphs
+        // On the narrow layout the date has its own line, so brand and city take no width from it.
+        val brand = if (ownLine) 0f else brandChars * bold * 13f * scale * fontScale
+        val city = if (ownLine) 0f else cityChars * bold * 11f * scale * fontScale
+        val available = wide - 2 * 10f * scale - brand - city - 14f
         val wanted = baseSp * scale
-        if (longestLineChars <= 0 || available <= 0f) return max(MIN_FOOTER_SP, wanted * 0.7f)
-        val fit = available / (longestLineChars * GLYPH_EM * fontScale)
-        return min(wanted, fit).coerceAtLeast(MIN_FOOTER_SP)
+        if (dateChars <= 0 || available <= 0f) return max(MIN_HEADER_SP, wanted * 0.7f)
+        val fit = available / (dateChars * GLYPH_EM * fontScale)
+        return min(wanted, fit).coerceAtLeast(MIN_HEADER_SP)
     }
 
-    const val MIN_FOOTER_SP = 7f
-
-    /** Characters on the longest rendered line of the footer text (markup removed). */
-    fun longestFooterLine(html: String, wrapsInTwoLines: Boolean): Int {
-        val lines = html.replace("<br>", "\n").replace(Regex("<[^>]*>"), "").split("\n")
-        val longest = lines.maxOfOrNull { it.length } ?: 0
-        // A free-wrapping two-line footer splits the text roughly in half.
-        return if (wrapsInTwoLines && lines.size == 1) ceil(longest / 2f).toInt() + 3 else longest
-    }
+    const val MIN_HEADER_SP = 7.5f
 }

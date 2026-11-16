@@ -280,6 +280,106 @@
             android:ellipsize="end" />
             </LinearLayout>
 
+            <!-- Prohibited window: sunrise -->
+            <LinearLayout
+                android:id="@+id/widget_sunrise_row"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.78"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp">
+
+                <TextView
+                    android:id="@+id/widget_sunrise_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚠ সূর্যোদয়"
+                    android:textColor="#FBBF24"
+                    android:textSize="12.5sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/widget_sunrise_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:14"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_sunrise_sep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" – "
+                    android:textColor="#6B7280"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_sunrise_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:30"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+            <!-- Prohibited window: zawal -->
+            <LinearLayout
+                android:id="@+id/widget_zawal_row"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.78"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp">
+
+                <TextView
+                    android:id="@+id/widget_zawal_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚠ দ্বিপ্রহর"
+                    android:textColor="#FBBF24"
+                    android:textSize="12.5sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/widget_zawal_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:14"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_zawal_sep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" – "
+                    android:textColor="#6B7280"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_zawal_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:30"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+            </LinearLayout>
+
             <!-- Dhuhr Row -->
             <LinearLayout
                 android:id="@+id/widget_dhuhr_row"
@@ -376,7 +476,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" – "
-                    android:textColor="#34D399"
+                    android:textColor="#9CA3AF"
                     android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
@@ -390,6 +490,56 @@
                     android:textSize="12sp"
             android:maxLines="1"
             android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- Prohibited window: sunset -->
+            <LinearLayout
+                android:id="@+id/widget_sunset_row"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.78"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp">
+
+                <TextView
+                    android:id="@+id/widget_sunset_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚠ সূর্যাস্ত"
+                    android:textColor="#FBBF24"
+                    android:textSize="12.5sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/widget_sunset_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:14"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_sunset_sep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" – "
+                    android:textColor="#6B7280"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
+
+                <TextView
+                    android:id="@+id/widget_sunset_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:30"
+                    android:textColor="#D1D5DB"
+                    android:textSize="12sp"
+                    android:maxLines="1" />
             </LinearLayout>
 
             <!-- Maghrib Row -->
@@ -502,45 +652,5 @@
             android:ellipsize="end" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <!-- Bottom Footer Bar: 3 Prohibited / Makruh Times on ONE line.
-         Short yellow label + times that auto-shrink (12sp down to 8sp) to stay on a single
-         line instead of wrapping, so the footer height is constant at any widget width. -->
-    <LinearLayout
-        android:id="@+id/widget_prohibited_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:background="@drawable/widget_timeline_card_bg"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp">
-
-        <TextView
-            android:id="@+id/widget_prohibited_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚠️ নিষিদ্ধ:"
-            android:textColor="#FBBF24"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:maxLines="1" />
-
-        <TextView
-            android:id="@+id/widget_prohibited_times"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginLeft="6dp"
-            android:gravity="center_vertical|end"
-            android:text="সূর্যোদয় ০৫:৫৮–০৬:১৪ • দ্বিপ্রহর ১১:৫০–১২:০৪ • সূর্যাস্ত ০৬:০০–০৬:১৭"
-            android:textColor="#E5E7EB"
-            android:textSize="12sp"
-            android:maxLines="1"
-            android:ellipsize="end" />
     </LinearLayout>
 </LinearLayout>

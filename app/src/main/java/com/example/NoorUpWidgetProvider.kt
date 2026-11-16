@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.util.TypedValue
 import android.widget.RemoteViews
 import com.example.ui.noorup.CalculationMethod
 import com.example.ui.noorup.HijriDateCalculator
@@ -14,6 +15,7 @@ import com.example.ui.noorup.JuristicMethod
 import com.example.ui.noorup.SolarPrayerEngine
 import com.example.ui.noorup.WidgetUpdateScheduler
 import java.util.Calendar
+import kotlin.math.roundToInt
 
 class NoorUpWidgetProvider : AppWidgetProvider() {
 
@@ -116,6 +118,55 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
             } catch (_: Exception) {
                 0
             }
+
+        fun readMinHeightDp(appWidgetManager: AppWidgetManager, appWidgetId: Int): Int =
+            try {
+                appWidgetManager.getAppWidgetOptions(appWidgetId)
+                    ?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) ?: 0
+            } catch (_: Exception) {
+                0
+            }
+
+        /** Base text sizes (sp) of every scalable TextView; identical in the wide and narrow layouts. */
+        private val SCALED_TEXT_SP: List<Pair<Int, Float>> = listOf(
+            R.id.widget_brand_name to 13f,
+            R.id.widget_hijri_date to 11.5f,
+            R.id.widget_gregorian_date to 9.5f,
+            R.id.widget_city to 11f,
+            R.id.widget_active_stage_label to 10.5f,
+            R.id.widget_active_name to 17f,
+            R.id.widget_active_window to 10.5f,
+            R.id.widget_active_countdown to 11.5f,
+            R.id.widget_garden_label to 10f,
+            R.id.widget_garden_ratio to 10f,
+            R.id.widget_garden_streak to 9f,
+            R.id.widget_prohibited_label to 12f,
+            R.id.widget_fajr_name to 12.5f, R.id.widget_fajr_start to 12f, R.id.widget_fajr_sep to 12f, R.id.widget_fajr_end to 12f,
+            R.id.widget_dhuhr_name to 12.5f, R.id.widget_dhuhr_start to 12f, R.id.widget_dhuhr_sep to 12f, R.id.widget_dhuhr_end to 12f,
+            R.id.widget_asr_name to 12.5f, R.id.widget_asr_start to 12f, R.id.widget_asr_sep to 12f, R.id.widget_asr_end to 12f,
+            R.id.widget_maghrib_name to 12.5f, R.id.widget_maghrib_start to 12f, R.id.widget_maghrib_sep to 12f, R.id.widget_maghrib_end to 12f,
+            R.id.widget_isha_name to 12.5f, R.id.widget_isha_start to 12f, R.id.widget_isha_sep to 12f, R.id.widget_isha_end to 12f
+        )
+
+        private val PRAYER_ROW_IDS = intArrayOf(
+            R.id.widget_fajr_row, R.id.widget_dhuhr_row, R.id.widget_asr_row,
+            R.id.widget_maghrib_row, R.id.widget_isha_row
+        )
+
+        /** Applies [scale] to all text sizes and to the paddings (margins and icon sizes stay fixed). */
+        private fun applyScale(context: Context, views: RemoteViews, scale: Float, narrow: Boolean) {
+            for ((id, baseSp) in SCALED_TEXT_SP) {
+                views.setTextViewTextSize(id, TypedValue.COMPLEX_UNIT_SP, baseSp * scale)
+            }
+            val density = context.resources.displayMetrics.density
+            fun px(dp: Float) = (dp * scale * density).roundToInt()
+            views.setViewPadding(R.id.widget_root, px(10f), px(10f), px(10f), px(10f))
+            views.setViewPadding(R.id.widget_hero_card, px(8f), px(8f), px(8f), px(8f))
+            views.setViewPadding(R.id.widget_timeline_card, px(6f), px(6f), px(6f), px(6f))
+            val rowV = if (narrow) 5f else 4f
+            for (id in PRAYER_ROW_IDS) views.setViewPadding(id, px(6f), px(rowV), px(6f), px(rowV))
+            views.setViewPadding(R.id.widget_prohibited_bar, px(8f), px(6f), px(8f), px(6f))
+        }
 
         fun updateAllWidgets(context: Context) {
             // Shared "refresh every NoorUp widget" entry: language, date change, boot, resume.
@@ -559,11 +610,20 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                 fun markActive(text: String, active: Boolean): String =
                     if (active) "<font color='#EF4444'>🔥 $text</font>" else text
 
-                val combinedHtml = listOf(
-                    markActive(sunriseText, isSunriseActive),
-                    markActive(zawalText, isZawalActive),
-                    markActive(sunsetText, isSunsetActive)
-                ).joinToString(" • ")
+                // English labels are long: three ranges on one line were auto-shrunk to ~8sp.
+                // On the wide layout English uses two lines at the normal size (sunrise + zawal,
+                // then sunset). Narrow widths wrap freely within two lines. Bengali stays on one line.
+                val isNarrowLayout = layoutRes == R.layout.noorup_widget_narrow
+                val splitEnglishLines = isEnglish && !isNarrowLayout
+                val sunriseHtml = markActive(sunriseText, isSunriseActive)
+                val zawalHtml = markActive(zawalText, isZawalActive)
+                val sunsetHtml = markActive(sunsetText, isSunsetActive)
+                val combinedHtml = if (splitEnglishLines) {
+                    "$sunriseHtml • $zawalHtml<br>$sunsetHtml"
+                } else {
+                    listOf(sunriseHtml, zawalHtml, sunsetHtml).joinToString(" • ")
+                }
+                views.setInt(R.id.widget_prohibited_times, "setMaxLines", if (isEnglish) 2 else 1)
                 val combined: CharSequence = try {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                         android.text.Html.fromHtml(combinedHtml, android.text.Html.FROM_HTML_MODE_LEGACY)
@@ -572,9 +632,30 @@ class NoorUpWidgetProvider : AppWidgetProvider() {
                         android.text.Html.fromHtml(combinedHtml)
                     }
                 } catch (_: Exception) {
-                    combinedHtml.replace(Regex("<[^>]*>"), "")
+                    combinedHtml.replace("<br>", "\n").replace(Regex("<[^>]*>"), "")
                 }
                 views.setTextViewText(R.id.widget_prohibited_times, combined)
+
+                // Scale text and paddings with the cell, so resizing the widget resizes its content.
+                val minHeightDp = readMinHeightDp(appWidgetManager, appWidgetId)
+                val scale = WidgetScale.scaleFor(minWidthDp, minHeightDp, isNarrowLayout, isEnglish)
+                applyScale(context, views, scale, isNarrowLayout)
+                views.setTextViewTextSize(
+                    R.id.widget_prohibited_times,
+                    TypedValue.COMPLEX_UNIT_SP,
+                    WidgetScale.prohibitedTimesSp(
+                        baseSp = 12f,
+                        scale = scale,
+                        widthDp = minWidthDp,
+                        narrow = isNarrowLayout,
+                        labelChars = if (isEnglish) 14 else 10,
+                        longestLineChars = WidgetScale.longestFooterLine(
+                            combinedHtml,
+                            wrapsInTwoLines = isEnglish && isNarrowLayout
+                        ),
+                        fontScale = context.resources.configuration.fontScale
+                    )
+                )
 
                 // Set Open App Intent on widget click
                 val intent = Intent(context, MainActivity::class.java).apply {

@@ -7177,7 +7177,7 @@ private fun StatsOverview(viewModel: NoorUpViewModel) {
     // Keep the timeline visible while the user corrects the chosen day's prayers.
     gardenRecord?.let { record ->
         AlertDialog(
-            onDismissRequest = { gardenRecord = null },
+            onDismissRequest = { gardenRecord = null; viewModel.closeGardenForDate() },
             title = {
                 Column {
                     Text(
@@ -7206,7 +7206,7 @@ private fun StatsOverview(viewModel: NoorUpViewModel) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = { gardenRecord = null }) {
+                TextButton(onClick = { gardenRecord = null; viewModel.closeGardenForDate() }) {
                     Text(if (isEnglish) "Done" else "সম্পন্ন")
                 }
             }

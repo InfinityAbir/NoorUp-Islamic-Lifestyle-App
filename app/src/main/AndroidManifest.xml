@@ -12,6 +12,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- The ML Kit code scanner library locks one of its helper screens to portrait, which would
+         make Play treat a portrait screen as required. The app itself does not need one. -->
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+
     <application
         android:name=".NoorUpApplication"
         android:allowBackup="false"
